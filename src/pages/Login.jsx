@@ -20,15 +20,18 @@ const Login = ({ supabase, setSession }) => {
     }
     setLoading(true);
     try {
+      console.log('Attempting login with:', { email, password }); // Debug log
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
       if (error) throw error;
+      console.log('Login successful:', data); // Debug log
       setSession(data.session);
       navigate('/');
       toast.success("Logged in successfully");
     } catch (error) {
+      console.error('Login error:', error); // Debug log
       toast.error(error.message || "An error occurred during login");
     } finally {
       setLoading(false);
@@ -43,14 +46,17 @@ const Login = ({ supabase, setSession }) => {
     }
     setLoading(true);
     try {
+      console.log('Attempting sign up with:', { email, password }); // Debug log
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
       });
       if (error) throw error;
+      console.log('Sign up successful:', data); // Debug log
       toast.success("Sign up successful. Please check your email for verification.");
       setIsSignUp(false);
     } catch (error) {
+      console.error('Sign up error:', error); // Debug log
       toast.error(error.message || "An error occurred during sign up");
     } finally {
       setLoading(false);

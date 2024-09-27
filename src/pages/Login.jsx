@@ -29,16 +29,16 @@ const Login = () => {
         if (error.message === "Invalid login credentials") {
           toast.error("Invalid email or password. Please try again.");
         } else {
-          throw error;
+          toast.error(error.message || "An error occurred during login");
         }
-      } else {
+      } else if (data?.user) {
         toast.success("Logged in successfully");
         console.log("Login successful, attempting to navigate...");
         navigate('/');
       }
     } catch (error) {
       console.error('Login error:', error);
-      toast.error(error.message || "An error occurred during login");
+      toast.error("An unexpected error occurred. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -60,15 +60,17 @@ const Login = () => {
         if (error.message.includes("weak_password")) {
           toast.error("Password is too weak. It should contain at least one lowercase letter, one uppercase letter, one number, and one special character.");
         } else {
-          throw error;
+          toast.error(error.message || "An error occurred during sign up");
         }
-      } else {
+      } else if (data?.user) {
         toast.success("Sign up successful. Please check your email for verification.");
         setIsSignUp(false);
+      } else {
+        toast.info("Sign up successful. Please check your email for verification.");
       }
     } catch (error) {
       console.error('Sign up error:', error);
-      toast.error(error.message || "An error occurred during sign up");
+      toast.error("An unexpected error occurred. Please try again.");
     } finally {
       setLoading(false);
     }

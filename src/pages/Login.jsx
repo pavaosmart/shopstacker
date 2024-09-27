@@ -58,10 +58,17 @@ const Login = ({ supabase, setSession }) => {
         email,
         password,
       });
-      if (error) throw error;
-      console.log('Sign up successful:', data); // Debug log
-      toast.success("Sign up successful. Please check your email for verification.");
-      setIsSignUp(false);
+      if (error) {
+        if (error.message.includes("weak_password")) {
+          toast.error("Password is too weak. It should contain at least one lowercase letter, one uppercase letter, one number, and one special character.");
+        } else {
+          throw error;
+        }
+      } else {
+        console.log('Sign up successful:', data); // Debug log
+        toast.success("Sign up successful. Please check your email for verification.");
+        setIsSignUp(false);
+      }
     } catch (error) {
       console.error('Sign up error:', error); // Debug log
       toast.error(error.message || "An error occurred during sign up");
@@ -94,6 +101,11 @@ const Login = ({ supabase, setSession }) => {
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
+              {isSignUp && (
+                <p className="text-sm text-gray-500">
+                  Password must contain at least one lowercase letter, one uppercase letter, one number, and one special character.
+                </p>
+              )}
             </div>
           </form>
         </CardContent>

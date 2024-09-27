@@ -4,8 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { toast } from "sonner";
+import { supabase } from '../integrations/supabase/supabase';
 
-const Login = ({ supabase, setSession }) => {
+const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -20,7 +21,6 @@ const Login = ({ supabase, setSession }) => {
     }
     setLoading(true);
     try {
-      console.log('Attempting login with:', { email, password }); // Debug log
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -32,13 +32,11 @@ const Login = ({ supabase, setSession }) => {
           throw error;
         }
       } else {
-        console.log('Login successful:', data); // Debug log
-        setSession(data.session);
         navigate('/');
         toast.success("Logged in successfully");
       }
     } catch (error) {
-      console.error('Login error:', error); // Debug log
+      console.error('Login error:', error);
       toast.error(error.message || "An error occurred during login");
     } finally {
       setLoading(false);
@@ -53,7 +51,6 @@ const Login = ({ supabase, setSession }) => {
     }
     setLoading(true);
     try {
-      console.log('Attempting sign up with:', { email, password }); // Debug log
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -65,12 +62,11 @@ const Login = ({ supabase, setSession }) => {
           throw error;
         }
       } else {
-        console.log('Sign up successful:', data); // Debug log
         toast.success("Sign up successful. Please check your email for verification.");
         setIsSignUp(false);
       }
     } catch (error) {
-      console.error('Sign up error:', error); // Debug log
+      console.error('Sign up error:', error);
       toast.error(error.message || "An error occurred during sign up");
     } finally {
       setLoading(false);

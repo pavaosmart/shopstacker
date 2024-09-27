@@ -33,7 +33,8 @@ const Login = () => {
         }
       } else {
         toast.success("Logged in successfully");
-        navigate('/'); // Redirect to the main page after successful login
+        console.log("Login successful, attempting to navigate...");
+        navigate('/');
       }
     } catch (error) {
       console.error('Login error:', error);

@@ -9,6 +9,7 @@ const Login = ({ supabase, setSession }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [isSignUp, setIsSignUp] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
@@ -34,19 +35,25 @@ const Login = ({ supabase, setSession }) => {
     }
   };
 
-  const createTestUser = async () => {
+  const handleSignUp = async (e) => {
+    e.preventDefault();
+    if (!email || !password) {
+      toast.error("Please enter both email and password");
+      return;
+    }
+    setLoading(true);
     try {
-      const { data, error } = await supabase.auth.admin.createUser({
-        email: 'testuser@example.com',
-        password: 'testpassword123',
-        email_confirm: true
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
       });
       if (error) throw error;
-      toast.success("Test user created successfully");
-      setEmail('testuser@example.com');
-      setPassword('testpassword123');
+      toast.success("Sign up successful. Please check your email for verification.");
+      setIsSignUp(false);
     } catch (error) {
-      toast.error(error.message || "Failed to create test user");
+      toast.error(error.message || "An error occurred during sign up");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -54,11 +61,11 @@ const Login = ({ supabase, setSession }) => {
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>Login to MyShopTools</CardTitle>
-          <CardDescription>Enter your email and password to access your account</CardDescription>
+          <CardTitle>{isSignUp ? "Sign Up for MyShopTools" : "Login to MyShopTools"}</CardTitle>
+          <CardDescription>{isSignUp ? "Create a new account" : "Enter your email and password to access your account"}</CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleLogin}>
+          <form onSubmit={isSignUp ? handleSignUp : handleLogin}>
             <div className="space-y-4">
               <Input
                 type="email"
@@ -78,11 +85,11 @@ const Login = ({ supabase, setSession }) => {
           </form>
         </CardContent>
         <CardFooter className="flex flex-col space-y-2">
-          <Button className="w-full" onClick={handleLogin} disabled={loading}>
-            {loading ? 'Logging in...' : 'Login'}
+          <Button className="w-full" onClick={isSignUp ? handleSignUp : handleLogin} disabled={loading}>
+            {loading ? (isSignUp ? 'Signing up...' : 'Logging in...') : (isSignUp ? 'Sign Up' : 'Login')}
           </Button>
-          <Button className="w-full" onClick={createTestUser} variant="outline">
-            Create Test User
+          <Button className="w-full" onClick={() => setIsSignUp(!isSignUp)} variant="outline">
+            {isSignUp ? "Already have an account? Login" : "Don't have an account? Sign Up"}
           </Button>
         </CardFooter>
       </Card>

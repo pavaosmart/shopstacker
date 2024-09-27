@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,7 +17,6 @@ const Dashboard = ({ supabase, session }) => {
     market_commissions: 0,
     fixed_fee: 0,
     shipping: 0,
-    applicable_discounts: 0,
     marketplace_url: '',
     product_image: '',
   });
@@ -52,7 +51,6 @@ const Dashboard = ({ supabase, session }) => {
         market_commissions: 0,
         fixed_fee: 0,
         shipping: 0,
-        applicable_discounts: 0,
         marketplace_url: '',
         product_image: '',
       });
@@ -91,7 +89,6 @@ const Dashboard = ({ supabase, session }) => {
         <Button>Activity Logs</Button>
       </Link>
 
-      {/* Rest of the Dashboard component remains unchanged */}
       <form onSubmit={handleAddProduct} className="mb-8">
         <h2 className="text-2xl font-bold mb-2">Add New Product</h2>
         <div className="grid grid-cols-2 gap-4">
@@ -160,13 +157,6 @@ const Dashboard = ({ supabase, session }) => {
             value={newProduct.shipping}
             onChange={handleInputChange}
             placeholder="Shipping"
-          />
-          <Input
-            name="applicable_discounts"
-            type="number"
-            value={newProduct.applicable_discounts}
-            onChange={handleInputChange}
-            placeholder="Applicable Discounts"
           />
           <Input
             name="marketplace_url"

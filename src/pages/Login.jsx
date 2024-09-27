@@ -34,6 +34,22 @@ const Login = ({ supabase, setSession }) => {
     }
   };
 
+  const createTestUser = async () => {
+    try {
+      const { data, error } = await supabase.auth.admin.createUser({
+        email: 'testuser@example.com',
+        password: 'testpassword123',
+        email_confirm: true
+      });
+      if (error) throw error;
+      toast.success("Test user created successfully");
+      setEmail('testuser@example.com');
+      setPassword('testpassword123');
+    } catch (error) {
+      toast.error(error.message || "Failed to create test user");
+    }
+  };
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <Card className="w-full max-w-md">
@@ -61,9 +77,12 @@ const Login = ({ supabase, setSession }) => {
             </div>
           </form>
         </CardContent>
-        <CardFooter>
+        <CardFooter className="flex flex-col space-y-2">
           <Button className="w-full" onClick={handleLogin} disabled={loading}>
             {loading ? 'Logging in...' : 'Login'}
+          </Button>
+          <Button className="w-full" onClick={createTestUser} variant="outline">
+            Create Test User
           </Button>
         </CardFooter>
       </Card>

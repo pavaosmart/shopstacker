@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useProducts, useAddProduct, useUpdateProduct, useDeleteProduct } from '../hooks/useProducts';
@@ -87,7 +87,11 @@ const Dashboard = ({ supabase, session }) => {
       <h1 className="text-3xl font-bold mb-4">MyShopTools Dashboard</h1>
       {session && <p className="mb-4">Logged in as: {session.user.email}</p>}
       <Button onClick={handleLogout} className="mb-4">Logout</Button>
+      <Link to="/activity-logs" className="ml-4">
+        <Button>Activity Logs</Button>
+      </Link>
 
+      {/* Rest of the Dashboard component remains unchanged */}
       <form onSubmit={handleAddProduct} className="mb-8">
         <h2 className="text-2xl font-bold mb-2">Add New Product</h2>
         <div className="grid grid-cols-2 gap-4">

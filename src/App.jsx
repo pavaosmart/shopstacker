@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { SupabaseAuthProvider } from './integrations/supabase/auth';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
+import ActivityLogs from './components/ActivityLogs';
 import ProtectedRoute from './components/ProtectedRoute';
 import { supabase } from './integrations/supabase/supabase';
 
@@ -24,6 +25,14 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <Dashboard supabase={supabase} />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/activity-logs"
+                element={
+                  <ProtectedRoute>
+                    <ActivityLogs />
                   </ProtectedRoute>
                 }
               />

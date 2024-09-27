@@ -8,10 +8,14 @@ import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import ProtectedRoute from './components/ProtectedRoute';
 
-const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL,
-  import.meta.env.VITE_SUPABASE_ANON_KEY
-);
+const supabaseUrl = import.meta.env.VITE_SUPABASE_PROJECT_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_API_KEY;
+
+if (!supabaseUrl || !supabaseAnonKey) {
+  console.error('Supabase URL or API key is missing. Please check your environment variables.');
+}
+
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 const queryClient = new QueryClient();
 

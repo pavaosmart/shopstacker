@@ -25,11 +25,18 @@ const Login = ({ supabase, setSession }) => {
         email,
         password,
       });
-      if (error) throw error;
-      console.log('Login successful:', data); // Debug log
-      setSession(data.session);
-      navigate('/');
-      toast.success("Logged in successfully");
+      if (error) {
+        if (error.message === "Invalid login credentials") {
+          toast.error("Invalid email or password. Please try again.");
+        } else {
+          throw error;
+        }
+      } else {
+        console.log('Login successful:', data); // Debug log
+        setSession(data.session);
+        navigate('/');
+        toast.success("Logged in successfully");
+      }
     } catch (error) {
       console.error('Login error:', error); // Debug log
       toast.error(error.message || "An error occurred during login");

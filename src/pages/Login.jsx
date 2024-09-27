@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
+import { toast } from "sonner";
 
 const Login = ({ supabase, setSession }) => {
   const [email, setEmail] = useState('');
@@ -12,18 +13,25 @@ const Login = ({ supabase, setSession }) => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    if (!email || !password) {
+      toast.error("Please enter both email and password");
+      return;
+    }
     setLoading(true);
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    if (error) {
-      alert(error.message);
-    } else {
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      if (error) throw error;
       setSession(data.session);
       navigate('/');
+      toast.success("Logged in successfully");
+    } catch (error) {
+      toast.error(error.message || "An error occurred during login");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (
@@ -55,7 +63,7 @@ const Login = ({ supabase, setSession }) => {
         </CardContent>
         <CardFooter>
           <Button className="w-full" onClick={handleLogin} disabled={loading}>
-            {loading ? 'Loading...' : 'Login'}
+            {loading ? 'Logging in...' : 'Login'}
           </Button>
         </CardFooter>
       </Card>

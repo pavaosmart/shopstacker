@@ -7,10 +7,9 @@ export const useActivityLogs = ({ page, actionFilter, userFilter }) => {
   return useQuery({
     queryKey: ['activityLogs', page, actionFilter, userFilter],
     queryFn: async () => {
-      // Fetch activity logs
       let query = supabase
         .from('activity_logs')
-        .select('*', { count: 'exact' })
+        .select('*, users(email)', { count: 'exact' })
         .order('created_at', { ascending: false })
         .range((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE - 1);
 
@@ -18,34 +17,22 @@ export const useActivityLogs = ({ page, actionFilter, userFilter }) => {
         query = query.eq('action', actionFilter);
       }
 
-      const { data: logs, error: logsError, count } = await query;
-      if (logsError) throw new Error(logsError.message);
+      if (userFilter) {
+        query = query.ilike('users.email', `%${userFilter}%`);
+      }
 
-      // Fetch user emails separately
-      const userIds = [...new Set(logs.map(log => log.user_id))];
-      const { data: users, error: usersError } = await supabase
-        .from('users')
-        .select('id, email');
+      const { data: logs, error, count } = await query;
 
-      if (usersError) throw new Error(usersError.message);
+      if (error) throw new Error(error.message);
 
-      // Create a map of user_id to email
-      const userEmailMap = Object.fromEntries(users.map(user => [user.id, user.email]));
-
-      // Combine log data with user emails
       const logsWithUserEmails = logs.map(log => ({
         ...log,
-        user_email: userEmailMap[log.user_id] || 'Unknown',
+        user_email: log.users?.email || 'Unknown',
       }));
 
-      // Apply user filter after fetching data
-      const filteredLogs = userFilter
-        ? logsWithUserEmails.filter(log => log.user_email.toLowerCase().includes(userFilter.toLowerCase()))
-        : logsWithUserEmails;
-
       return {
-        data: filteredLogs,
-        count: filteredLogs.length, // Update count based on filtered results
+        data: logsWithUserEmails,
+        count,
       };
     },
   });

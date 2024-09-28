@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useActivityLogs } from '../hooks/useActivityLogs';
-import { getUserInfo } from '../utils/userUtils';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
@@ -13,6 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { supabase } from '../integrations/supabase/supabase';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -31,11 +31,9 @@ const ActivityLogs = () => {
 
   useEffect(() => {
     const fetchCurrentUser = async () => {
-      try {
-        const userInfo = await getUserInfo();
-        setCurrentUserEmail(userInfo.email);
-      } catch (error) {
-        console.error('Error fetching current user:', error);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setCurrentUserEmail(user.email);
       }
     };
     fetchCurrentUser();
@@ -80,14 +78,16 @@ const ActivityLogs = () => {
           <TableRow>
             <TableHead>User</TableHead>
             <TableHead>Action</TableHead>
+            <TableHead>Description</TableHead>
             <TableHead>Date/Time</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {logs.map((log) => (
             <TableRow key={log.id}>
-              <TableCell>{log.user_id === currentUserEmail ? 'You' : 'Other User'}</TableCell>
+              <TableCell>{log.users?.email || 'Unknown'}</TableCell>
               <TableCell>{log.action}</TableCell>
+              <TableCell>{log.description}</TableCell>
               <TableCell>{new Date(log.created_at).toLocaleString()}</TableCell>
             </TableRow>
           ))}

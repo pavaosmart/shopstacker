@@ -9,13 +9,23 @@ const fromSupabase = async (query) => {
 
 export const useUsers = () => useQuery({
   queryKey: ['users'],
-  queryFn: () => fromSupabase(supabase.from('users').select('id, email, full_name')),
+  queryFn: async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('Not authenticated');
+    
+    return fromSupabase(supabase.from('users').select('id, email, full_name').eq('id', user.id));
+  },
 });
 
 export const useAddUser = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (newUser) => fromSupabase(supabase.from('users').insert([newUser])),
+    mutationFn: async (newUser) => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+      
+      return fromSupabase(supabase.from('users').insert([{ ...newUser, id: user.id }]));
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
     },
@@ -25,7 +35,13 @@ export const useAddUser = () => {
 export const useUpdateUser = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, ...updateData }) => fromSupabase(supabase.from('users').update(updateData).eq('id', id)),
+    mutationFn: async ({ id, ...updateData }) => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+      if (id !== user.id) throw new Error('Cannot update other users');
+      
+      return fromSupabase(supabase.from('users').update(updateData).eq('id', id));
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
     },
@@ -35,7 +51,13 @@ export const useUpdateUser = () => {
 export const useDeleteUser = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (id) => fromSupabase(supabase.from('users').delete().eq('id', id)),
+    mutationFn: async (id) => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+      if (id !== user.id) throw new Error('Cannot delete other users');
+      
+      return fromSupabase(supabase.from('users').delete().eq('id', id));
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
     },

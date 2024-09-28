@@ -32,33 +32,37 @@ const UsersAndPermissions = () => {
       <div className="p-8">
         <h1 className="text-2xl font-bold mb-4">Perfil do Usuário</h1>
 
-        {isEditing ? (
-          <div>
-            <Input
-              placeholder="Nome Completo"
-              value={editedUser.full_name || ''}
-              onChange={(e) => setEditedUser({ ...editedUser, full_name: e.target.value })}
-              className="mb-2"
-            />
-            <Input
-              type="email"
-              placeholder="Email"
-              value={editedUser.email}
-              onChange={(e) => setEditedUser({ ...editedUser, email: e.target.value })}
-              className="mb-2"
-            />
-            <Button onClick={handleUpdateUser}>Salvar Alterações</Button>
-            <Button onClick={() => setIsEditing(false)} variant="outline" className="ml-2">Cancelar</Button>
-          </div>
+        {user ? (
+          isEditing ? (
+            <div>
+              <Input
+                placeholder="Nome Completo"
+                value={editedUser?.full_name || ''}
+                onChange={(e) => setEditedUser({ ...editedUser, full_name: e.target.value })}
+                className="mb-2"
+              />
+              <Input
+                type="email"
+                placeholder="Email"
+                value={editedUser?.email || ''}
+                onChange={(e) => setEditedUser({ ...editedUser, email: e.target.value })}
+                className="mb-2"
+              />
+              <Button onClick={handleUpdateUser}>Salvar Alterações</Button>
+              <Button onClick={() => setIsEditing(false)} variant="outline" className="ml-2">Cancelar</Button>
+            </div>
+          ) : (
+            <div>
+              <p><strong>Nome:</strong> {user.full_name || 'Não definido'}</p>
+              <p><strong>Email:</strong> {user.email}</p>
+              <Button onClick={() => {
+                setEditedUser(user);
+                setIsEditing(true);
+              }} className="mt-2">Editar Perfil</Button>
+            </div>
+          )
         ) : (
-          <div>
-            <p><strong>Nome:</strong> {user.full_name || 'Não definido'}</p>
-            <p><strong>Email:</strong> {user.email}</p>
-            <Button onClick={() => {
-              setEditedUser(user);
-              setIsEditing(true);
-            }} className="mt-2">Editar Perfil</Button>
-          </div>
+          <div>Nenhum dado de usuário disponível.</div>
         )}
       </div>
     </div>

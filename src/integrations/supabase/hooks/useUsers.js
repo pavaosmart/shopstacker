@@ -32,14 +32,12 @@ export const useCurrentUser = () => useQuery({
         .from('users')
         .select('id, email, full_name')
         .eq('id', user.id)
-        .single();
+        .maybeSingle();
       
       if (error) {
-        if (error.code === 'PGRST116') {
-          // No user found in the database, return basic info
-          return { id: user.id, email: user.email, full_name: null };
-        }
-        throw error;
+        console.error("Error fetching user data:", error);
+        // If no user found in the database, return basic info from auth
+        return { id: user.id, email: user.email, full_name: null };
       }
       return data || { id: user.id, email: user.email, full_name: null };
     } catch (error) {

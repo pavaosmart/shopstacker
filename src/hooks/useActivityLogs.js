@@ -25,8 +25,7 @@ export const useActivityLogs = ({ page, actionFilter, userFilter }) => {
       const userIds = [...new Set(logs.map(log => log.user_id))];
       const { data: users, error: usersError } = await supabase
         .from('users')
-        .select('id, email')
-        .in('id', userIds);
+        .select('id, email');
 
       if (usersError) throw new Error(usersError.message);
 

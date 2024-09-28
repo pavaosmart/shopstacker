@@ -9,7 +9,6 @@ const Dashboard = ({ supabase, session }) => {
   const navigate = useNavigate();
   const [newProduct, setNewProduct] = useState({
     name: '',
-    taxes: 0,
     market_commissions: 0,
     fixed_fee: 0,
     shipping: 0,
@@ -39,7 +38,6 @@ const Dashboard = ({ supabase, session }) => {
       toast.success('Product added successfully');
       setNewProduct({
         name: '',
-        taxes: 0,
         market_commissions: 0,
         fixed_fee: 0,
         shipping: 0,
@@ -92,13 +90,6 @@ const Dashboard = ({ supabase, session }) => {
             required
           />
           <Input
-            name="taxes"
-            type="number"
-            value={newProduct.taxes}
-            onChange={handleInputChange}
-            placeholder="Taxes"
-          />
-          <Input
             name="market_commissions"
             type="number"
             value={newProduct.market_commissions}
@@ -140,7 +131,6 @@ const Dashboard = ({ supabase, session }) => {
         {products.map(product => (
           <div key={product.id} className="border p-4 rounded">
             <h3 className="text-xl font-bold">{product.name}</h3>
-            <p>Taxes: ${product.taxes}</p>
             <p>Market Commissions: ${product.market_commissions}</p>
             <p>Fixed Fee: ${product.fixed_fee}</p>
             <p>Shipping: ${product.shipping}</p>

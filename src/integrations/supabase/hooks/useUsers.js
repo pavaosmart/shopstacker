@@ -13,7 +13,7 @@ export const useCurrentUser = () => useQuery({
         .from('users')
         .select('id, email, full_name')
         .eq('id', user.id)
-        .maybeSingle();
+        .single();
       
       if (error) {
         console.error("Error fetching user data:", error);

@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import ConfirmationDialog from './ConfirmationDialog';
 import { useSupabaseAuth } from '../integrations/supabase/auth';
-import { useLocation, useNavigate } from 'react-router-dom';
 
 const UIComponentsPanel = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -20,8 +19,6 @@ const UIComponentsPanel = () => {
   const resizeHandleRef = useRef(null);
   const dropdownRef = useRef(null);
   const { session, login, logout } = useSupabaseAuth();
-  const location = useLocation();
-  const navigate = useNavigate();
 
   const categories = [
     'Sidebars', 'Top Bars (Navigation Bars)', 'Buttons', 'Cards',
@@ -79,7 +76,6 @@ const UIComponentsPanel = () => {
   const handleLogout = async () => {
     await logout();
     setIsOpen(false);
-    navigate('/login');
   };
 
   const handleComponentClick = (componentName) => {
@@ -88,19 +84,10 @@ const UIComponentsPanel = () => {
   };
 
   const handleConfirmImplementation = () => {
-    const currentPage = location.pathname.slice(1) || 'index';
-    implementComponent(selectedComponent, currentPage);
+    console.log(`Implementing ${selectedComponent} on the current page`);
     setIsDialogOpen(false);
   };
 
-  const implementComponent = (componentName, pageName) => {
-    // This function will be passed down to child components
-    console.log(`Implementing ${componentName} on the ${pageName} page`);
-    // Here we'll add the logic to actually implement the component
-    // For now, let's just show an alert
-    alert(`Component ${componentName} has been added to ${pageName} page!`);
-    // In a real implementation, you'd update the state or dispatch an action to add the component to the page
-  };
 
   const LoginForm = () => {
     const [email, setEmail] = useState('');
@@ -290,7 +277,6 @@ const UIComponentsPanel = () => {
                   selectedCategory={selectedCategory} 
                   isEditMode={isEditMode} 
                   onComponentClick={handleComponentClick}
-                  onImplementComponent={implementComponent}
                 />
               </div>
             )}
@@ -302,7 +288,7 @@ const UIComponentsPanel = () => {
         onClose={() => setIsDialogOpen(false)}
         onConfirm={handleConfirmImplementation}
         componentName={selectedComponent}
-        pageName={location.pathname.slice(1) || 'index'}
+        pageName="current"
       />
     </>
   );

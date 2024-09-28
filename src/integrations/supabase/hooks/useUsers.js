@@ -18,6 +18,7 @@ export const useCurrentUser = () => useQuery({
       if (error) {
         if (error.code === 'PGRST116') {
           // User not found in the users table, return default data
+          console.warn(`User ${user.id} not found in users table. Returning default data.`);
           return { id: user.id, email: user.email, full_name: null };
         }
         throw error;
@@ -40,11 +41,10 @@ export const useUpdateUser = () => {
         .from('users')
         .update(updateData)
         .eq('id', id)
-        .select()
-        .single();
+        .select();
       
       if (error) throw error;
-      return data;
+      return data[0];
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['currentUser'] });

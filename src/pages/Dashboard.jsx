@@ -4,6 +4,7 @@ import { useProducts, useAddProduct, useUpdateProduct, useDeleteProduct, checkPr
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import { supabase } from '../integrations/supabase/supabase';
 
 const Dashboard = () => {
   const [newProduct, setNewProduct] = useState({ name: '', price: '', stock_quantity: '' });
@@ -18,9 +19,10 @@ const Dashboard = () => {
 
   useEffect(() => {
     const checkAuth = async () => {
-      // Implement your authentication check here
-      // If not authenticated, redirect to login
-      // navigate('/login');
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        navigate('/login');
+      }
     };
     checkAuth();
 
@@ -92,6 +94,11 @@ const Dashboard = () => {
     }
   };
 
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate('/login');
+  };
+
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error loading products: {error.message}</div>;
   if (!hasPermission) return <div>You do not have permission to manage products. Please contact an administrator.</div>;
@@ -99,7 +106,7 @@ const Dashboard = () => {
   return (
     <div className="p-8">
       <h1 className="mb-4 text-2xl font-bold">Dashboard</h1>
-      <Button onClick={() => navigate('/login')} className="mb-4">Logout</Button>
+      <Button onClick={handleLogout} className="mb-4">Logout</Button>
 
       <form onSubmit={handleAddProduct} className="mb-8">
         <h2 className="mb-2 text-xl font-bold">Add New Product</h2>

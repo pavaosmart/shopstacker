@@ -26,7 +26,13 @@ export const useAddProduct = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (newProduct) => {
-      const { data, error } = await supabase.from('products').insert([newProduct]).select();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+      
+      const { data, error } = await supabase.from('products').insert([{
+        ...newProduct,
+        user_id: user.id
+      }]).select();
       if (error) handleSupabaseError(error);
       return data[0];
     },
@@ -44,7 +50,14 @@ export const useUpdateProduct = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, ...product }) => {
-      const { data, error } = await supabase.from('products').update(product).eq('id', id).select();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+      
+      const { data, error } = await supabase.from('products')
+        .update({ ...product, user_id: user.id })
+        .eq('id', id)
+        .eq('user_id', user.id)
+        .select();
       if (error) handleSupabaseError(error);
       return data[0];
     },
@@ -62,7 +75,13 @@ export const useDeleteProduct = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (id) => {
-      const { error } = await supabase.from('products').delete().eq('id', id);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+      
+      const { error } = await supabase.from('products')
+        .delete()
+        .eq('id', id)
+        .eq('user_id', user.id);
       if (error) handleSupabaseError(error);
       return id;
     },
@@ -77,6 +96,9 @@ export const useDeleteProduct = () => {
 };
 
 export const checkProductPermissions = async () => {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return false;
+  
   const { data, error } = await supabase.from('products').select('id').limit(1);
   if (error) {
     if (error.code === '42501') {

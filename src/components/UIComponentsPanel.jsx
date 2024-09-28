@@ -84,7 +84,6 @@ const UIComponentsPanel = () => {
     }
   };
 
-
   const handleLogin = (e) => {
     e.preventDefault();
     // Implementar lógica de login aqui

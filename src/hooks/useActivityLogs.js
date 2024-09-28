@@ -9,7 +9,7 @@ export const useActivityLogs = ({ page, actionFilter, userFilter }) => {
     queryFn: async () => {
       let query = supabase
         .from('activity_logs')
-        .select('*, users:user_id(email)', { count: 'exact' })
+        .select('*', { count: 'exact' })
         .order('created_at', { ascending: false })
         .range((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE - 1);
 
@@ -18,14 +18,30 @@ export const useActivityLogs = ({ page, actionFilter, userFilter }) => {
       }
 
       if (userFilter) {
-        query = query.ilike('users.email', `%${userFilter}%`);
+        query = query.eq('user_id', userFilter);
       }
 
       const { data: logs, error: logsError, count } = await query;
 
       if (logsError) throw new Error(logsError.message);
 
-      return { data: logs, count };
+      // Fetch user emails for each log entry
+      const userIds = [...new Set(logs.map(log => log.user_id))];
+      const { data: users, error: usersError } = await supabase
+        .from('users')
+        .select('id, email')
+        .in('id', userIds);
+
+      if (usersError) throw new Error(usersError.message);
+
+      const userMap = Object.fromEntries(users.map(user => [user.id, user.email]));
+
+      const logsWithUserEmails = logs.map(log => ({
+        ...log,
+        user_email: userMap[log.user_id] || 'Unknown'
+      }));
+
+      return { data: logsWithUserEmails, count };
     },
   });
 };

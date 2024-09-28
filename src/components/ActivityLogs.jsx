@@ -20,7 +20,7 @@ const ActivityLogs = () => {
   const [page, setPage] = useState(1);
   const [actionFilter, setActionFilter] = useState('');
   const [userFilter, setUserFilter] = useState('');
-  const [currentUserEmail, setCurrentUserEmail] = useState('');
+  const [currentUserId, setCurrentUserId] = useState('');
   const navigate = useNavigate();
 
   const { data: logsData, isLoading, error } = useActivityLogs({
@@ -33,7 +33,7 @@ const ActivityLogs = () => {
     const fetchCurrentUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        setCurrentUserEmail(user.email);
+        setCurrentUserId(user.id);
       }
     };
     fetchCurrentUser();
@@ -69,7 +69,7 @@ const ActivityLogs = () => {
           className="max-w-xs"
         >
           <option value="">All Users</option>
-          <option value={currentUserEmail}>Current User</option>
+          <option value={currentUserId}>Current User</option>
         </Select>
       </div>
 
@@ -85,7 +85,7 @@ const ActivityLogs = () => {
         <TableBody>
           {logs.map((log) => (
             <TableRow key={log.id}>
-              <TableCell>{log.users?.email || 'Unknown'}</TableCell>
+              <TableCell>{log.user_email}</TableCell>
               <TableCell>{log.action}</TableCell>
               <TableCell>{log.description}</TableCell>
               <TableCell>{new Date(log.created_at).toLocaleString()}</TableCell>

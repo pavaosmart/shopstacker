@@ -1,6 +1,6 @@
 import { supabase } from '../integrations/supabase/supabase';
 
-export const logActivity = async (action, description) => {
+export const logActivity = async (action) => {
   try {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
@@ -10,7 +10,7 @@ export const logActivity = async (action, description) => {
 
     const { data, error } = await supabase
       .from('activity_logs')
-      .insert([{ user_id: user.id, action, description }])
+      .insert([{ user_id: user.id, action }])
       .select();
     
     if (error) {

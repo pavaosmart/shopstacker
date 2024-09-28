@@ -7,32 +7,9 @@ const fromSupabase = async (query) => {
   return data;
 };
 
-/*
-### users
-
-| name           | type                     | format   | required |
-|----------------|--------------------------|----------|----------|
-| id             | integer                  | int8     | true     |
-| full_name      | text                     | string   | true     |
-| email          | text                     | string   | true     |
-| password_hash  | text                     | string   | true     |
-| phone_number   | text                     | string   | false    |
-| country_code   | character                | char(2)  | false    |
-| created_at     | timestamp with time zone | string   | false    |
-| last_login     | timestamp with time zone | string   | false    |
-| account_status | text                     | string   | false    |
-| role           | text                     | string   | false    |
-
-*/
-
-export const useUser = (id) => useQuery({
-  queryKey: ['users', id],
-  queryFn: () => fromSupabase(supabase.from('users').select('*').eq('id', id).single()),
-});
-
 export const useUsers = () => useQuery({
   queryKey: ['users'],
-  queryFn: () => fromSupabase(supabase.from('users').select('*')),
+  queryFn: () => fromSupabase(supabase.from('users').select('id, email, full_name')),
 });
 
 export const useAddUser = () => {

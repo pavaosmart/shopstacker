@@ -10,7 +10,7 @@ import Typography from '../components/ui-catalog/Typography';
 import IconsAndIllustrations from '../components/ui-catalog/IconsAndIllustrations';
 import Notifications from '../components/ui-catalog/Notifications';
 
-const ComponentesUI = ({ panelWidth }) => {
+const ComponentesUI = ({ panelWidth, selectedCategory }) => {
   const getColumnClass = () => {
     if (panelWidth < 400) return 'grid-cols-1';
     if (panelWidth < 600) return 'grid-cols-2';
@@ -18,57 +18,36 @@ const ComponentesUI = ({ panelWidth }) => {
     return 'grid-cols-4';
   };
 
+  const renderComponent = () => {
+    switch (selectedCategory) {
+      case 'Sidebars':
+        return <Sidebars />;
+      case 'Top Bars (Navigation Bars)':
+        return <TopBars />;
+      case 'Buttons':
+        return <Buttons />;
+      case 'Cards':
+        return <Cards />;
+      case 'Dialogs/Modals':
+        return <Dialogs />;
+      case 'Tables':
+        return <Tables />;
+      case 'Forms':
+        return <Forms />;
+      case 'Typography':
+        return <Typography />;
+      case 'Icons and Illustrations':
+        return <IconsAndIllustrations />;
+      case 'Notifications and Toasts':
+        return <Notifications />;
+      default:
+        return null;
+    }
+  };
+
   return (
     <div className={`grid gap-4 ${getColumnClass()}`}>
-      <section>
-        <h2 className="text-xl font-semibold mb-4">Sidebars</h2>
-        <Sidebars />
-      </section>
-
-      <section>
-        <h2 className="text-xl font-semibold mb-4">Top Bars</h2>
-        <TopBars />
-      </section>
-
-      <section>
-        <h2 className="text-xl font-semibold mb-4">Buttons</h2>
-        <Buttons />
-      </section>
-
-      <section>
-        <h2 className="text-xl font-semibold mb-4">Cards</h2>
-        <Cards />
-      </section>
-
-      <section>
-        <h2 className="text-xl font-semibold mb-4">Dialogs/Modals</h2>
-        <Dialogs />
-      </section>
-
-      <section>
-        <h2 className="text-xl font-semibold mb-4">Tables</h2>
-        <Tables />
-      </section>
-
-      <section>
-        <h2 className="text-xl font-semibold mb-4">Forms</h2>
-        <Forms />
-      </section>
-
-      <section>
-        <h2 className="text-xl font-semibold mb-4">Typography</h2>
-        <Typography />
-      </section>
-
-      <section>
-        <h2 className="text-xl font-semibold mb-4">Icons and Illustrations</h2>
-        <IconsAndIllustrations />
-      </section>
-
-      <section>
-        <h2 className="text-xl font-semibold mb-4">Notifications and Toasts</h2>
-        <Notifications />
-      </section>
+      {renderComponent()}
     </div>
   );
 };

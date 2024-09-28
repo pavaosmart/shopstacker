@@ -26,8 +26,8 @@ const UIComponentsPanel = ({ isOpen, onClose }) => {
     const handleMouseMove = (e) => {
       if (resizeHandleRef.current && resizeHandleRef.current.pressed) {
         const newWidth = document.body.clientWidth - e.clientX;
-        const maxWidth = document.body.clientWidth * 0.8; // 80% da largura da tela
-        setPanelWidth(Math.max(280, Math.min(newWidth, maxWidth)));
+        const maxWidth = document.body.clientWidth * 0.8; // 80% of screen width
+        setPanelWidth(Math.max(320, Math.min(newWidth, maxWidth)));
       }
     };
 
@@ -77,7 +77,7 @@ const UIComponentsPanel = ({ isOpen, onClose }) => {
             </button>
           </div>
           <div className="mb-4">
-            <h4 className="text-sm font-medium mb-2">Drag & drop UI components</h4>
+            <h4 className="text-sm font-medium mb-2">Select a category</h4>
             <div className="relative">
               <button
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
@@ -105,7 +105,7 @@ const UIComponentsPanel = ({ isOpen, onClose }) => {
             </div>
           </div>
           <div className="mt-4">
-            <ComponentesUI panelWidth={panelWidth} />
+            <ComponentesUI panelWidth={panelWidth} selectedCategory={selectedCategory} />
           </div>
         </div>
       </div>

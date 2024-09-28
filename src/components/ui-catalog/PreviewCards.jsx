@@ -7,21 +7,21 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 const PreviewCards = ({ isEditMode }) => {
   const [previewItems, setPreviewItems] = useState([
     { 
-      id: '001',
-      title: 'Dialog Confirmations', 
-      description: 'Explore our collection of dialog confirmation components',
+      id: 1,
+      title: 'UI Components', 
+      description: 'Explore our collection of reusable UI components',
       image: 'https://via.placeholder.com/150'
     },
     { 
-      id: '002',
-      title: 'Top Bars', 
-      description: 'Navigation bars for easy site navigation',
+      id: 2,
+      title: 'Customization', 
+      description: 'Easily customize components to fit your design',
       image: 'https://via.placeholder.com/150'
     },
     { 
-      id: '003',
-      title: 'Buttons', 
-      description: 'Various button styles for different actions',
+      id: 3,
+      title: 'Responsive', 
+      description: 'All components are fully responsive and mobile-friendly',
       image: 'https://via.placeholder.com/150'
     },
   ]);
@@ -114,7 +114,7 @@ const PreviewCards = ({ isEditMode }) => {
                   </>
                 ) : (
                   <>
-                    <h3 className="text-lg font-semibold mb-2">{item.id} - {item.title}</h3>
+                    <h3 className="text-lg font-semibold mb-2">{item.title}</h3>
                     <p className="text-gray-600">{item.description}</p>
                   </>
                 )}

@@ -167,7 +167,8 @@ const UIComponentsPanel = () => {
             ) : (
               <div className="flex flex-col items-center justify-center h-full">
                 <div className="flex flex-col items-center justify-center flex-grow">
-                  <h2 className="text-2xl font-bold mb-8 text-center">Welcome to UI Components Kit</h2>
+                  <h2 className="text-2xl font-bold mb-2 text-center">Welcome to UI Components Kit</h2>
+                  <p className="text-sm text-gray-600 mb-8 text-center">Log in to access our library of customizable UI components.</p>
                   <form onSubmit={handleLogin} className="w-full max-w-sm">
                     <Input
                       type="email"
@@ -188,7 +189,6 @@ const UIComponentsPanel = () => {
                     <Button type="submit" className="w-full">Log In</Button>
                   </form>
                 </div>
-                <p className="text-gray-600 mt-8 text-center">Log in to access our library of customizable UI components.</p>
               </div>
             )}
           </div>

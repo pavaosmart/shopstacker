@@ -53,8 +53,14 @@ export const useUpdateProduct = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('User not authenticated');
       
+      // Ensure price is a valid number
+      const updatedProduct = {
+        ...product,
+        price: parseFloat(product.price) || 0, // Convert to number or use 0 if invalid
+      };
+      
       const { data, error } = await supabase.from('products')
-        .update({ ...product, user_id: user.id })
+        .update(updatedProduct)
         .eq('id', id)
         .eq('user_id', user.id)
         .select();

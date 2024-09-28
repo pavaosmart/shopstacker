@@ -13,7 +13,7 @@ const Tables = () => {
   const [sortColumn, setSortColumn] = useState('');
   const [sortDirection, setSortDirection] = useState('asc');
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(3);
+  const [itemsPerPage, setItemsPerPage] = useState(3);
   const [filter, setFilter] = useState('');
   const [editingId, setEditingId] = useState(null);
 
@@ -73,6 +73,7 @@ const Tables = () => {
         <select
           className="border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
           onChange={(e) => setItemsPerPage(Number(e.target.value))}
+          value={itemsPerPage}
         >
           <option value="3">3 per page</option>
           <option value="5">5 per page</option>

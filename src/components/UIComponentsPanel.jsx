@@ -3,6 +3,7 @@ import { X, ChevronDown, Settings, LogOut } from 'lucide-react';
 import ComponentesUI from '../pages/ComponentesUI';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Link } from 'react-router-dom';
 
 const UIComponentsPanel = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -82,8 +83,7 @@ const UIComponentsPanel = () => {
 
   const handleLogin = (e) => {
     e.preventDefault();
-    // Implement your login logic here
-    // For demonstration, we'll just set isLoggedIn to true
+    // Implementar lógica de login aqui
     setIsLoggedIn(true);
   };
 
@@ -143,60 +143,38 @@ const UIComponentsPanel = () => {
                 </button>
               </div>
             </div>
-            {isLoggedIn ? (
+            {!isLoggedIn ? (
               <div className="mb-4">
-                <h4 className="text-sm font-medium mb-2">Select a category</h4>
-                <div className="relative" ref={dropdownRef}>
-                  <button
-                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                    className="w-full flex justify-between items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-blue-500"
-                  >
-                    {selectedCategory ? `${selectedCategory.id} - ${selectedCategory.name}` : 'Select category'}
-                    <ChevronDown size={20} className={`ml-2 transition-transform duration-200 ${isDropdownOpen ? 'transform rotate-180' : ''}`} />
-                  </button>
-                  {isDropdownOpen && (
-                    <div className="absolute z-50 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
-                      {categories.map((category) => (
-                        <button
-                          key={category.id}
-                          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
-                          onClick={() => {
-                            setSelectedCategory(category);
-                            setIsDropdownOpen(false);
-                          }}
-                        >
-                          {category.id} - {category.name}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                <h2 className="text-2xl font-bold mb-4 text-center">Login</h2>
+                <form onSubmit={handleLogin} className="space-y-4">
+                  <Input
+                    type="email"
+                    placeholder="Email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                  <Input
+                    type="password"
+                    placeholder="Senha"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
+                  <div className="text-sm text-blue-500 hover:underline cursor-pointer">
+                    <Link to="/forgot-password">Esqueceu a senha?</Link>
+                  </div>
+                  <Button type="submit" className="w-full bg-[#14161A] hover:bg-[#14161A]/90">
+                    Entrar
+                  </Button>
+                  <div className="text-sm text-center">
+                    Não tem uma conta? <Link to="/register" className="text-blue-500 hover:underline">Cadastre-se</Link>
+                  </div>
+                </form>
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center h-full">
-                <div className="flex flex-col items-center justify-center flex-grow">
-                  <h2 className="text-2xl font-bold mb-8 text-center">Welcome to UI Components Kit</h2>
-                  <form onSubmit={handleLogin} className="w-full max-w-sm">
-                    <Input
-                      type="email"
-                      placeholder="Email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="mb-4"
-                      required
-                    />
-                    <Input
-                      type="password"
-                      placeholder="Password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="mb-4"
-                      required
-                    />
-                    <Button type="submit" className="w-full">Log In</Button>
-                  </form>
-                </div>
-                <p className="text-gray-600 mt-8 text-center">Log in to access our library of customizable UI components.</p>
+              <div className="h-full">
+                <ComponentesUI panelWidth={panelWidth} selectedCategory={selectedCategory} isEditMode={isEditMode} />
               </div>
             )}
           </div>

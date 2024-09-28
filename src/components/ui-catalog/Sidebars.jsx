@@ -1,41 +1,39 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Home, ShoppingBag, FileText, Users, Settings, Menu, X } from 'lucide-react';
+import React from 'react';
 import { Button } from "@/components/ui/button";
 
-const Sidebars = () => {
-  const [isCollapsed, setIsCollapsed] = useState(false);
-
-  const toggleSidebar = () => setIsCollapsed(!isCollapsed);
-
-  const menuItems = [
-    { icon: <Home size={20} />, label: 'Dashboard', path: '/dashboard' },
-    { icon: <ShoppingBag size={20} />, label: 'Products', path: '/products' },
-    { icon: <FileText size={20} />, label: 'Activity Logs', path: '/activity-logs' },
-    { icon: <Users size={20} />, label: 'Users', path: '/users' },
-    { icon: <Settings size={20} />, label: 'Settings', path: '/settings' },
+const Sidebars = ({ onComponentClick, onImplementComponent }) => {
+  const sidebarTemplates = [
+    {
+      name: 'Simple Sidebar',
+      component: (
+        <div className="w-64 h-full bg-gray-800 text-white p-4">
+          <h2 className="text-xl font-bold mb-4">Simple Sidebar</h2>
+          <ul>
+            <li className="mb-2">Menu Item 1</li>
+            <li className="mb-2">Menu Item 2</li>
+            <li className="mb-2">Menu Item 3</li>
+          </ul>
+        </div>
+      )
+    },
+    // Add more sidebar templates here
   ];
 
   return (
-    <div className={`bg-white shadow-lg transition-all duration-300 ${isCollapsed ? 'w-16' : 'w-64'}`}>
-      <div className="p-4 flex justify-between items-center">
-        {!isCollapsed && <span className="font-semibold">Menu</span>}
-        <Button onClick={toggleSidebar} variant="ghost" size="sm">
-          {isCollapsed ? <Menu size={20} /> : <X size={20} />}
-        </Button>
-      </div>
-      <nav>
-        {menuItems.map((item, index) => (
-          <Link
-            key={index}
-            to={item.path}
-            className="flex items-center p-4 text-gray-700 hover:bg-gray-100 transition-colors"
-          >
-            {item.icon}
-            {!isCollapsed && <span className="ml-4">{item.label}</span>}
-          </Link>
-        ))}
-      </nav>
+    <div className="space-y-8 p-4">
+      <h2 className="text-2xl font-bold mb-4">Sidebars</h2>
+      {sidebarTemplates.map((template, index) => (
+        <div key={index} className="border p-4 rounded-lg">
+          <h3 className="text-lg font-semibold mb-2">{template.name}</h3>
+          <div className="mb-4">{template.component}</div>
+          <Button onClick={() => onComponentClick(template.name)} className="mr-2">
+            Preview
+          </Button>
+          <Button onClick={() => onImplementComponent(template.name)}>
+            Implement
+          </Button>
+        </div>
+      ))}
     </div>
   );
 };

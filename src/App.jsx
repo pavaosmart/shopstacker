@@ -9,6 +9,7 @@ import ActivityLogs from './pages/ActivityLogs';
 import UsersAndPermissions from './pages/UsersAndPermissions';
 import Login from './pages/Login';
 import { SupabaseAuthProvider } from './integrations/supabase/auth';
+import UIComponentsPanel from './components/UIComponentsPanel';
 
 const queryClient = new QueryClient();
 
@@ -19,14 +20,15 @@ function App() {
         <Router>
           <Routes>
             <Route path="/login" element={<Login />} />
-            <Route element={<Layout />}>
-              <Route path="/" element={<Index />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/products" element={<Products />} />
-              <Route path="/activity-logs" element={<ActivityLogs />} />
-              <Route path="/users" element={<UsersAndPermissions />} />
+            <Route path="/" element={<Layout />}>
+              <Route index element={<Index />} />
+              <Route path="dashboard" element={<Dashboard />} />
+              <Route path="products" element={<Products />} />
+              <Route path="activity-logs" element={<ActivityLogs />} />
+              <Route path="users" element={<UsersAndPermissions />} />
             </Route>
           </Routes>
+          <UIComponentsPanel />
         </Router>
       </SupabaseAuthProvider>
     </QueryClientProvider>

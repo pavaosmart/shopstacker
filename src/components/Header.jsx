@@ -13,9 +13,11 @@ const Header = () => {
           <li>
             <Link to="/" className="text-lg font-semibold">MyShopTools</Link>
           </li>
-          <li>
-            <Link to="/dashboard" className="mr-4">Dashboard</Link>
-            <Link to="/componentes-ui" className="mr-4">Componentes UI</Link>
+          <li className="flex space-x-4">
+            <Link to="/dashboard" className="text-gray-600 hover:text-gray-900">Dashboard</Link>
+            <Link to="/products" className="text-gray-600 hover:text-gray-900">Products</Link>
+            <Link to="/activity-logs" className="text-gray-600 hover:text-gray-900">Activity Logs</Link>
+            <Link to="/users" className="text-gray-600 hover:text-gray-900">Users</Link>
           </li>
           <li>
             {session ? (

@@ -11,7 +11,7 @@ import IconsAndIllustrations from '../components/ui-catalog/IconsAndIllustration
 import Notifications from '../components/ui-catalog/Notifications';
 import PreviewCards from '../components/ui-catalog/PreviewCards';
 
-const ComponentesUI = ({ panelWidth, selectedCategory, onEditCard }) => {
+const ComponentesUI = ({ panelWidth, selectedCategory, isEditMode }) => {
   const getColumnClass = () => {
     if (panelWidth < 400) return 'grid-cols-1';
     if (panelWidth < 600) return 'grid-cols-2';
@@ -42,7 +42,7 @@ const ComponentesUI = ({ panelWidth, selectedCategory, onEditCard }) => {
       case 'Notifications and Toasts':
         return <Notifications />;
       default:
-        return <PreviewCards onEdit={onEditCard} />;
+        return <PreviewCards isEditMode={isEditMode} />;
     }
   };
 

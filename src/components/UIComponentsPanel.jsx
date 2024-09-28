@@ -8,7 +8,7 @@ const UIComponentsPanel = ({ isOpen, onClose }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [panelWidth, setPanelWidth] = useState(320);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
   const panelRef = useRef(null);
   const resizeHandleRef = useRef(null);
 
@@ -60,10 +60,8 @@ const UIComponentsPanel = ({ isOpen, onClose }) => {
   };
 
   const handleLogin = (username, password) => {
-    // Here you would typically validate the credentials against a backend
-    // For this example, we'll use a hardcoded check
     if (username === 'admin' && password === 'password') {
-      setIsAuthenticated(true);
+      setIsEditMode(true);
       setIsLoginModalOpen(false);
     } else {
       alert('Invalid credentials');
@@ -102,41 +100,37 @@ const UIComponentsPanel = ({ isOpen, onClose }) => {
               </button>
             </div>
           </div>
-          {isAuthenticated && (
-            <>
-              <div className="mb-4">
-                <h4 className="text-sm font-medium mb-2">Select a category</h4>
-                <div className="relative">
-                  <button
-                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                    className="w-full flex justify-between items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-blue-500"
-                  >
-                    {selectedCategory || 'Select category'}
-                    <ChevronDown size={20} className={`ml-2 transition-transform duration-200 ${isDropdownOpen ? 'transform rotate-180' : ''}`} />
-                  </button>
-                  {isDropdownOpen && (
-                    <div className="absolute z-50 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
-                      {categories.map((category) => (
-                        <button
-                          key={category}
-                          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
-                          onClick={() => {
-                            setSelectedCategory(category);
-                            setIsDropdownOpen(false);
-                          }}
-                        >
-                          {category}
-                        </button>
-                      ))}
-                    </div>
-                  )}
+          <div className="mb-4">
+            <h4 className="text-sm font-medium mb-2">Select a category</h4>
+            <div className="relative">
+              <button
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                className="w-full flex justify-between items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-blue-500"
+              >
+                {selectedCategory || 'Select category'}
+                <ChevronDown size={20} className={`ml-2 transition-transform duration-200 ${isDropdownOpen ? 'transform rotate-180' : ''}`} />
+              </button>
+              {isDropdownOpen && (
+                <div className="absolute z-50 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
+                  {categories.map((category) => (
+                    <button
+                      key={category}
+                      className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                      onClick={() => {
+                        setSelectedCategory(category);
+                        setIsDropdownOpen(false);
+                      }}
+                    >
+                      {category}
+                    </button>
+                  ))}
                 </div>
-              </div>
-              <div className="mt-4">
-                <ComponentesUI panelWidth={panelWidth} selectedCategory={selectedCategory} />
-              </div>
-            </>
-          )}
+              )}
+            </div>
+          </div>
+          <div className="mt-4">
+            <ComponentesUI panelWidth={panelWidth} selectedCategory={selectedCategory} isEditMode={isEditMode} />
+          </div>
         </div>
       </div>
       {isOpen && (

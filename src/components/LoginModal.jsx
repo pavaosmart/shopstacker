@@ -2,23 +2,24 @@ import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import { useSupabaseAuth } from '../integrations/supabase/auth';
 
-const LoginModal = ({ isOpen, onClose, onLogin, onSwitchToRegister }) => {
+const LoginModal = ({ onSwitchToRegister, onLoginSuccess }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const { login } = useSupabaseAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // Simples validação para demonstração
-    if (email === 'demo@example.com' && password === 'password') {
-      onLogin();
+    try {
+      const { error } = await login(email, password);
+      if (error) throw error;
       toast.success('Login successful');
-    } else {
-      toast.error('Invalid credentials');
+      onLoginSuccess();
+    } catch (error) {
+      toast.error(error.message);
     }
   };
-
-  if (!isOpen) return null;
 
   return (
     <div className="p-6">

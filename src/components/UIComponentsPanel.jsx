@@ -77,7 +77,7 @@ const UIComponentsPanel = () => {
 
   const handleLogout = async () => {
     await logout();
-    setIsOpen(false);
+    setActiveTab('login');
   };
 
   const handleComponentClick = (componentName) => {
@@ -96,6 +96,11 @@ const UIComponentsPanel = () => {
 
   const handleSwitchToLogin = () => {
     setActiveTab('login');
+  };
+
+  const handleLoginSuccess = () => {
+    // This function will be called after successful login
+    setActiveTab('main'); // Switch to the main panel content
   };
 
   return (
@@ -152,16 +157,11 @@ const UIComponentsPanel = () => {
               <div className="mb-4">
                 {activeTab === 'login' ? (
                   <LoginModal
-                    isOpen={true}
-                    onClose={() => {}}
-                    onLogin={() => {}}
                     onSwitchToRegister={handleSwitchToRegister}
+                    onLoginSuccess={handleLoginSuccess}
                   />
                 ) : (
                   <RegisterModal
-                    isOpen={true}
-                    onClose={() => {}}
-                    onRegister={() => {}}
                     onSwitchToLogin={handleSwitchToLogin}
                   />
                 )}

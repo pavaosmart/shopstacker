@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { X, ChevronDown, Settings } from 'lucide-react';
 import ComponentesUI from '../pages/ComponentesUI';
-import LoginModal from './LoginModal';
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 const UIComponentsPanel = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -10,8 +10,9 @@ const UIComponentsPanel = () => {
   const [selectedCategory, setSelectedCategory] = useState('');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [panelWidth, setPanelWidth] = useState(320);
-  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const panelRef = useRef(null);
   const resizeHandleRef = useRef(null);
 
@@ -54,14 +55,14 @@ const UIComponentsPanel = () => {
   const handleSettingsClick = () => {
     if (isLoggedIn) {
       setIsEditMode(true);
-    } else {
-      setIsLoginModalOpen(true);
     }
   };
 
-  const handleLogin = () => {
+  const handleLogin = (e) => {
+    e.preventDefault();
+    // Implement your login logic here
+    // For demonstration, we'll just set isLoggedIn to true
     setIsLoggedIn(true);
-    setIsLoginModalOpen(false);
   };
 
   return (
@@ -139,17 +140,30 @@ const UIComponentsPanel = () => {
               <div className="flex flex-col items-center justify-center h-full">
                 <h2 className="text-2xl font-bold mb-4">Welcome to UI Components Kit</h2>
                 <p className="text-gray-600 mb-8 text-center">Log in to access our library of customizable UI components.</p>
-                <Button onClick={() => setIsLoginModalOpen(true)}>Log In</Button>
+                <form onSubmit={handleLogin} className="w-full max-w-sm">
+                  <Input
+                    type="email"
+                    placeholder="Email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="mb-4"
+                    required
+                  />
+                  <Input
+                    type="password"
+                    placeholder="Password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="mb-4"
+                    required
+                  />
+                  <Button type="submit" className="w-full">Log In</Button>
+                </form>
               </div>
             )}
           </div>
         </div>
       )}
-      <LoginModal
-        isOpen={isLoginModalOpen}
-        onClose={() => setIsLoginModalOpen(false)}
-        onLogin={handleLogin}
-      />
     </>
   );
 };

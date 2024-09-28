@@ -10,7 +10,7 @@ const Dashboard = () => {
   const [editingProduct, setEditingProduct] = useState(null);
   const navigate = useNavigate();
 
-  const { data: products, isLoading } = useProducts();
+  const { data: products, isLoading, refetch } = useProducts();
   const addProductMutation = useAddProduct();
   const updateProductMutation = useUpdateProduct();
   const deleteProductMutation = useDeleteProduct();
@@ -34,6 +34,7 @@ const Dashboard = () => {
       });
       toast.success('Produto adicionado com sucesso');
       setNewProduct({ name: '', price: '', stock_quantity: '' });
+      refetch(); // Refetch products after adding
     } catch (error) {
       toast.error('Erro ao adicionar produto: ' + error.message);
     }
@@ -44,7 +45,10 @@ const Dashboard = () => {
   };
 
   const handleUpdateProduct = async () => {
-    if (!editingProduct) return;
+    if (!editingProduct || !editingProduct.id) {
+      toast.error('Erro: Produto inválido para edição');
+      return;
+    }
     try {
       await updateProductMutation.mutateAsync({
         id: editingProduct.id,
@@ -54,6 +58,7 @@ const Dashboard = () => {
       });
       toast.success('Produto atualizado com sucesso');
       setEditingProduct(null);
+      refetch(); // Refetch products after updating
     } catch (error) {
       toast.error('Erro ao atualizar produto: ' + error.message);
     }
@@ -63,6 +68,7 @@ const Dashboard = () => {
     try {
       await deleteProductMutation.mutateAsync(id);
       toast.success('Produto excluído com sucesso');
+      refetch(); // Refetch products after deleting
     } catch (error) {
       toast.error('Erro ao excluir produto: ' + error.message);
     }

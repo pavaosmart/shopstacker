@@ -1,12 +1,17 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import React, { useState } from 'react';
+import UIComponentsPanel from '../components/UIComponentsPanel';
+import { Button } from "@/components/ui/button";
 
 const Index = () => {
+  const [isPanelOpen, setIsPanelOpen] = useState(false);
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-gray-600">Start building your amazing project here!</p>
+    <div className="min-h-screen bg-gray-100 p-8">
+      <h1 className="text-4xl font-bold mb-8 text-center">MyShopTools UI Components</h1>
+      <div className="text-center mb-8">
+        <Button onClick={() => setIsPanelOpen(true)}>Open UI Components Panel</Button>
       </div>
+      <UIComponentsPanel isOpen={isPanelOpen} onClose={() => setIsPanelOpen(false)} />
     </div>
   );
 };

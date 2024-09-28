@@ -15,12 +15,26 @@ const UIComponentsPanel = () => {
   const [password, setPassword] = useState('');
   const panelRef = useRef(null);
   const resizeHandleRef = useRef(null);
+  const dropdownRef = useRef(null);
 
   const categories = [
     'Sidebars', 'Top Bars (Navigation Bars)', 'Buttons', 'Cards',
     'Dialogs/Modals', 'Tables', 'Forms', 'Typography',
     'Icons and Illustrations', 'Notifications and Toasts'
   ];
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   useEffect(() => {
     const handleMouseMove = (e) => {
@@ -124,7 +138,7 @@ const UIComponentsPanel = () => {
             {isLoggedIn ? (
               <div className="mb-4">
                 <h4 className="text-sm font-medium mb-2">Select a category</h4>
-                <div className="relative">
+                <div className="relative" ref={dropdownRef}>
                   <button
                     onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                     className="w-full flex justify-between items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-blue-500"

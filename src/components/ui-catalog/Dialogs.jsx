@@ -11,6 +11,8 @@ const Dialogs = () => {
   const [isInfoOpen, setIsInfoOpen] = useState(false);
   const [isHelpOpen, setIsHelpOpen] = useState(false);
 
+  // Rest of the component code remains unchanged
+  
   return (
     <div className="space-y-4">
       {/* Confirmation Dialog */}

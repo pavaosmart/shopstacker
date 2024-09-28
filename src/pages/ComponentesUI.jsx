@@ -11,31 +11,31 @@ import IconsAndIllustrations from '../components/ui-catalog/IconsAndIllustration
 import Notifications from '../components/ui-catalog/Notifications';
 import PreviewCards from '../components/ui-catalog/PreviewCards';
 
-const ComponentesUI = ({ panelWidth, selectedCategory, isEditMode }) => {
+const ComponentesUI = ({ panelWidth, selectedCategory, isEditMode, onComponentClick }) => {
   const renderComponent = () => {
     switch (selectedCategory) {
       case 'Sidebars':
-        return <Sidebars />;
+        return <Sidebars onComponentClick={onComponentClick} />;
       case 'Top Bars (Navigation Bars)':
-        return <TopBars />;
+        return <TopBars onComponentClick={onComponentClick} />;
       case 'Buttons':
-        return <Buttons />;
+        return <Buttons onComponentClick={onComponentClick} />;
       case 'Cards':
-        return <Cards />;
+        return <Cards onComponentClick={onComponentClick} />;
       case 'Dialogs/Modals':
-        return <Dialogs />;
+        return <Dialogs onComponentClick={onComponentClick} />;
       case 'Tables':
-        return <Tables />;
+        return <Tables onComponentClick={onComponentClick} />;
       case 'Forms':
-        return <Forms />;
+        return <Forms onComponentClick={onComponentClick} />;
       case 'Typography':
-        return <Typography />;
+        return <Typography onComponentClick={onComponentClick} />;
       case 'Icons and Illustrations':
-        return <IconsAndIllustrations />;
+        return <IconsAndIllustrations onComponentClick={onComponentClick} />;
       case 'Notifications and Toasts':
-        return <Notifications />;
+        return <Notifications onComponentClick={onComponentClick} />;
       default:
-        return <PreviewCards isEditMode={isEditMode} />;
+        return <PreviewCards isEditMode={isEditMode} onComponentClick={onComponentClick} />;
     }
   };
 

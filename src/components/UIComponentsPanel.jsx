@@ -3,6 +3,7 @@ import { X, ChevronDown, Settings, LogOut } from 'lucide-react';
 import ComponentesUI from '../pages/ComponentesUI';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import ConfirmationDialog from './ConfirmationDialog';
 
 const UIComponentsPanel = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -13,6 +14,8 @@ const UIComponentsPanel = () => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [selectedComponent, setSelectedComponent] = useState('');
   const panelRef = useRef(null);
   const resizeHandleRef = useRef(null);
   const dropdownRef = useRef(null);
@@ -83,6 +86,17 @@ const UIComponentsPanel = () => {
     setIsLoggedIn(false);
     setEmail('');
     setPassword('');
+  };
+
+  const handleComponentClick = (componentName) => {
+    setSelectedComponent(componentName);
+    setIsDialogOpen(true);
+  };
+
+  const handleConfirmImplementation = () => {
+    // Implement the logic to add the component to the current page
+    console.log(`Implementing ${selectedComponent} on the current page`);
+    setIsDialogOpen(false);
   };
 
   return (
@@ -195,12 +209,24 @@ const UIComponentsPanel = () => {
           <div className="flex-grow overflow-y-auto">
             {isLoggedIn && (
               <div className="h-full">
-                <ComponentesUI panelWidth={panelWidth} selectedCategory={selectedCategory} isEditMode={isEditMode} />
+                <ComponentesUI 
+                  panelWidth={panelWidth} 
+                  selectedCategory={selectedCategory} 
+                  isEditMode={isEditMode} 
+                  onComponentClick={handleComponentClick}
+                />
               </div>
             )}
           </div>
         </div>
       )}
+      <ConfirmationDialog
+        isOpen={isDialogOpen}
+        onClose={() => setIsDialogOpen(false)}
+        onConfirm={handleConfirmImplementation}
+        componentName={selectedComponent}
+        pageName="current" // You might want to replace this with the actual page name
+      />
     </>
   );
 };

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { X, ChevronDown, Settings } from 'lucide-react';
+import { X, ChevronDown, Settings, LogOut } from 'lucide-react';
 import ComponentesUI from '../pages/ComponentesUI';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -65,6 +65,12 @@ const UIComponentsPanel = () => {
     setIsLoggedIn(true);
   };
 
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    setEmail('');
+    setPassword('');
+  };
+
   return (
     <>
       <Button
@@ -88,6 +94,14 @@ const UIComponentsPanel = () => {
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-lg font-semibold">Components</h3>
               <div className="flex items-center">
+                {isLoggedIn && (
+                  <button
+                    onClick={handleLogout}
+                    className="text-gray-500 hover:text-gray-700 transition-colors mr-2"
+                  >
+                    <LogOut size={20} />
+                  </button>
+                )}
                 <button
                   onClick={handleSettingsClick}
                   className="text-gray-500 hover:text-gray-700 transition-colors mr-2"
@@ -105,7 +119,7 @@ const UIComponentsPanel = () => {
             {isLoggedIn ? (
               <>
                 <div className="mb-4">
-                  <h4 className="text-sm font-medium mb-2">Select a category</h4>
+                  <h4 className="text-sm font-medium mb-2 text-center">Select a category</h4>
                   <div className="relative">
                     <button
                       onClick={() => setIsDropdownOpen(!isDropdownOpen)}
@@ -138,7 +152,7 @@ const UIComponentsPanel = () => {
               </>
             ) : (
               <div className="flex flex-col items-center justify-center h-full">
-                <h2 className="text-2xl font-bold mb-4">Welcome to UI Components Kit</h2>
+                <h2 className="text-2xl font-bold mb-4 text-center">Welcome to UI Components Kit</h2>
                 <p className="text-gray-600 mb-8 text-center">Log in to access our library of customizable UI components.</p>
                 <form onSubmit={handleLogin} className="w-full max-w-sm">
                   <Input

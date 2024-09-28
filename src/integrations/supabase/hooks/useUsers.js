@@ -23,27 +23,28 @@ export const useUsers = () => useQuery({
 export const useCurrentUser = () => useQuery({
   queryKey: ['currentUser'],
   queryFn: async () => {
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError) throw authError;
-    if (!user) return null; // Return null if no authenticated user
-    
     try {
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      if (authError) throw authError;
+      if (!user) return null;
+
       const { data, error } = await supabase
         .from('users')
         .select('id, email, full_name')
         .eq('id', user.id)
-        .maybeSingle();
-      
+        .single();
+
       if (error) {
         console.error("Error fetching user data:", error);
-        // If no user found in the database, return basic info from auth
+        // If no user found in the database or other error, return basic info from auth
         return { id: user.id, email: user.email, full_name: null };
       }
+
       return data || { id: user.id, email: user.email, full_name: null };
     } catch (error) {
-      console.error("Error fetching current user data:", error);
-      // Return basic user info from auth if database query fails
-      return { id: user.id, email: user.email, full_name: null };
+      console.error("Error in useCurrentUser:", error);
+      toast.error(`Failed to fetch current user: ${error.message}`);
+      return null;
     }
   },
 });

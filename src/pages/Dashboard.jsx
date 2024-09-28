@@ -10,7 +10,7 @@ const Dashboard = () => {
   const [editingProduct, setEditingProduct] = useState(null);
   const navigate = useNavigate();
 
-  const { data: products, isLoading, refetch } = useProducts();
+  const { data: products, isLoading, error } = useProducts();
   const addProductMutation = useAddProduct();
   const updateProductMutation = useUpdateProduct();
   const deleteProductMutation = useDeleteProduct();
@@ -34,7 +34,6 @@ const Dashboard = () => {
       });
       toast.success('Produto adicionado com sucesso');
       setNewProduct({ name: '', price: '', stock_quantity: '' });
-      refetch();
     } catch (error) {
       toast.error('Erro ao adicionar produto: ' + error.message);
     }
@@ -58,7 +57,6 @@ const Dashboard = () => {
       });
       toast.success('Produto atualizado com sucesso');
       setEditingProduct(null);
-      refetch();
     } catch (error) {
       toast.error('Erro ao atualizar produto: ' + error.message);
     }
@@ -68,15 +66,13 @@ const Dashboard = () => {
     try {
       await deleteProductMutation.mutateAsync(id);
       toast.success('Produto excluído com sucesso');
-      refetch();
     } catch (error) {
       toast.error('Erro ao excluir produto: ' + error.message);
     }
   };
 
-  if (isLoading) {
-    return <div>Carregando...</div>;
-  }
+  if (isLoading) return <div>Carregando...</div>;
+  if (error) return <div>Erro ao carregar produtos: {error.message}</div>;
 
   return (
     <div className="p-8">

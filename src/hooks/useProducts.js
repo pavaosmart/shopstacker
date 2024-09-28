@@ -22,7 +22,7 @@ export const useAddProduct = () => {
       if (error) throw error;
       return data[0];
     },
-    onSuccess: (data) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
     },
   });

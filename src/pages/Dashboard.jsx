@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { supabase } from '../integrations/supabase/supabase';
+import { logActivity } from '../utils/logActivity';
 
 const Dashboard = () => {
   const [newProduct, setNewProduct] = useState({ name: '', price: '', stock_quantity: '' });
@@ -45,12 +46,13 @@ const Dashboard = () => {
       return;
     }
     try {
-      await addProductMutation.mutateAsync({
+      const addedProduct = await addProductMutation.mutateAsync({
         name: newProduct.name,
         price: parseFloat(newProduct.price),
         stock_quantity: parseInt(newProduct.stock_quantity),
       });
       setNewProduct({ name: '', price: '', stock_quantity: '' });
+      await logActivity('CREATE_PRODUCT', `Product "${addedProduct.name}" created`);
     } catch (error) {
       // Error is handled by the mutation
     }
@@ -70,13 +72,14 @@ const Dashboard = () => {
       return;
     }
     try {
-      await updateProductMutation.mutateAsync({
+      const updatedProduct = await updateProductMutation.mutateAsync({
         id: editingProduct.id,
         name: editingProduct.name,
         price: parseFloat(editingProduct.price),
         stock_quantity: parseInt(editingProduct.stock_quantity)
       });
       setEditingProduct(null);
+      await logActivity('UPDATE_PRODUCT', `Product "${updatedProduct.name}" updated`);
     } catch (error) {
       // Error is handled by the mutation
     }
@@ -88,7 +91,8 @@ const Dashboard = () => {
       return;
     }
     try {
-      await deleteProductMutation.mutateAsync(id);
+      const deletedProduct = await deleteProductMutation.mutateAsync(id);
+      await logActivity('DELETE_PRODUCT', `Product "${deletedProduct.name}" deleted`);
     } catch (error) {
       // Error is handled by the mutation
     }
@@ -96,6 +100,7 @@ const Dashboard = () => {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
+    await logActivity('LOGOUT', 'User logged out');
     navigate('/login');
   };
 

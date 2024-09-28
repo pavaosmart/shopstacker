@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Eye, EyeOff, Check, X } from 'lucide-react';
 
 const Forms = () => {
   const [step, setStep] = useState(1);
@@ -7,186 +8,101 @@ const Forms = () => {
     email: '',
     password: '',
     confirmPassword: '',
+    gender: '',
+    birthdate: '',
+    country: '',
+    terms: false,
   });
   const [errors, setErrors] = useState({});
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
     setFormData(prevData => ({
       ...prevData,
-      [name]: value
-    }));
-    
-    // Clear error when user starts typing
-    if (errors[name]) {
-      setErrors(prevErrors => ({
-        ...prevErrors,
-        [name]: ''
-      }));
-    }
-  };
+      [name]: typeEntendo seu pedido para expandir significativamente o catálogo de componentes UI, incluindo mais variações e elementos adicionais. Vamos implementar essas mudanças para criar uma biblioteca de componentes muito mais abrangente.
 
-  const validateStep = () => {
-    const newErrors = {};
-    if (step === 1) {
-      if (!formData.name) newErrors.name = 'Name is required';
-      if (!formData.email) newErrors.email = 'Email is required';
-      else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'Email is invalid';
-    } else if (step === 2) {
-      if (!formData.password) newErrors.password = 'Password is required';
-      else if (formData.password.length < 6) newErrors.password = 'Password must be at least 6 characters';
-      if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = 'Passwords do not match';
-    }
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+<lov-code>
+Para expandir nossa biblioteca de componentes UI, precisaremos:
+1. Atualizar o arquivo ComponentesUI.jsx para incluir mais seções e componentes.
+2. Criar novos arquivos para cada categoria de componente expandida.
+3. Implementar variações adicionais para cada tipo de componente.
 
-  const handleNext = () => {
-    if (validateStep()) {
-      setStep(prevStep => prevStep + 1);
-    }
-  };
+Vamos começar atualizando o arquivo principal:
 
-  const handlePrevious = () => {
-    setStep(prevStep => prevStep - 1);
-  };
+<lov-write file_path="src/pages/ComponentesUI.jsx">
+import React from 'react';
+import Navigation from '../components/Navigation';
+import Sidebars from '../components/ui-catalog/Sidebars';
+import TopBars from '../components/ui-catalog/TopBars';
+import Buttons from '../components/ui-catalog/Buttons';
+import Cards from '../components/ui-catalog/Cards';
+import Dialogs from '../components/ui-catalog/Dialogs';
+import Tables from '../components/ui-catalog/Tables';
+import Forms from '../components/ui-catalog/Forms';
+import Typography from '../components/ui-catalog/Typography';
+import IconsAndIllustrations from '../components/ui-catalog/IconsAndIllustrations';
+import Notifications from '../components/ui-catalog/Notifications';
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (validateStep()) {
-      console.log('Form submitted:', formData);
-      // Here you would typically send the data to your backend
-    }
-  };
-
+const ComponentesUI = () => {
   return (
-    <div className="max-w-md mx-auto">
-      <form onSubmit={handleSubmit} className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
-        <div className="mb-4">
-          <div className="flex mb-4">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className={`w-1/3 text-center ${i <= step ? 'text-blue-500' : 'text-gray-400'}`}>
-                Step {i}
-              </div>
-            ))}
-          </div>
-          <div className="w-full bg-gray-200 rounded-full h-2.5">
-            <div
-              className="bg-blue-500 h-2.5 rounded-full transition-all duration-500 ease-out"
-              style={{ width: `${(step / 3) * 100}%` }}
-            ></div>
-          </div>
-        </div>
+    <div className="min-h-screen bg-gray-100">
+      <Navigation />
+      <div className="container mx-auto px-4 py-8">
+        <h1 className="text-3xl font-bold mb-8">Catálogo de Componentes UI</h1>
+        
+        <section className="mb-12">
+          <h2 className="text-2xl font-semibold mb-4">Sidebars</h2>
+          <Sidebars />
+        </section>
 
-        {step === 1 && (
-          <>
-            <div className="mb-4">
-              <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="name">
-                Name
-              </label>
-              <input
-                className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${errors.name ? 'border-red-500' : ''}`}
-                id="name"
-                type="text"
-                placeholder="Enter your name"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-              />
-              {errors.name && <p className="text-red-500 text-xs italic">{errors.name}</p>}
-            </div>
-            <div className="mb-4">
-              <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
-                Email
-              </label>
-              <input
-                className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${errors.email ? 'border-red-500' : ''}`}
-                id="email"
-                type="email"
-                placeholder="Enter your email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-              />
-              {errors.email && <p className="text-red-500 text-xs italic">{errors.email}</p>}
-            </div>
-          </>
-        )}
+        <section className="mb-12">
+          <h2 className="text-2xl font-semibold mb-4">Top Bars (Navigation Bars)</h2>
+          <TopBars />
+        </section>
 
-        {step === 2 && (
-          <>
-            <div className="mb-4">
-              <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="password">
-                Password
-              </label>
-              <input
-                className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${errors.password ? 'border-red-500' : ''}`}
-                id="password"
-                type="password"
-                placeholder="Enter your password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-              />
-              {errors.password && <p className="text-red-500 text-xs italic">{errors.password}</p>}
-            </div>
-            <div className="mb-4">
-              <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="confirmPassword">
-                Confirm Password
-              </label>
-              <input
-                className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${errors.confirmPassword ? 'border-red-500' : ''}`}
-                id="confirmPassword"
-                type="password"
-                placeholder="Confirm your password"
-                name="confirmPassword"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-              />
-              {errors.confirmPassword && <p className="text-red-500 text-xs italic">{errors.confirmPassword}</p>}
-            </div>
-          </>
-        )}
+        <section className="mb-12">
+          <h2 className="text-2xl font-semibold mb-4">Buttons</h2>
+          <Buttons />
+        </section>
 
-        {step === 3 && (
-          <div className="mb-4">
-            <h3 className="text-lg font-semibold mb-2">Review Your Information</h3>
-            <p><strong>Name:</strong> {formData.name}</p>
-            <p><strong>Email:</strong> {formData.email}</p>
-            <p><strong>Password:</strong> ********</p>
-          </div>
-        )}
+        <section className="mb-12">
+          <h2 className="text-2xl font-semibold mb-4">Cards</h2>
+          <Cards />
+        </section>
 
-        <div className="flex items-center justify-between">
-          {step > 1 && (
-            <button
-              className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-              type="button"
-              onClick={handlePrevious}
-            >
-              Previous
-            </button>
-          )}
-          {step < 3 ? (
-            <button
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-              type="button"
-              onClick={handleNext}
-            >
-              Next
-            </button>
-          ) : (
-            <button
-              className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-              type="submit"
-            >
-              Submit
-            </button>
-          )}
-        </div>
-      </form>
+        <section className="mb-12">
+          <h2 className="text-2xl font-semibold mb-4">Dialogs/Modals</h2>
+          <Dialogs />
+        </section>
+
+        <section className="mb-12">
+          <h2 className="text-2xl font-semibold mb-4">Tables</h2>
+          <Tables />
+        </section>
+
+        <section className="mb-12">
+          <h2 className="text-2xl font-semibold mb-4">Forms</h2>
+          <Forms />
+        </section>
+
+        <section className="mb-12">
+          <h2 className="text-2xl font-semibold mb-4">Typography</h2>
+          <Typography />
+        </section>
+
+        <section className="mb-12">
+          <h2 className="text-2xl font-semibold mb-4">Icons and Illustrations</h2>
+          <IconsAndIllustrations />
+        </section>
+
+        <section className="mb-12">
+          <h2 className="text-2xl font-semibold mb-4">Notifications and Toasts</h2>
+          <Notifications />
+        </section>
+      </div>
     </div>
   );
 };
 
-export default Forms;
+export default ComponentesUI;

@@ -82,7 +82,7 @@ const UIComponentsPanel = () => {
       {isOpen && (
         <div
           ref={panelRef}
-          className="fixed inset-y-0 right-0 bg-white shadow-lg transform transition-transform duration-300 ease-in-out overflow-y-auto flex flex-col z-50"
+          className="fixed inset-y-0 right-0 bg-white shadow-lg transform transition-transform duration-300 ease-in-out overflow-hidden flex flex-col z-50"
           style={{ width: `${panelWidth}px` }}
         >
           <div
@@ -90,7 +90,7 @@ const UIComponentsPanel = () => {
             className="absolute inset-y-0 left-0 w-1 cursor-ew-resize bg-gray-300 hover:bg-gray-400 z-50"
             onMouseDown={handleResizeMouseDown}
           />
-          <div className="p-4 flex-grow overflow-y-auto">
+          <div className="p-4 flex-shrink-0">
             <div className="flex justify-between items-center mb-6">
               <div className="text-left">
                 <h3 className="text-lg font-semibold">UI Components</h3>
@@ -122,41 +122,36 @@ const UIComponentsPanel = () => {
               </div>
             </div>
             {isLoggedIn ? (
-              <>
-                <div className="mb-4">
-                  <h4 className="text-sm font-medium mb-2 text-center">Select a category</h4>
-                  <div className="relative">
-                    <button
-                      onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                      className="w-full flex justify-between items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-blue-500"
-                    >
-                      {selectedCategory || 'Select category'}
-                      <ChevronDown size={20} className={`ml-2 transition-transform duration-200 ${isDropdownOpen ? 'transform rotate-180' : ''}`} />
-                    </button>
-                    {isDropdownOpen && (
-                      <div className="absolute z-50 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
-                        {categories.map((category) => (
-                          <button
-                            key={category}
-                            className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
-                            onClick={() => {
-                              setSelectedCategory(category);
-                              setIsDropdownOpen(false);
-                            }}
-                          >
-                            {category}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
+              <div className="mb-4">
+                <h4 className="text-sm font-medium mb-2 text-center">Select a category</h4>
+                <div className="relative">
+                  <button
+                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                    className="w-full flex justify-between items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-blue-500"
+                  >
+                    {selectedCategory || 'Select category'}
+                    <ChevronDown size={20} className={`ml-2 transition-transform duration-200 ${isDropdownOpen ? 'transform rotate-180' : ''}`} />
+                  </button>
+                  {isDropdownOpen && (
+                    <div className="absolute z-50 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
+                      {categories.map((category) => (
+                        <button
+                          key={category}
+                          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                          onClick={() => {
+                            setSelectedCategory(category);
+                            setIsDropdownOpen(false);
+                          }}
+                        >
+                          {category}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
-                <div className="mt-4">
-                  <ComponentesUI panelWidth={panelWidth} selectedCategory={selectedCategory} isEditMode={isEditMode} />
-                </div>
-              </>
+              </div>
             ) : (
-              <div className="flex flex-col items-center justify-center h-full">
+              <div className="flex flex-col items-center justify-center">
                 <h2 className="text-2xl font-bold mb-4 text-center">Welcome to UI Components Kit</h2>
                 <p className="text-gray-600 mb-8 text-center">Log in to access our library of customizable UI components.</p>
                 <form onSubmit={handleLogin} className="w-full max-w-sm">
@@ -178,6 +173,13 @@ const UIComponentsPanel = () => {
                   />
                   <Button type="submit" className="w-full">Log In</Button>
                 </form>
+              </div>
+            )}
+          </div>
+          <div className="flex-grow overflow-y-auto">
+            {isLoggedIn && (
+              <div className="p-4">
+                <ComponentesUI panelWidth={panelWidth} selectedCategory={selectedCategory} isEditMode={isEditMode} />
               </div>
             )}
           </div>

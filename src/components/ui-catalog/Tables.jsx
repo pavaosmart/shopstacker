@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import { ChevronUp, ChevronDown, Edit, Trash, ChevronLeft, ChevronRight, Search } from 'lucide-react';
+import { Input } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
 
 const Tables = () => {
   const [data, setData] = useState([
@@ -58,27 +61,27 @@ const Tables = () => {
   };
 
   return (
-    <div>
-      <div className="mb-4 flex justify-between items-center">
-        <div className="relative">
-          <input
+    <div className="w-full overflow-x-auto">
+      <div className="mb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-2">
+        <div className="relative w-full sm:w-auto">
+          <Input
             type="text"
             placeholder="Filter table..."
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
-            className="pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="pl-10 pr-4 py-2 w-full"
           />
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
         </div>
-        <select
-          className="border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        <Select
+          className="w-full sm:w-auto"
           onChange={(e) => setItemsPerPage(Number(e.target.value))}
           value={itemsPerPage}
         >
           <option value="3">3 per page</option>
           <option value="5">5 per page</option>
           <option value="10">10 per page</option>
-        </select>
+        </Select>
       </div>
       <div className="overflow-x-auto">
         <table className="min-w-full bg-white border border-gray-300">
@@ -107,9 +110,9 @@ const Tables = () => {
             {currentItems.map((item, index) => (
               <tr key={item.id} className={index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
                 {Object.entries(item).map(([key, value], valueIndex) => (
-                  <td key={valueIndex} className="px-6 py-4 whitespace-no-wrap border-b border-gray-300">
+                  <td key={valueIndex} className="px-6 py-4 whitespace-nowrap border-b border-gray-300">
                     {editingId === item.id && key !== 'id' ? (
-                      <input
+                      <Input
                         type="text"
                         value={value}
                         onChange={(e) => {
@@ -124,53 +127,53 @@ const Tables = () => {
                     )}
                   </td>
                 ))}
-                <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-300 text-sm leading-5 font-medium">
+                <td className="px-6 py-4 whitespace-nowrap border-b border-gray-300 text-sm leading-5 font-medium">
                   {editingId === item.id ? (
-                    <button onClick={() => handleSave(item.id)} className="text-green-600 hover:text-green-900 mr-2">
+                    <Button onClick={() => handleSave(item.id)} className="text-green-600 hover:text-green-900 mr-2">
                       Save
-                    </button>
+                    </Button>
                   ) : (
-                    <button onClick={() => handleEdit(item.id)} className="text-blue-600 hover:text-blue-900 mr-2">
+                    <Button onClick={() => handleEdit(item.id)} className="text-blue-600 hover:text-blue-900 mr-2">
                       <Edit className="w-4 h-4" />
-                    </button>
+                    </Button>
                   )}
-                  <button onClick={() => handleDelete(item.id)} className="text-red-600 hover:text-red-900">
+                  <Button onClick={() => handleDelete(item.id)} className="text-red-600 hover:text-red-900">
                     <Trash className="w-4 h-4" />
-                  </button>
+                  </Button>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
-      <div className="mt-4 flex justify-between items-center">
-        <div>
+      <div className="mt-4 flex flex-col sm:flex-row justify-between items-center">
+        <div className="mb-2 sm:mb-0">
           Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, filteredData.length)} of {filteredData.length} entries
         </div>
         <div className="flex items-center space-x-2">
-          <button
+          <Button
             onClick={() => paginate(currentPage - 1)}
             disabled={currentPage === 1}
             className="px-3 py-1 rounded border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-50"
           >
             <ChevronLeft className="w-5 h-5" />
-          </button>
+          </Button>
           {Array.from({ length: Math.ceil(filteredData.length / itemsPerPage) }, (_, i) => (
-            <button
+            <Button
               key={i}
               onClick={() => paginate(i + 1)}
               className={`px-3 py-1 rounded ${currentPage === i + 1 ? 'bg-blue-500 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'}`}
             >
               {i + 1}
-            </button>
+            </Button>
           ))}
-          <button
+          <Button
             onClick={() => paginate(currentPage + 1)}
             disabled={currentPage === Math.ceil(filteredData.length / itemsPerPage)}
             className="px-3 py-1 rounded border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-50"
           >
             <ChevronRight className="w-5 h-5" />
-          </button>
+          </Button>
         </div>
       </div>
     </div>

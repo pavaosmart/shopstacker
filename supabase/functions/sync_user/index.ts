@@ -12,7 +12,7 @@ serve(async (req) => {
   const { data, error } = await supabase
     .from('users')
     .insert({
-      id: user.id,
+      id: user.id,  // This should now be a UUID
       email: user.email,
       full_name: user.user_metadata?.full_name || '',
       created_at: new Date().toISOString(),

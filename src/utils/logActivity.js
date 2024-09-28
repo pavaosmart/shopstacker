@@ -19,7 +19,7 @@ export const logActivity = async (action, description) => {
     }
     
     console.log('Activity logged successfully:', data);
-    return data;
+    return data[0];
   } catch (error) {
     console.error('Error logging activity:', error);
     return null;

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useProducts, useAddProduct, useUpdateProduct, useDeleteProduct, checkProductPermissions } from '../hooks/useProducts';
+import { useProducts, useAddProduct, useUpdateProduct, useDeleteProduct } from '../hooks/useProducts';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
@@ -10,7 +10,6 @@ import { logActivity } from '../utils/logActivity';
 const Dashboard = () => {
   const [newProduct, setNewProduct] = useState({ name: '', price: '', stock_quantity: '' });
   const [editingProduct, setEditingProduct] = useState(null);
-  const [hasPermission, setHasPermission] = useState(true);
   const navigate = useNavigate();
 
   const { data: products, isLoading, error } = useProducts();
@@ -26,25 +25,10 @@ const Dashboard = () => {
       }
     };
     checkAuth();
-
-    const checkPermissions = async () => {
-      try {
-        const hasAccess = await checkProductPermissions();
-        setHasPermission(hasAccess);
-      } catch (error) {
-        console.error('Erro ao verificar permissões:', error);
-        setHasPermission(false);
-      }
-    };
-    checkPermissions();
   }, [navigate]);
 
   const handleAddProduct = async (e) => {
     e.preventDefault();
-    if (!hasPermission) {
-      toast.error('Você não tem permissão para adicionar produtos.');
-      return;
-    }
     try {
       const addedProduct = await addProductMutation.mutateAsync({
         name: newProduct.name,
@@ -65,10 +49,6 @@ const Dashboard = () => {
   };
 
   const handleUpdateProduct = async () => {
-    if (!hasPermission) {
-      toast.error('Você não tem permissão para atualizar produtos.');
-      return;
-    }
     if (!editingProduct || !editingProduct.id) {
       toast.error('Produto inválido para edição');
       return;
@@ -90,10 +70,6 @@ const Dashboard = () => {
   };
 
   const handleDeleteProduct = async (id) => {
-    if (!hasPermission) {
-      toast.error('Você não tem permissão para excluir produtos.');
-      return;
-    }
     try {
       const deletedProduct = await deleteProductMutation.mutateAsync(id);
       await logActivity('DELETE_PRODUCT', `Produto "${deletedProduct.name}" excluído`);
@@ -117,7 +93,6 @@ const Dashboard = () => {
 
   if (isLoading) return <div>Carregando...</div>;
   if (error) return <div>Erro ao carregar produtos: {error.message}</div>;
-  if (!hasPermission) return <div>Você não tem permissão para gerenciar produtos. Por favor, contate um administrador.</div>;
 
   return (
     <div className="p-8">

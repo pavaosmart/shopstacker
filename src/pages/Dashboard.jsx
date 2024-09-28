@@ -9,7 +9,6 @@ const Dashboard = ({ supabase, session }) => {
   const navigate = useNavigate();
   const [newProduct, setNewProduct] = useState({
     name: '',
-    min_margin: 0,
     sale_price: 0,
     product_cost: 0,
     taxes: 0,
@@ -42,7 +41,6 @@ const Dashboard = ({ supabase, session }) => {
       toast.success('Product added successfully');
       setNewProduct({
         name: '',
-        min_margin: 0,
         sale_price: 0,
         product_cost: 0,
         taxes: 0,
@@ -95,14 +93,6 @@ const Dashboard = ({ supabase, session }) => {
             value={newProduct.name}
             onChange={handleInputChange}
             placeholder="Product Name"
-            required
-          />
-          <Input
-            name="min_margin"
-            type="number"
-            value={newProduct.min_margin}
-            onChange={handleInputChange}
-            placeholder="Minimum Margin (%)"
             required
           />
           <Input

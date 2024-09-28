@@ -9,6 +9,13 @@ if (!supabaseUrl || !supabaseKey) {
 
 export const supabase = createClient(supabaseUrl, supabaseKey);
 
+export const getSupabase = async () => {
+  const { data: { session } } = await supabase.auth.getSession();
+  return createClient(supabaseUrl, supabaseKey, {
+    global: { headers: { Authorization: `Bearer ${session?.access_token}` } },
+  });
+};
+
 // Verificar se o cliente Supabase foi inicializado corretamente
 if (!supabase.auth) {
   console.error('Supabase client was not initialized correctly. Auth object is missing.');

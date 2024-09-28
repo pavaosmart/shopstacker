@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '../integrations/supabase/supabase';
+import { supabase, getSupabase } from '../integrations/supabase/supabase';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
@@ -9,6 +9,7 @@ const Dashboard = () => {
   const [products, setProducts] = useState([]);
   const [newProduct, setNewProduct] = useState({ name: '', price: '' });
   const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -17,6 +18,7 @@ const Dashboard = () => {
       if (!session) {
         navigate('/login');
       } else {
+        setUser(session.user);
         fetchProducts();
       }
     };
@@ -26,7 +28,8 @@ const Dashboard = () => {
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      const supabaseClient = await getSupabase();
+      const { data, error } = await supabaseClient
         .from('products')
         .select('name, price');
       if (error) throw error;
@@ -41,9 +44,10 @@ const Dashboard = () => {
   const handleAddProduct = async (e) => {
     e.preventDefault();
     try {
-      const { data, error } = await supabase
+      const supabaseClient = await getSupabase();
+      const { data, error } = await supabaseClient
         .from('products')
-        .insert([{ name: newProduct.name, price: parseFloat(newProduct.price) }]);
+        .insert([{ name: newProduct.name, price: parseFloat(newProduct.price), user_id: user.id }]);
       
       if (error) throw error;
       

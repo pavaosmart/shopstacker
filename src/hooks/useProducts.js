@@ -18,12 +18,12 @@ export const useAddProduct = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (newProduct) => {
-      const { data, error } = await supabase.from('products').insert([newProduct]);
+      const { data, error } = await supabase.from('products').insert([newProduct]).select();
       if (error) throw error;
-      return data;
+      return data[0];
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['products'] });
+    onSuccess: (data) => {
+      queryClient.setQueryData(['products'], (oldData) => [...(oldData || []), data]);
     },
   });
 };
@@ -32,12 +32,14 @@ export const useUpdateProduct = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, ...product }) => {
-      const { data, error } = await supabase.from('products').update(product).eq('id', id);
+      const { data, error } = await supabase.from('products').update(product).eq('id', id).select();
       if (error) throw error;
-      return data;
+      return data[0];
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['products'] });
+    onSuccess: (updatedProduct) => {
+      queryClient.setQueryData(['products'], (oldData) => 
+        oldData.map((product) => product.id === updatedProduct.id ? updatedProduct : product)
+      );
     },
   });
 };
@@ -46,12 +48,14 @@ export const useDeleteProduct = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (id) => {
-      const { data, error } = await supabase.from('products').delete().eq('id', id);
+      const { error } = await supabase.from('products').delete().eq('id', id);
       if (error) throw error;
-      return data;
+      return id;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['products'] });
+    onSuccess: (deletedId) => {
+      queryClient.setQueryData(['products'], (oldData) => 
+        oldData.filter((product) => product.id !== deletedId)
+      );
     },
   });
 };

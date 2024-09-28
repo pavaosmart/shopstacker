@@ -92,7 +92,7 @@ const UIComponentsPanel = () => {
           />
           <div className="p-4 flex-grow overflow-y-auto">
             <div className="flex justify-between items-center mb-6">
-              <div className="text-center flex-grow">
+              <div className="text-left">
                 <h3 className="text-lg font-semibold">UI Components</h3>
                 <p className="text-sm font-light italic">by Marcio Pavão</p>
               </div>

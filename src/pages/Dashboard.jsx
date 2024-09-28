@@ -9,11 +9,13 @@ const Dashboard = ({ supabase, session }) => {
   const navigate = useNavigate();
   const [newProduct, setNewProduct] = useState({
     name: '',
-    market_commissions: 0,
-    fixed_fee: 0,
-    shipping: 0,
-    marketplace_url: '',
-    product_image: '',
+    price: 0,
+    stock_quantity: 0,
+    sku: '',
+    category: '',
+    marketplace: '',
+    marketplace_product_id: '',
+    marketplace_status: '',
   });
 
   const { data: products, isLoading, isError } = useProducts();
@@ -38,11 +40,13 @@ const Dashboard = ({ supabase, session }) => {
       toast.success('Product added successfully');
       setNewProduct({
         name: '',
-        market_commissions: 0,
-        fixed_fee: 0,
-        shipping: 0,
-        marketplace_url: '',
-        product_image: '',
+        price: 0,
+        stock_quantity: 0,
+        sku: '',
+        category: '',
+        marketplace: '',
+        marketplace_product_id: '',
+        marketplace_status: '',
       });
     } catch (error) {
       toast.error('Failed to add product');
@@ -90,37 +94,50 @@ const Dashboard = ({ supabase, session }) => {
             required
           />
           <Input
-            name="market_commissions"
+            name="price"
             type="number"
-            value={newProduct.market_commissions}
+            value={newProduct.price}
             onChange={handleInputChange}
-            placeholder="Market Commissions"
+            placeholder="Price"
+            required
           />
           <Input
-            name="fixed_fee"
+            name="stock_quantity"
             type="number"
-            value={newProduct.fixed_fee}
+            value={newProduct.stock_quantity}
             onChange={handleInputChange}
-            placeholder="Fixed Fee"
+            placeholder="Stock Quantity"
+            required
           />
           <Input
-            name="shipping"
-            type="number"
-            value={newProduct.shipping}
+            name="sku"
+            value={newProduct.sku}
             onChange={handleInputChange}
-            placeholder="Shipping"
+            placeholder="SKU"
           />
           <Input
-            name="marketplace_url"
-            value={newProduct.marketplace_url}
+            name="category"
+            value={newProduct.category}
             onChange={handleInputChange}
-            placeholder="Marketplace URL"
+            placeholder="Category"
           />
           <Input
-            name="product_image"
-            value={newProduct.product_image}
+            name="marketplace"
+            value={newProduct.marketplace}
             onChange={handleInputChange}
-            placeholder="Product Image URL"
+            placeholder="Marketplace"
+          />
+          <Input
+            name="marketplace_product_id"
+            value={newProduct.marketplace_product_id}
+            onChange={handleInputChange}
+            placeholder="Marketplace Product ID"
+          />
+          <Input
+            name="marketplace_status"
+            value={newProduct.marketplace_status}
+            onChange={handleInputChange}
+            placeholder="Marketplace Status"
           />
         </div>
         <Button type="submit" className="mt-4">Add Product</Button>
@@ -131,9 +148,13 @@ const Dashboard = ({ supabase, session }) => {
         {products.map(product => (
           <div key={product.id} className="border p-4 rounded">
             <h3 className="text-xl font-bold">{product.name}</h3>
-            <p>Market Commissions: ${product.market_commissions}</p>
-            <p>Fixed Fee: ${product.fixed_fee}</p>
-            <p>Shipping: ${product.shipping}</p>
+            <p>Price: ${product.price}</p>
+            <p>Stock: {product.stock_quantity}</p>
+            <p>SKU: {product.sku}</p>
+            <p>Category: {product.category}</p>
+            <p>Marketplace: {product.marketplace}</p>
+            <p>Marketplace Product ID: {product.marketplace_product_id}</p>
+            <p>Marketplace Status: {product.marketplace_status}</p>
             <Button onClick={() => handleUpdateProduct(product.id, { name: product.name + ' (Updated)' })} className="mr-2">
               Update
             </Button>

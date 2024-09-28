@@ -5,7 +5,7 @@ import ComponentesUI from '../pages/ComponentesUI';
 const UIComponentsPanel = ({ isOpen, onClose }) => {
   const [selectedCategory, setSelectedCategory] = useState('Sidebars');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [panelWidth, setPanelWidth] = useState(320); // Initial width
+  const [panelWidth, setPanelWidth] = useState(320);
   const panelRef = useRef(null);
   const resizeHandleRef = useRef(null);
 
@@ -26,7 +26,7 @@ const UIComponentsPanel = ({ isOpen, onClose }) => {
     const handleMouseMove = (e) => {
       if (resizeHandleRef.current && resizeHandleRef.current.pressed) {
         const newWidth = document.body.clientWidth - e.clientX;
-        setPanelWidth(Math.max(280, Math.min(newWidth, 800))); // Min 280px, Max 800px
+        setPanelWidth(Math.max(280, Math.min(newWidth, 800)));
       }
     };
 
@@ -57,12 +57,12 @@ const UIComponentsPanel = ({ isOpen, onClose }) => {
         ref={panelRef}
         className={`fixed inset-y-0 right-0 bg-white shadow-lg transform transition-transform duration-300 ease-in-out ${
           isOpen ? 'translate-x-0' : 'translate-x-full'
-        } overflow-y-auto flex flex-col`}
+        } overflow-y-auto flex flex-col z-50`}
         style={{ width: `${panelWidth}px` }}
       >
         <div
           ref={resizeHandleRef}
-          className="absolute inset-y-0 left-0 w-1 cursor-ew-resize bg-gray-300 hover:bg-gray-400"
+          className="absolute inset-y-0 left-0 w-1 cursor-ew-resize bg-gray-300 hover:bg-gray-400 z-50"
           onMouseDown={handleResizeMouseDown}
         />
         <div className="p-4 flex-grow overflow-y-auto">
@@ -86,7 +86,7 @@ const UIComponentsPanel = ({ isOpen, onClose }) => {
                 <ChevronDown size={20} className={`ml-2 transition-transform duration-200 ${isDropdownOpen ? 'transform rotate-180' : ''}`} />
               </button>
               {isDropdownOpen && (
-                <div className="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
+                <div className="absolute z-50 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
                   {categories.map((category) => (
                     <button
                       key={category}

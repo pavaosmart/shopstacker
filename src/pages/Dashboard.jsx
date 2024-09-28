@@ -4,7 +4,6 @@ import { useProducts } from '../hooks/useProducts';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CalendarDateRangePicker } from "@/components/ui/date-range-picker";
 import { Overview } from "@/components/ui/overview";
 import { RecentSales } from "@/components/ui/recent-sales";
 import DashboardCard from '../components/DashboardCard';
@@ -34,7 +33,6 @@ const Dashboard = () => {
         <div className="flex items-center justify-between space-y-2">
           <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
           <div className="flex items-center space-x-2">
-            <CalendarDateRangePicker />
             <Button>Download</Button>
           </div>
         </div>

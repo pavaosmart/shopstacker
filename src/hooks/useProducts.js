@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '../integrations/supabase/supabase';
+import { supabase, getAuthenticatedClient } from '../integrations/supabase/supabase';
 
 const handleSupabaseResponse = async (promise) => {
   const { data, error } = await promise;
@@ -11,11 +11,8 @@ export const useProducts = () => {
   return useQuery({
     queryKey: ['products'],
     queryFn: async () => {
-      const { data: session } = await supabase.auth.getSession();
-      if (!session) {
-        throw new Error('Não autenticado');
-      }
-      return handleSupabaseResponse(supabase
+      const authenticatedClient = await getAuthenticatedClient();
+      return handleSupabaseResponse(authenticatedClient
         .from('products')
         .select('id, name, product_cost, taxes, shipping, marketplace_url, product_image')
       );
@@ -26,7 +23,10 @@ export const useProducts = () => {
 export const useAddProduct = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (newProduct) => handleSupabaseResponse(supabase.from('products').insert([newProduct])),
+    mutationFn: async (newProduct) => {
+      const authenticatedClient = await getAuthenticatedClient();
+      return handleSupabaseResponse(authenticatedClient.from('products').insert([newProduct]));
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
     },
@@ -36,7 +36,10 @@ export const useAddProduct = () => {
 export const useUpdateProduct = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (product) => handleSupabaseResponse(supabase.from('products').update(product).eq('id', product.id)),
+    mutationFn: async (product) => {
+      const authenticatedClient = await getAuthenticatedClient();
+      return handleSupabaseResponse(authenticatedClient.from('products').update(product).eq('id', product.id));
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
     },
@@ -46,7 +49,10 @@ export const useUpdateProduct = () => {
 export const useDeleteProduct = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (id) => handleSupabaseResponse(supabase.from('products').delete().eq('id', id)),
+    mutationFn: async (id) => {
+      const authenticatedClient = await getAuthenticatedClient();
+      return handleSupabaseResponse(authenticatedClient.from('products').delete().eq('id', id));
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
     },

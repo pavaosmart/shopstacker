@@ -32,7 +32,7 @@ const ComponentesUI = ({ panelWidth, selectedCategory, isEditMode }) => {
       case 'Dialogs/Modals':
         return <Dialogs />;
       case 'Tables':
-        return <Tables />;
+        return <div className="h-full overflow-hidden"><Tables /></div>;
       case 'Forms':
         return <Forms />;
       case 'Typography':
@@ -47,7 +47,7 @@ const ComponentesUI = ({ panelWidth, selectedCategory, isEditMode }) => {
   };
 
   return (
-    <div className={`grid gap-4 ${getColumnClass()}`}>
+    <div className={`h-full ${selectedCategory === 'Tables' ? '' : `grid gap-4 ${getColumnClass()}`}`}>
       {renderComponent()}
     </div>
   );

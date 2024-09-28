@@ -54,7 +54,7 @@ const UIComponentsPanel = () => {
 
   const handleSettingsClick = () => {
     if (isLoggedIn) {
-      setIsEditMode(true);
+      setIsEditMode(!isEditMode);
     }
   };
 

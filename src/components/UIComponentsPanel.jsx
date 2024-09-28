@@ -26,7 +26,8 @@ const UIComponentsPanel = ({ isOpen, onClose }) => {
     const handleMouseMove = (e) => {
       if (resizeHandleRef.current && resizeHandleRef.current.pressed) {
         const newWidth = document.body.clientWidth - e.clientX;
-        setPanelWidth(Math.max(280, Math.min(newWidth, 800)));
+        const maxWidth = document.body.clientWidth * 0.8; // 80% da largura da tela
+        setPanelWidth(Math.max(280, Math.min(newWidth, maxWidth)));
       }
     };
 

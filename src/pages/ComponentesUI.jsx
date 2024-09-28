@@ -14,7 +14,8 @@ const ComponentesUI = ({ panelWidth }) => {
   const getColumnClass = () => {
     if (panelWidth < 400) return 'grid-cols-1';
     if (panelWidth < 600) return 'grid-cols-2';
-    return 'grid-cols-3';
+    if (panelWidth < 800) return 'grid-cols-3';
+    return 'grid-cols-4';
   };
 
   return (

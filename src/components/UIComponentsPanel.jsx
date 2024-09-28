@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { X, ChevronDown, Settings } from 'lucide-react';
 import ComponentesUI from '../pages/ComponentesUI';
 import LoginModal from './LoginModal';
+import { useSupabaseAuth } from '../integrations/supabase/auth';
 
 const UIComponentsPanel = ({ isOpen, onClose }) => {
   const [selectedCategory, setSelectedCategory] = useState('');
@@ -9,9 +10,9 @@ const UIComponentsPanel = ({ isOpen, onClose }) => {
   const [panelWidth, setPanelWidth] = useState(320);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
-  const [currentUser, setCurrentUser] = useState(null);
   const panelRef = useRef(null);
   const resizeHandleRef = useRef(null);
+  const { session } = useSupabaseAuth();
 
   const categories = [
     'Sidebars',
@@ -57,17 +58,11 @@ const UIComponentsPanel = ({ isOpen, onClose }) => {
   };
 
   const handleSettingsClick = () => {
-    if (currentUser) {
+    if (session) {
       setIsEditMode(true);
     } else {
       setIsLoginModalOpen(true);
     }
-  };
-
-  const handleLogin = (user) => {
-    setCurrentUser(user);
-    setIsEditMode(true);
-    setIsLoginModalOpen(false);
   };
 
   return (
@@ -144,7 +139,6 @@ const UIComponentsPanel = ({ isOpen, onClose }) => {
       <LoginModal
         isOpen={isLoginModalOpen}
         onClose={() => setIsLoginModalOpen(false)}
-        onLogin={handleLogin}
       />
     </>
   );

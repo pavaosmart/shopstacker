@@ -6,23 +6,15 @@ export const useUsers = () => useQuery({
   queryKey: ['users'],
   queryFn: async () => {
     try {
-      const { data: { user }, error: authError } = await supabase.auth.getUser();
-      if (authError) throw authError;
-      if (!user) throw new Error('Not authenticated');
-
       const { data, error } = await supabase
         .from('users')
         .select('id, email, full_name');
       
-      if (error) {
-        console.error('Error fetching users:', error);
-        toast.error(`Failed to fetch users: ${error.message}`);
-        throw error;
-      }
+      if (error) throw error;
       return data || [];
     } catch (error) {
-      console.error('Error in useUsers:', error);
-      toast.error(`An error occurred: ${error.message}`);
+      console.error('Error fetching users:', error);
+      toast.error(`Failed to fetch users: ${error.message}`);
       throw error;
     }
   },
@@ -40,16 +32,12 @@ export const useCurrentUser = () => useQuery({
         .from('users')
         .select('id, email, full_name')
         .eq('id', user.id)
-        .maybeSingle();
+        .single();
       
-      if (error) {
-        console.error("Error fetching user data:", error);
-        throw new Error(`Error fetching user data: ${error.message}`);
-      }
-      
+      if (error) throw error;
       return data || { id: user.id, email: user.email, full_name: null };
     } catch (error) {
-      console.error("Error in useCurrentUser:", error);
+      console.error("Error fetching current user data:", error);
       throw error;
     }
   },
@@ -64,13 +52,14 @@ export const useUpdateUser = () => {
         .update(updateData)
         .eq('id', id)
         .select()
-        .maybeSingle();
+        .single();
       
       if (error) throw error;
       return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['currentUser'] });
+      queryClient.invalidateQueries({ queryKey: ['users'] });
     },
   });
 };
@@ -100,7 +89,7 @@ export const useAddUser = () => {
         .from('users')
         .insert([userData])
         .select()
-        .maybeSingle();
+        .single();
       
       if (error) throw error;
       return data;

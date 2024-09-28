@@ -1,8 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../integrations/supabase/supabase';
 
-const fromSupabase = async (query) => {
-  const { data, error } = await query;
+const handleSupabaseResponse = async (promise) => {
+  const { data, error } = await promise;
   if (error) throw new Error(error.message);
   return data;
 };
@@ -15,7 +15,10 @@ export const useProducts = () => {
       if (!session) {
         throw new Error('Não autenticado');
       }
-      return fromSupabase(supabase.from('products').select('id, name, min_margin, sale_price, product_cost, taxes, market_commissions, fixed_fee, shipping, marketplace_url, product_image'));
+      return handleSupabaseResponse(supabase
+        .from('products')
+        .select('id, name, min_margin, sale_price, product_cost, taxes, market_commissions, fixed_fee, shipping, marketplace_url, product_image')
+      );
     },
   });
 };
@@ -23,7 +26,7 @@ export const useProducts = () => {
 export const useAddProduct = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (newProduct) => fromSupabase(supabase.from('products').insert([newProduct])),
+    mutationFn: (newProduct) => handleSupabaseResponse(supabase.from('products').insert([newProduct])),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
     },
@@ -33,7 +36,7 @@ export const useAddProduct = () => {
 export const useUpdateProduct = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (product) => fromSupabase(supabase.from('products').update(product).eq('id', product.id)),
+    mutationFn: (product) => handleSupabaseResponse(supabase.from('products').update(product).eq('id', product.id)),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
     },
@@ -43,7 +46,7 @@ export const useUpdateProduct = () => {
 export const useDeleteProduct = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (id) => fromSupabase(supabase.from('products').delete().eq('id', id)),
+    mutationFn: (id) => handleSupabaseResponse(supabase.from('products').delete().eq('id', id)),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
     },

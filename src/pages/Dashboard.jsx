@@ -108,36 +108,14 @@ const Dashboard = () => {
     }
   };
 
-  const addExampleProducts = async () => {
-    const exampleProducts = [
-      { name: "Smartphone X", min_margin: 15, sale_price: 999.99, product_cost: 700, taxes: 50, market_commissions: 30, fixed_fee: 5, shipping: 10, marketplace_url: "https://example.com/smartphone-x", product_image: "https://example.com/images/smartphone-x.jpg" },
-      { name: "Laptop Pro", min_margin: 20, sale_price: 1499.99, product_cost: 1000, taxes: 100, market_commissions: 50, fixed_fee: 10, shipping: 20, marketplace_url: "https://example.com/laptop-pro", product_image: "https://example.com/images/laptop-pro.jpg" },
-      { name: "Wireless Earbuds", min_margin: 30, sale_price: 129.99, product_cost: 80, taxes: 10, market_commissions: 15, fixed_fee: 2, shipping: 5, marketplace_url: "https://example.com/wireless-earbuds", product_image: "https://example.com/images/wireless-earbuds.jpg" },
-      { name: "Smart Watch", min_margin: 25, sale_price: 249.99, product_cost: 150, taxes: 20, market_commissions: 25, fixed_fee: 3, shipping: 8, marketplace_url: "https://example.com/smart-watch", product_image: "https://example.com/images/smart-watch.jpg" },
-      { name: "4K TV", min_margin: 10, sale_price: 799.99, product_cost: 600, taxes: 40, market_commissions: 35, fixed_fee: 15, shipping: 50, marketplace_url: "https://example.com/4k-tv", product_image: "https://example.com/images/4k-tv.jpg" },
-      { name: "Gaming Console", min_margin: 12, sale_price: 399.99, product_cost: 300, taxes: 30, market_commissions: 20, fixed_fee: 5, shipping: 15, marketplace_url: "https://example.com/gaming-console", product_image: "https://example.com/images/gaming-console.jpg" },
-    ];
-
-    for (const product of exampleProducts) {
-      try {
-        await addProductMutation.mutateAsync(product);
-        await logActivity(session.user.id, 'CREATE', `Produto de exemplo "${product.name}" adicionado`);
-      } catch (error) {
-        console.error(`Falha ao adicionar produto de exemplo ${product.name}:`, error);
-      }
-    }
-    toast.success('Produtos de exemplo adicionados com sucesso');
-  };
-
-  if (isLoading) return <div>Carregando produtos...</div>;
-  if (isError) return <div>Erro ao carregar produtos: {error.message}</div>;
+  if (isLoading) return <div className="flex justify-center items-center h-screen">Carregando produtos...</div>;
+  if (isError) return <div className="flex justify-center items-center h-screen">Erro ao carregar produtos: {error.message}</div>;
 
   return (
     <div className="p-8">
       <h1 className="text-3xl font-bold mb-4">Dashboard MyShopTools</h1>
       {session && <p className="mb-4">Logado como: {session.user.email}</p>}
       <Button onClick={handleLogout} className="mb-4">Sair</Button>
-      <Button onClick={addExampleProducts} className="mb-4 ml-2">Adicionar Produtos de Exemplo</Button>
 
       <form onSubmit={editingProduct ? handleUpdateProduct : handleAddProduct} className="mb-8">
         <h2 className="text-2xl font-bold mb-2">{editingProduct ? 'Editar Produto' : 'Adicionar Novo Produto'}</h2>

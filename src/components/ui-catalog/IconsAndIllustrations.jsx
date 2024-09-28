@@ -1,42 +1,45 @@
 import React from 'react';
 import { Edit, Trash, Download, Share, Settings, User, Bell, Search } from 'lucide-react';
+import { Button } from "@/components/ui/button";
 
 const IconsAndIllustrations = () => {
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 p-4">
+      <h2 className="text-2xl font-bold mb-4">Icons and Illustrations</h2>
+      
       <div>
         <h3 className="text-lg font-semibold mb-4">Icon Buttons</h3>
         <div className="flex space-x-4">
-          <button className="p-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors">
-            <Edit size={20} />
-          </button>
-          <button className="p-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors">
-            <Trash size={20} />
-          </button>
-          <button className="p-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors">
-            <Download size={20} />
-          </button>
-          <button className="p-2 bg-purple-500 text-white rounded hover:bg-purple-600 transition-colors">
-            <Share size={20} />
-          </button>
+          <Button variant="outline" size="icon">
+            <Edit className="h-4 w-4" />
+          </Button>
+          <Button variant="outline" size="icon">
+            <Trash className="h-4 w-4" />
+          </Button>
+          <Button variant="outline" size="icon">
+            <Download className="h-4 w-4" />
+          </Button>
+          <Button variant="outline" size="icon">
+            <Share className="h-4 w-4" />
+          </Button>
         </div>
       </div>
 
       <div>
         <h3 className="text-lg font-semibold mb-4">Icon with Text</h3>
         <div className="flex flex-col space-y-2">
-          <button className="flex items-center space-x-2 text-blue-500 hover:text-blue-700 transition-colors">
-            <Settings size={20} />
+          <Button variant="ghost" className="justify-start">
+            <Settings className="mr-2 h-4 w-4" />
             <span>Settings</span>
-          </button>
-          <button className="flex items-center space-x-2 text-green-500 hover:text-green-700 transition-colors">
-            <User size={20} />
+          </Button>
+          <Button variant="ghost" className="justify-start">
+            <User className="mr-2 h-4 w-4" />
             <span>Profile</span>
-          </button>
-          <button className="flex items-center space-x-2 text-yellow-500 hover:text-yellow-700 transition-colors">
-            <Bell size={20} />
+          </Button>
+          <Button variant="ghost" className="justify-start">
+            <Bell className="mr-2 h-4 w-4" />
             <span>Notifications</span>
-          </button>
+          </Button>
         </div>
       </div>
 

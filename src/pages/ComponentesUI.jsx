@@ -40,7 +40,7 @@ const ComponentesUI = ({ panelWidth, selectedCategory, isEditMode }) => {
   };
 
   return (
-    <div className="h-full overflow-y-auto">
+    <div className="h-full overflow-y-auto bg-gray-50">
       {renderComponent()}
     </div>
   );

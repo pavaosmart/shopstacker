@@ -60,8 +60,9 @@ const Tables = () => {
   };
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="mb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-2">
+    <div className="space-y-4 p-4">
+      <h2 className="text-2xl font-bold mb-4">Tables</h2>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-2">
         <div className="relative w-full sm:w-auto">
           <Input
             type="text"
@@ -82,9 +83,9 @@ const Tables = () => {
           <option value="10">10 per page</option>
         </Select>
       </div>
-      <div className="flex-grow overflow-x-auto overflow-y-auto">
+      <div className="overflow-x-auto">
         <table className="w-full bg-white border border-gray-300">
-          <thead className="sticky top-0 bg-gray-100">
+          <thead className="bg-gray-100">
             <tr>
               {Object.keys(data[0]).map(column => (
                 <th

@@ -25,11 +25,12 @@ const LoginModal = ({ isOpen, onClose, onLogin }) => {
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
       <div className="bg-white p-6 rounded-lg w-96">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold">Login to UI Components Kit</h2>
           <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
             <X size={20} />
           </button>
         </div>
+        <h1 className="text-2xl font-bold mb-2 text-center">Welcome to UI Elements Kit</h1>
+        <h2 className="text-xl mb-6 text-center">MyShopTools UI Components</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input
             type="email"

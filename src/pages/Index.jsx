@@ -10,8 +10,6 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gray-100 p-8">
-      <h1 className="text-4xl font-bold mb-4 text-center">Welcome to UI Elements Kit</h1>
-      <h2 className="text-2xl mb-8 text-center">MyShopTools UI Components</h2>
       <div className="text-center mb-8">
         <Button onClick={() => setIsPanelOpen(true)}>Open UI Components Panel</Button>
       </div>

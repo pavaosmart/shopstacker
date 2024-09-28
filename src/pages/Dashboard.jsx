@@ -15,7 +15,6 @@ const Dashboard = () => {
     min_margin: 0,
     sale_price: 0,
     product_cost: 0,
-    extra_inputs: 0,
     taxes: 0,
     market_commissions: 0,
     fixed_fee: 0,
@@ -75,7 +74,6 @@ const Dashboard = () => {
         min_margin: 0,
         sale_price: 0,
         product_cost: 0,
-        extra_inputs: 0,
         taxes: 0,
         market_commissions: 0,
         fixed_fee: 0,
@@ -152,13 +150,6 @@ const Dashboard = () => {
             onChange={handleInputChange}
             placeholder="Custo do Produto"
             required
-          />
-          <Input
-            name="extra_inputs"
-            type="number"
-            value={editingProduct ? editingProduct.extra_inputs : newProduct.extra_inputs}
-            onChange={handleInputChange}
-            placeholder="Custos Adicionais"
           />
           <Input
             name="taxes"

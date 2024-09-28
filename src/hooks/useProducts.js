@@ -15,7 +15,7 @@ export const useProducts = () => {
       if (!session) {
         throw new Error('Não autenticado');
       }
-      return fromSupabase(supabase.from('products').select('*'));
+      return fromSupabase(supabase.from('products').select('id, name, min_margin, sale_price, product_cost, taxes, market_commissions, fixed_fee, shipping, marketplace_url, product_image'));
     },
   });
 };

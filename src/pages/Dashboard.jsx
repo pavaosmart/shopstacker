@@ -12,7 +12,6 @@ const Dashboard = () => {
   const [session, setSession] = useState(null);
   const [newProduct, setNewProduct] = useState({
     name: '',
-    sale_price: 0,
     product_cost: 0,
     taxes: 0,
     market_commissions: 0,
@@ -70,7 +69,6 @@ const Dashboard = () => {
       toast.success('Produto adicionado com sucesso');
       setNewProduct({
         name: '',
-        sale_price: 0,
         product_cost: 0,
         taxes: 0,
         market_commissions: 0,
@@ -123,14 +121,6 @@ const Dashboard = () => {
             value={editingProduct ? editingProduct.name : newProduct.name}
             onChange={handleInputChange}
             placeholder="Nome do Produto"
-            required
-          />
-          <Input
-            name="sale_price"
-            type="number"
-            value={editingProduct ? editingProduct.sale_price : newProduct.sale_price}
-            onChange={handleInputChange}
-            placeholder="Preço de Venda"
             required
           />
           <Input
@@ -193,7 +183,6 @@ const Dashboard = () => {
         {products && products.map(product => (
           <div key={product.id} className="border p-4 rounded">
             <h3 className="text-xl font-bold">{product.name}</h3>
-            <p>Preço de Venda: R${product.sale_price}</p>
             <p>Custo do Produto: R${product.product_cost}</p>
             <img src={product.product_image} alt={product.name} className="w-full h-40 object-cover mt-2 mb-2" />
             <Button onClick={() => setEditingProduct(product)} className="mr-2">Editar</Button>

@@ -17,7 +17,7 @@ export const useProducts = () => {
       }
       return handleSupabaseResponse(supabase
         .from('products')
-        .select('id, name, sale_price, product_cost, taxes, market_commissions, fixed_fee, shipping, marketplace_url, product_image')
+        .select('id, name, product_cost, taxes, market_commissions, fixed_fee, shipping, marketplace_url, product_image')
       );
     },
   });

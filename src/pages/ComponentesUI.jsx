@@ -19,23 +19,23 @@ const ComponentesUI = ({ panelWidth, selectedCategory, isEditMode, onComponentCl
       case 'Top Bars (Navigation Bars)':
         return <TopBars onComponentClick={onComponentClick} onImplementComponent={onImplementComponent} />;
       case 'Buttons':
-        return <Buttons onComponentClick={onComponentClick} onImplementComponent={onImplementComponent} />;
+        return <Buttons onComponentClick={onComponentClick} />;
       case 'Cards':
-        return <Cards onComponentClick={onComponentClick} onImplementComponent={onImplementComponent} />;
+        return <Cards onComponentClick={onComponentClick} />;
       case 'Dialogs/Modals':
-        return <Dialogs onComponentClick={onComponentClick} onImplementComponent={onImplementComponent} />;
+        return <Dialogs onComponentClick={onComponentClick} />;
       case 'Tables':
-        return <Tables onComponentClick={onComponentClick} onImplementComponent={onImplementComponent} />;
+        return <Tables onComponentClick={onComponentClick} />;
       case 'Forms':
-        return <Forms onComponentClick={onComponentClick} onImplementComponent={onImplementComponent} />;
+        return <Forms onComponentClick={onComponentClick} />;
       case 'Typography':
-        return <Typography onComponentClick={onComponentClick} onImplementComponent={onImplementComponent} />;
+        return <Typography onComponentClick={onComponentClick} />;
       case 'Icons and Illustrations':
-        return <IconsAndIllustrations onComponentClick={onComponentClick} onImplementComponent={onImplementComponent} />;
+        return <IconsAndIllustrations onComponentClick={onComponentClick} />;
       case 'Notifications and Toasts':
-        return <Notifications onComponentClick={onComponentClick} onImplementComponent={onImplementComponent} />;
+        return <Notifications onComponentClick={onComponentClick} />;
       default:
-        return <PreviewCards isEditMode={isEditMode} onComponentClick={onComponentClick} onImplementComponent={onImplementComponent} />;
+        return <PreviewCards isEditMode={isEditMode} onComponentClick={onComponentClick} />;
     }
   };
 

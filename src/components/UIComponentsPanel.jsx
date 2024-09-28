@@ -4,8 +4,8 @@ import ComponentesUI from '../pages/ComponentesUI';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import ConfirmationDialog from './ConfirmationDialog';
+import Login from '../pages/Login';
 import { useSupabaseAuth } from '../integrations/supabase/auth';
-import { useLocation } from 'react-router-dom';
 
 const UIComponentsPanel = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -15,12 +15,10 @@ const UIComponentsPanel = () => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedComponent, setSelectedComponent] = useState('');
-  const [isRegistering, setIsRegistering] = useState(false);
   const panelRef = useRef(null);
   const resizeHandleRef = useRef(null);
   const dropdownRef = useRef(null);
-  const { session, login, logout } = useSupabaseAuth();
-  const location = useLocation();
+  const { session, logout } = useSupabaseAuth();
 
   const categories = [
     'Sidebars', 'Top Bars (Navigation Bars)', 'Buttons', 'Cards',
@@ -86,76 +84,8 @@ const UIComponentsPanel = () => {
   };
 
   const handleConfirmImplementation = () => {
-    const currentPage = location.pathname.slice(1) || 'index';
-    console.log(`Implementing ${selectedComponent} on the ${currentPage} page`);
-    // Here you would add the logic to actually implement the component
+    console.log(`Implementing ${selectedComponent} on the current page`);
     setIsDialogOpen(false);
-  };
-
-  const LoginForm = () => {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-
-    const handleLogin = async (e) => {
-      e.preventDefault();
-      try {
-        const { error } = await login(email, password);
-        if (error) throw error;
-      } catch (error) {
-        console.error('Error logging in:', error.message);
-      }
-    };
-
-    return (
-      <form onSubmit={handleLogin} className="space-y-4">
-        <Input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <Input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-        <Button type="submit" className="w-full">Login</Button>
-      </form>
-    );
-  };
-
-  const RegisterForm = () => {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-
-    const handleRegister = async (e) => {
-      e.preventDefault();
-      // Implement registration logic here
-      console.log('Register with:', email, password);
-    };
-
-    return (
-      <form onSubmit={handleRegister} className="space-y-4">
-        <Input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <Input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-        <Button type="submit" className="w-full">Register</Button>
-      </form>
-    );
   };
 
   return (
@@ -208,40 +138,7 @@ const UIComponentsPanel = () => {
                 </button>
               </div>
             </div>
-            {!session ? (
-              <div className="mb-4">
-                <h2 className="text-2xl font-bold mb-4">Welcome to ShopPlugin</h2>
-                {isRegistering ? (
-                  <>
-                    <h3 className="text-lg font-semibold mb-2">Create an Account</h3>
-                    <RegisterForm />
-                    <p className="mt-4 text-sm">
-                      Already have an account?{' '}
-                      <button
-                        onClick={() => setIsRegistering(false)}
-                        className="text-blue-500 hover:underline"
-                      >
-                        Login
-                      </button>
-                    </p>
-                  </>
-                ) : (
-                  <>
-                    <h3 className="text-lg font-semibold mb-2">Login to Your Account</h3>
-                    <LoginForm />
-                    <p className="mt-4 text-sm">
-                      Don't have an account?{' '}
-                      <button
-                        onClick={() => setIsRegistering(true)}
-                        className="text-blue-500 hover:underline"
-                      >
-                        Register
-                      </button>
-                    </p>
-                  </>
-                )}
-              </div>
-            ) : (
+            {session ? (
               <div className="mb-4">
                 <h4 className="text-sm font-medium mb-2">Select a category</h4>
                 <div className="relative" ref={dropdownRef}>
@@ -270,6 +167,8 @@ const UIComponentsPanel = () => {
                   )}
                 </div>
               </div>
+            ) : (
+              <Login />
             )}
           </div>
           <div className="flex-grow overflow-y-auto">
@@ -280,7 +179,6 @@ const UIComponentsPanel = () => {
                   selectedCategory={selectedCategory} 
                   isEditMode={isEditMode} 
                   onComponentClick={handleComponentClick}
-                  onImplementComponent={handleConfirmImplementation}
                 />
               </div>
             )}
@@ -292,7 +190,7 @@ const UIComponentsPanel = () => {
         onClose={() => setIsDialogOpen(false)}
         onConfirm={handleConfirmImplementation}
         componentName={selectedComponent}
-        pageName={location.pathname.slice(1) || 'index'}
+        pageName="current"
       />
     </>
   );

@@ -1,20 +1,43 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase, getAuthenticatedClient } from '../integrations/supabase/supabase';
+import { supabase } from '../integrations/supabase/supabase';
 
 const handleSupabaseResponse = async (promise) => {
-  const { data, error } = await promise;
-  if (error) throw new Error(error.message);
-  return data;
+  try {
+    const { data, error } = await promise;
+    if (error) {
+      if (error.message.includes("column")) {
+        console.warn("Aviso: Coluna faltante na consulta", error);
+        return [];
+      }
+      throw new Error(error.message);
+    }
+    return data;
+  } catch (err) {
+    console.error("Erro no Supabase:", err);
+    throw err;
+  }
 };
 
 export const useProducts = () => {
   return useQuery({
     queryKey: ['products'],
     queryFn: async () => {
-      const authenticatedClient = await getAuthenticatedClient();
-      return handleSupabaseResponse(authenticatedClient
+      const { data: session } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error('Não autenticado');
+      }
+
+      // Buscando colunas dinamicamente
+      const { data: columns } = await supabase
+        .from('information_schema.columns')
+        .select('column_name')
+        .eq('table_name', 'products');
+
+      const columnsList = columns.map(col => col.column_name).join(', ');
+
+      return handleSupabaseResponse(supabase
         .from('products')
-        .select('id, name, product_cost, taxes, shipping, marketplace_url, product_image')
+        .select(columnsList)
       );
     },
   });
@@ -24,8 +47,11 @@ export const useAddProduct = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (newProduct) => {
-      const authenticatedClient = await getAuthenticatedClient();
-      return handleSupabaseResponse(authenticatedClient.from('products').insert([newProduct]));
+      const { data: session } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error('Não autenticado');
+      }
+      return handleSupabaseResponse(supabase.from('products').insert([newProduct]));
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
@@ -36,9 +62,12 @@ export const useAddProduct = () => {
 export const useUpdateProduct = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (product) => {
-      const authenticatedClient = await getAuthenticatedClient();
-      return handleSupabaseResponse(authenticatedClient.from('products').update(product).eq('id', product.id));
+    mutationFn: async ({ id, ...product }) => {
+      const { data: session } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error('Não autenticado');
+      }
+      return handleSupabaseResponse(supabase.from('products').update(product).eq('id', id));
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
@@ -50,8 +79,11 @@ export const useDeleteProduct = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (id) => {
-      const authenticatedClient = await getAuthenticatedClient();
-      return handleSupabaseResponse(authenticatedClient.from('products').delete().eq('id', id));
+      const { data: session } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error('Não autenticado');
+      }
+      return handleSupabaseResponse(supabase.from('products').delete().eq('id', id));
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });

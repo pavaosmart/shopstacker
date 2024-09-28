@@ -10,14 +10,7 @@ import { logActivity } from '../utils/logActivity';
 const Dashboard = () => {
   const navigate = useNavigate();
   const [session, setSession] = useState(null);
-  const [newProduct, setNewProduct] = useState({
-    name: '',
-    product_cost: 0,
-    taxes: 0,
-    shipping: 0,
-    marketplace_url: '',
-    product_image: '',
-  });
+  const [newProduct, setNewProduct] = useState({});
   const [editingProduct, setEditingProduct] = useState(null);
 
   const { data: products, isLoading, isError, error } = useProducts();
@@ -53,9 +46,9 @@ const Dashboard = () => {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     if (editingProduct) {
-      setEditingProduct({ ...editingProduct, [name]: value });
+      setEditingProduct(prev => ({ ...prev, [name]: value }));
     } else {
-      setNewProduct({ ...newProduct, [name]: value });
+      setNewProduct(prev => ({ ...prev, [name]: value }));
     }
   };
 
@@ -65,14 +58,7 @@ const Dashboard = () => {
       await addProductMutation.mutateAsync(newProduct);
       await logActivity(session.user.id, 'CREATE', `Produto "${newProduct.name}" adicionado`);
       toast.success('Produto adicionado com sucesso');
-      setNewProduct({
-        name: '',
-        product_cost: 0,
-        taxes: 0,
-        shipping: 0,
-        marketplace_url: '',
-        product_image: '',
-      });
+      setNewProduct({});
     } catch (error) {
       toast.error('Falha ao adicionar produto: ' + error.message);
     }
@@ -112,47 +98,16 @@ const Dashboard = () => {
       <form onSubmit={editingProduct ? handleUpdateProduct : handleAddProduct} className="mb-8">
         <h2 className="text-2xl font-bold mb-2">{editingProduct ? 'Editar Produto' : 'Adicionar Novo Produto'}</h2>
         <div className="grid grid-cols-2 gap-4">
-          <Input
-            name="name"
-            value={editingProduct ? editingProduct.name : newProduct.name}
-            onChange={handleInputChange}
-            placeholder="Nome do Produto"
-            required
-          />
-          <Input
-            name="product_cost"
-            type="number"
-            value={editingProduct ? editingProduct.product_cost : newProduct.product_cost}
-            onChange={handleInputChange}
-            placeholder="Custo do Produto"
-            required
-          />
-          <Input
-            name="taxes"
-            type="number"
-            value={editingProduct ? editingProduct.taxes : newProduct.taxes}
-            onChange={handleInputChange}
-            placeholder="Impostos"
-          />
-          <Input
-            name="shipping"
-            type="number"
-            value={editingProduct ? editingProduct.shipping : newProduct.shipping}
-            onChange={handleInputChange}
-            placeholder="Custo de Envio"
-          />
-          <Input
-            name="marketplace_url"
-            value={editingProduct ? editingProduct.marketplace_url : newProduct.marketplace_url}
-            onChange={handleInputChange}
-            placeholder="URL do Marketplace"
-          />
-          <Input
-            name="product_image"
-            value={editingProduct ? editingProduct.product_image : newProduct.product_image}
-            onChange={handleInputChange}
-            placeholder="URL da Imagem do Produto"
-          />
+          {['name', 'product_cost', 'taxes', 'shipping', 'marketplace_url', 'product_image'].map((field) => (
+            <Input
+              key={field}
+              name={field}
+              value={(editingProduct || newProduct)[field] || ''}
+              onChange={handleInputChange}
+              placeholder={field.charAt(0).toUpperCase() + field.slice(1).replace('_', ' ')}
+              type={['product_cost', 'taxes', 'shipping'].includes(field) ? 'number' : 'text'}
+            />
+          ))}
         </div>
         <Button type="submit" className="mt-4">{editingProduct ? 'Atualizar Produto' : 'Adicionar Produto'}</Button>
         {editingProduct && (
@@ -165,8 +120,8 @@ const Dashboard = () => {
         {products && products.map(product => (
           <div key={product.id} className="border p-4 rounded">
             <h3 className="text-xl font-bold">{product.name}</h3>
-            <p>Custo do Produto: R${product.product_cost}</p>
-            <img src={product.product_image} alt={product.name} className="w-full h-40 object-cover mt-2 mb-2" />
+            {product.product_cost && <p>Custo do Produto: R${product.product_cost}</p>}
+            {product.product_image && <img src={product.product_image} alt={product.name} className="w-full h-40 object-cover mt-2 mb-2" />}
             <Button onClick={() => setEditingProduct(product)} className="mr-2">Editar</Button>
             <Button onClick={() => handleDeleteProduct(product.id, product.name)} variant="destructive">Excluir</Button>
           </div>

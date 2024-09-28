@@ -3,7 +3,7 @@ import { supabase } from '../integrations/supabase/supabase';
 
 const ITEMS_PER_PAGE = 10;
 
-export const useActivityLogs = ({ page, actionFilter, userFilter }) => {
+export const useActivityLogs = ({ page = 1, actionFilter = '', userFilter = '' } = {}) => {
   return useQuery({
     queryKey: ['activityLogs', page, actionFilter, userFilter],
     queryFn: async () => {

@@ -104,7 +104,7 @@ const UIComponentsPanel = ({ isOpen, onClose }) => {
             </div>
           </div>
           <div className="mt-4">
-            <ComponentesUI />
+            <ComponentesUI panelWidth={panelWidth} />
           </div>
         </div>
       </div>

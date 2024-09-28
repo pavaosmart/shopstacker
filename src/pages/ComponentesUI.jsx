@@ -10,16 +10,22 @@ import Typography from '../components/ui-catalog/Typography';
 import IconsAndIllustrations from '../components/ui-catalog/IconsAndIllustrations';
 import Notifications from '../components/ui-catalog/Notifications';
 
-const ComponentesUI = () => {
+const ComponentesUI = ({ panelWidth }) => {
+  const getColumnClass = () => {
+    if (panelWidth < 400) return 'grid-cols-1';
+    if (panelWidth < 600) return 'grid-cols-2';
+    return 'grid-cols-3';
+  };
+
   return (
-    <div className="space-y-8">
+    <div className={`grid gap-4 ${getColumnClass()}`}>
       <section>
         <h2 className="text-xl font-semibold mb-4">Sidebars</h2>
         <Sidebars />
       </section>
 
       <section>
-        <h2 className="text-xl font-semibold mb-4">Top Bars (Navigation Bars)</h2>
+        <h2 className="text-xl font-semibold mb-4">Top Bars</h2>
         <TopBars />
       </section>
 

@@ -1,11 +1,38 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { toast } from "sonner";
 import { supabase } from '../integrations/supabase/supabase';
-import { EyeIcon, EyeOffIcon } from 'lucide-react';
+import { EyeIcon, EyeOffIcon, CheckCircle2, XCircle } from 'lucide-react';
+
+const PasswordStrengthIndicator = ({ password }) => {
+  const requirements = [
+    { regex: /.{8,}/, text: "Pelo menos 8 caracteres" },
+    { regex: /[0-9]/, text: "Pelo menos um número" },
+    { regex: /[a-z]/, text: "Pelo menos uma letra minúscula" },
+    { regex: /[A-Z]/, text: "Pelo menos uma letra maiúscula" },
+    { regex: /[^A-Za-z0-9]/, text: "Pelo menos um caractere especial" },
+  ];
+
+  return (
+    <div className="mt-2">
+      {requirements.map((requirement, index) => (
+        <div key={index} className="flex items-center">
+          {requirement.regex.test(password) ? (
+            <CheckCircle2 className="text-green-500 mr-2" size={16} />
+          ) : (
+            <XCircle className="text-red-500 mr-2" size={16} />
+          )}
+          <span className={requirement.regex.test(password) ? "text-green-500" : "text-red-500"}>
+            {requirement.text}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+};
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -108,26 +135,29 @@ const Login = () => {
                 </button>
               </div>
               {isSignUp && (
-                <div className="relative">
-                  <Input
-                    type={showPassword ? "text" : "password"}
-                    placeholder="Confirmar Senha"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={togglePasswordVisibility}
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                  >
-                    {showPassword ? (
-                      <EyeOffIcon className="h-5 w-5 text-gray-400" />
-                    ) : (
-                      <EyeIcon className="h-5 w-5 text-gray-400" />
-                    )}
-                  </button>
-                </div>
+                <>
+                  <div className="relative">
+                    <Input
+                      type={showPassword ? "text" : "password"}
+                      placeholder="Confirmar Senha"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={togglePasswordVisibility}
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                    >
+                      {showPassword ? (
+                        <EyeOffIcon className="h-5 w-5 text-gray-400" />
+                      ) : (
+                        <EyeIcon className="h-5 w-5 text-gray-400" />
+                      )}
+                    </button>
+                  </div>
+                  <PasswordStrengthIndicator password={password} />
+                </>
               )}
             </div>
             <Button className="w-full mt-4" type="submit" disabled={loading}>

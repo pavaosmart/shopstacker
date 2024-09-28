@@ -28,7 +28,7 @@ export const useActivityLogs = ({ page, actionFilter, userFilter }) => {
       // Fetch user information separately
       const userIds = [...new Set(data.map(log => log.user_id))];
       const { data: users, error: userError } = await supabase
-        .from('users')
+        .from('auth.users')  // Changed from 'users' to 'auth.users'
         .select('id, email')
         .in('id', userIds);
 

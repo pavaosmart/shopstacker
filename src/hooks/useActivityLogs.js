@@ -28,7 +28,7 @@ export const useActivityLogs = ({ page, actionFilter, userFilter }) => {
       // Fetch user information separately
       const userIds = [...new Set(data.map(log => log.user_id))];
       const { data: users, error: userError } = await supabase
-        .from('users')  // Use 'users' table, which is likely the correct table for user information
+        .from('users')  // This is typically the correct table for user information
         .select('id, email')
         .in('id', userIds);
 

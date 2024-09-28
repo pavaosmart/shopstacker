@@ -9,7 +9,7 @@ export const useActivityLogs = ({ page, actionFilter, userFilter }) => {
     queryFn: async () => {
       let query = supabase
         .from('activity_logs')
-        .select('*, users!fk_user(id, email)', { count: 'exact' })
+        .select('*, users!activity_logs_user_id_fkey(id, email)', { count: 'exact' })
         .order('created_at', { ascending: false })
         .range((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE - 1);
 

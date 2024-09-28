@@ -11,13 +11,13 @@ import IconsAndIllustrations from '../components/ui-catalog/IconsAndIllustration
 import Notifications from '../components/ui-catalog/Notifications';
 import PreviewCards from '../components/ui-catalog/PreviewCards';
 
-const ComponentesUI = ({ panelWidth, selectedCategory, isEditMode, onComponentClick }) => {
+const ComponentesUI = ({ panelWidth, selectedCategory, isEditMode, onComponentClick, onImplementComponent }) => {
   const renderComponent = () => {
     switch (selectedCategory) {
       case 'Sidebars':
-        return <Sidebars onComponentClick={onComponentClick} />;
+        return <Sidebars onComponentClick={onComponentClick} onImplementComponent={onImplementComponent} />;
       case 'Top Bars (Navigation Bars)':
-        return <TopBars onComponentClick={onComponentClick} />;
+        return <TopBars onComponentClick={onComponentClick} onImplementComponent={onImplementComponent} />;
       case 'Buttons':
         return <Buttons onComponentClick={onComponentClick} />;
       case 'Cards':

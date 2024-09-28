@@ -77,8 +77,6 @@ const UIComponentsPanel = () => {
 
   const handleLogin = (e) => {
     e.preventDefault();
-    // Implement your login logic here
-    // For demonstration, we'll just set isLoggedIn to true
     setIsLoggedIn(true);
   };
 
@@ -94,8 +92,12 @@ const UIComponentsPanel = () => {
   };
 
   const handleConfirmImplementation = () => {
-    // Implement the logic to add the component to the current page
     console.log(`Implementing ${selectedComponent} on the current page`);
+    if (selectedComponent.includes('Sidebar')) {
+      // Implement the logic to add the sidebar
+    } else if (selectedComponent.includes('Top Bar')) {
+      // Implement the logic to add the top bar
+    }
     setIsDialogOpen(false);
   };
 

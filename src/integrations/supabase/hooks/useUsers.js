@@ -1,5 +1,32 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { supabase } from '../supabase';
+import { toast } from "sonner";
+
+export const useUsers = () => useQuery({
+  queryKey: ['users'],
+  queryFn: async () => {
+    try {
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      if (authError) throw authError;
+      if (!user) throw new Error('Not authenticated');
+
+      const { data, error } = await supabase
+        .from('users')
+        .select('id, email, full_name');
+      
+      if (error) {
+        console.error('Error fetching users:', error);
+        toast.error(`Failed to fetch users: ${error.message}`);
+        throw error;
+      }
+      return data || [];
+    } catch (error) {
+      console.error('Error in useUsers:', error);
+      toast.error(`An error occurred: ${error.message}`);
+      throw error;
+    }
+  },
+});
 
 export const useCurrentUser = () => useQuery({
   queryKey: ['currentUser'],
@@ -83,19 +110,3 @@ export const useAddUser = () => {
     },
   });
 };
-
-export const useUsers = () => useQuery({
-  queryKey: ['users'],
-  queryFn: async () => {
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError) throw authError;
-    if (!user) throw new Error('Not authenticated');
-
-    const { data, error } = await supabase
-      .from('users')
-      .select('id, email, full_name');
-    
-    if (error) throw error;
-    return data || [];
-  },
-});

@@ -26,23 +26,27 @@ export const useActivityLogs = ({ page, actionFilter, userFilter }) => {
       if (error) throw new Error(error.message);
 
       // Fetch user information separately
-      const userIds = [...new Set(data.map(log => log.user_id))];
-      const { data: users, error: userError } = await supabase
-        .from('users')  // This is typically the correct table for user information
-        .select('id, email')
-        .in('id', userIds);
+      if (data && data.length > 0) {
+        const userIds = [...new Set(data.map(log => log.user_id))];
+        const { data: users, error: userError } = await supabase
+          .from('users')
+          .select('id, email')
+          .in('id', userIds);
 
-      if (userError) throw new Error(userError.message);
+        if (userError) throw new Error(userError.message);
 
-      const userMap = Object.fromEntries(users.map(user => [user.id, user]));
+        const userMap = Object.fromEntries(users.map(user => [user.id, user]));
 
-      return {
-        data: data.map(log => ({
-          ...log,
-          user_email: userMap[log.user_id]?.email || 'Unknown'
-        })),
-        count
-      };
+        return {
+          data: data.map(log => ({
+            ...log,
+            user_email: userMap[log.user_id]?.email || 'Unknown'
+          })),
+          count
+        };
+      }
+
+      return { data: [], count: 0 };
     },
   });
 };

@@ -18,9 +18,16 @@ const UIComponentsPanel = () => {
   const dropdownRef = useRef(null);
 
   const categories = [
-    'Sidebars', 'Top Bars (Navigation Bars)', 'Buttons', 'Cards',
-    'Dialogs/Modals', 'Tables', 'Forms', 'Typography',
-    'Icons and Illustrations', 'Notifications and Toasts'
+    { id: '001', name: 'Dialog Confirmations' },
+    { id: '002', name: 'Top Bars (Navigation Bars)' },
+    { id: '003', name: 'Buttons' },
+    { id: '004', name: 'Cards' },
+    { id: '005', name: 'Dialogs/Modals' },
+    { id: '006', name: 'Tables' },
+    { id: '007', name: 'Forms' },
+    { id: '008', name: 'Typography' },
+    { id: '009', name: 'Icons and Illustrations' },
+    { id: '010', name: 'Notifications and Toasts' }
   ];
 
   useEffect(() => {
@@ -69,6 +76,7 @@ const UIComponentsPanel = () => {
   const handleSettingsClick = () => {
     if (isLoggedIn) {
       setIsEditMode(!isEditMode);
+      setSelectedCategory('');
     }
   };
 
@@ -143,21 +151,21 @@ const UIComponentsPanel = () => {
                     onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                     className="w-full flex justify-between items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-blue-500"
                   >
-                    {selectedCategory || 'Select category'}
+                    {selectedCategory ? `${selectedCategory.id} - ${selectedCategory.name}` : 'Select category'}
                     <ChevronDown size={20} className={`ml-2 transition-transform duration-200 ${isDropdownOpen ? 'transform rotate-180' : ''}`} />
                   </button>
                   {isDropdownOpen && (
                     <div className="absolute z-50 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
                       {categories.map((category) => (
                         <button
-                          key={category}
+                          key={category.id}
                           className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
                           onClick={() => {
                             setSelectedCategory(category);
                             setIsDropdownOpen(false);
                           }}
                         >
-                          {category}
+                          {category.id} - {category.name}
                         </button>
                       ))}
                     </div>

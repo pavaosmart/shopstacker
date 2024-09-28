@@ -14,7 +14,6 @@ const Dashboard = () => {
     name: '',
     product_cost: 0,
     taxes: 0,
-    market_commissions: 0,
     fixed_fee: 0,
     shipping: 0,
     marketplace_url: '',
@@ -71,7 +70,6 @@ const Dashboard = () => {
         name: '',
         product_cost: 0,
         taxes: 0,
-        market_commissions: 0,
         fixed_fee: 0,
         shipping: 0,
         marketplace_url: '',
@@ -137,13 +135,6 @@ const Dashboard = () => {
             value={editingProduct ? editingProduct.taxes : newProduct.taxes}
             onChange={handleInputChange}
             placeholder="Impostos"
-          />
-          <Input
-            name="market_commissions"
-            type="number"
-            value={editingProduct ? editingProduct.market_commissions : newProduct.market_commissions}
-            onChange={handleInputChange}
-            placeholder="Comissões de Marketplace"
           />
           <Input
             name="fixed_fee"

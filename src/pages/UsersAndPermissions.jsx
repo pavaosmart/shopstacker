@@ -36,7 +36,7 @@ const UsersAndPermissions = () => {
           <div>
             <Input
               placeholder="Nome Completo"
-              value={editedUser.full_name}
+              value={editedUser.full_name || ''}
               onChange={(e) => setEditedUser({ ...editedUser, full_name: e.target.value })}
               className="mb-2"
             />
@@ -52,7 +52,7 @@ const UsersAndPermissions = () => {
           </div>
         ) : (
           <div>
-            <p><strong>Nome:</strong> {user.full_name}</p>
+            <p><strong>Nome:</strong> {user.full_name || 'Não definido'}</p>
             <p><strong>Email:</strong> {user.email}</p>
             <Button onClick={() => {
               setEditedUser(user);

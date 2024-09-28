@@ -16,7 +16,7 @@ const UIComponentsPanel = () => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedComponent, setSelectedComponent] = useState('');
-  const [activeTab, setActiveTab] = useState('login'); // New state for managing tabs
+  const [activeTab, setActiveTab] = useState('login');
   const panelRef = useRef(null);
   const resizeHandleRef = useRef(null);
   const dropdownRef = useRef(null);
@@ -90,6 +90,14 @@ const UIComponentsPanel = () => {
     setIsDialogOpen(false);
   };
 
+  const handleSwitchToRegister = () => {
+    setActiveTab('register');
+  };
+
+  const handleSwitchToLogin = () => {
+    setActiveTab('login');
+  };
+
   return (
     <>
       <Button
@@ -142,24 +150,20 @@ const UIComponentsPanel = () => {
             </div>
             {!session ? (
               <div className="mb-4">
-                <div className="flex mb-4">
-                  <Button
-                    onClick={() => setActiveTab('login')}
-                    className={`flex-1 ${activeTab === 'login' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
-                  >
-                    Login
-                  </Button>
-                  <Button
-                    onClick={() => setActiveTab('register')}
-                    className={`flex-1 ${activeTab === 'register' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
-                  >
-                    Register
-                  </Button>
-                </div>
                 {activeTab === 'login' ? (
-                  <LoginModal isOpen={true} onClose={() => {}} onLogin={() => {}} />
+                  <LoginModal
+                    isOpen={true}
+                    onClose={() => {}}
+                    onLogin={() => {}}
+                    onSwitchToRegister={handleSwitchToRegister}
+                  />
                 ) : (
-                  <RegisterModal isOpen={true} onClose={() => {}} onRegister={() => {}} />
+                  <RegisterModal
+                    isOpen={true}
+                    onClose={() => {}}
+                    onRegister={() => {}}
+                    onSwitchToLogin={handleSwitchToLogin}
+                  />
                 )}
               </div>
             ) : (

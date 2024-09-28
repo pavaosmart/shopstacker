@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 
-const RegisterModal = ({ isOpen, onClose, onRegister }) => {
+const RegisterModal = ({ isOpen, onClose, onRegister, onSwitchToLogin }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -49,6 +49,15 @@ const RegisterModal = ({ isOpen, onClose, onRegister }) => {
         />
         <Button type="submit" className="w-full">Register</Button>
       </form>
+      <p className="mt-4 text-center text-sm">
+        Already have an account?{' '}
+        <button
+          onClick={onSwitchToLogin}
+          className="text-blue-500 hover:underline"
+        >
+          Login
+        </button>
+      </p>
     </div>
   );
 };

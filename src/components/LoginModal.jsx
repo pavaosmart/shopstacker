@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 
-const LoginModal = ({ isOpen, onClose, onLogin }) => {
+const LoginModal = ({ isOpen, onClose, onLogin, onSwitchToRegister }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -41,6 +41,15 @@ const LoginModal = ({ isOpen, onClose, onLogin }) => {
         />
         <Button type="submit" className="w-full">Login</Button>
       </form>
+      <p className="mt-4 text-center text-sm">
+        Don't have an account?{' '}
+        <button
+          onClick={onSwitchToRegister}
+          className="text-blue-500 hover:underline"
+        >
+          Create one
+        </button>
+      </p>
     </div>
   );
 };

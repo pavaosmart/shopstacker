@@ -7,7 +7,7 @@ import { toast } from "sonner";
 
 const Dashboard = () => {
   const [products, setProducts] = useState([]);
-  const [newProduct, setNewProduct] = useState({ name: '', price: '' });
+  const [newProduct, setNewProduct] = useState({ name: '', price: '', stock_quantity: '' });
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
@@ -30,7 +30,7 @@ const Dashboard = () => {
       setLoading(true);
       const { data, error } = await supabase
         .from('products')
-        .select('name, price');
+        .select('name, price, stock_quantity');
       if (error) throw error;
       setProducts(data);
     } catch (error) {
@@ -52,13 +52,14 @@ const Dashboard = () => {
         .insert([{ 
           name: newProduct.name, 
           price: parseFloat(newProduct.price),
-          user_id: user.id  // Adicionando o user_id do usuário autenticado
+          stock_quantity: parseInt(newProduct.stock_quantity),
+          user_id: user.id
         }]);
       
       if (error) throw error;
       
       toast.success('Produto adicionado com sucesso');
-      setNewProduct({ name: '', price: '' });
+      setNewProduct({ name: '', price: '', stock_quantity: '' });
       fetchProducts();
     } catch (error) {
       toast.error('Erro ao adicionar produto: ' + error.message);
@@ -96,13 +97,21 @@ const Dashboard = () => {
           className="mb-2"
           required
         />
+        <Input
+          type="number"
+          placeholder="Quantidade em Estoque"
+          value={newProduct.stock_quantity}
+          onChange={(e) => setNewProduct({ ...newProduct, stock_quantity: e.target.value })}
+          className="mb-2"
+          required
+        />
         <Button type="submit">Adicionar Produto</Button>
       </form>
 
       <h2 className="mb-2 text-xl font-bold">Lista de Produtos</h2>
       {products.map((product, index) => (
         <div key={index} className="mb-2 p-2 border rounded">
-          <p>{product.name} - R$ {product.price}</p>
+          <p>{product.name} - R$ {product.price} - Estoque: {product.stock_quantity}</p>
         </div>
       ))}
     </div>

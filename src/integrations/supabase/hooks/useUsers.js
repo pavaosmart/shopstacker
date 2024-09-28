@@ -13,7 +13,7 @@ export const useCurrentUser = () => useQuery({
         .from('users')
         .select('id, email, full_name')
         .eq('id', user.id)
-        .single();
+        .maybeSingle();
       
       if (error) {
         console.error("Error fetching user data:", error);
@@ -36,10 +36,11 @@ export const useUpdateUser = () => {
         .from('users')
         .update(updateData)
         .eq('id', id)
-        .select();
+        .select()
+        .maybeSingle();
       
       if (error) throw error;
-      return data[0];
+      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['currentUser'] });
@@ -71,10 +72,11 @@ export const useAddUser = () => {
       const { data, error } = await supabase
         .from('users')
         .insert([userData])
-        .select();
+        .select()
+        .maybeSingle();
       
       if (error) throw error;
-      return data[0];
+      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
@@ -90,6 +92,6 @@ export const useUsers = () => useQuery({
       .select('id, email, full_name');
     
     if (error) throw error;
-    return data;
+    return data || [];
   },
 });

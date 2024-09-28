@@ -82,7 +82,7 @@ const UIComponentsPanel = () => {
       {isOpen && (
         <div
           ref={panelRef}
-          className="fixed inset-y-0 right-0 bg-white shadow-lg transform transition-transform duration-300 ease-in-out overflow-hidden flex flex-col z-50"
+          className="fixed inset-y-0 right-0 bg-white shadow-lg transform transition-transform duration-300 ease-in-out flex flex-col z-50"
           style={{ width: `${panelWidth}px` }}
         >
           <div
@@ -178,7 +178,7 @@ const UIComponentsPanel = () => {
           </div>
           <div className="flex-grow overflow-y-auto">
             {isLoggedIn && (
-              <div className="p-4 w-full h-full">
+              <div className="h-full">
                 <ComponentesUI panelWidth={panelWidth} selectedCategory={selectedCategory} isEditMode={isEditMode} />
               </div>
             )}

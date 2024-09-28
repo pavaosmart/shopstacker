@@ -47,7 +47,7 @@ const Dashboard = () => {
       const supabaseClient = await getSupabase();
       const { data, error } = await supabaseClient
         .from('products')
-        .insert([{ name: newProduct.name, price: parseFloat(newProduct.price), user_id: user.id }]);
+        .insert([{ name: newProduct.name, price: parseFloat(newProduct.price) }]);
       
       if (error) throw error;
       

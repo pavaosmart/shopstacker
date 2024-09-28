@@ -9,23 +9,18 @@ export const useCurrentUser = () => useQuery({
     if (!user) throw new Error('Not authenticated');
     
     try {
-      const { data, error, count } = await supabase
+      const { data, error } = await supabase
         .from('users')
-        .select('id, email, full_name', { count: 'exact' })
+        .select('id, email, full_name')
         .eq('id', user.id)
-        .maybeSingle();
+        .single();
       
       if (error) {
         console.error("Error fetching user data:", error);
         throw new Error(`Error fetching user data: ${error.message}`);
       }
       
-      if (count === 0) {
-        console.warn(`User ${user.id} not found in users table. Returning default data.`);
-        return { id: user.id, email: user.email, full_name: null };
-      }
-      
-      return data;
+      return data || { id: user.id, email: user.email, full_name: null };
     } catch (error) {
       console.error("Error in useCurrentUser:", error);
       throw error;

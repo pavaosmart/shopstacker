@@ -94,7 +94,7 @@ const UIComponentsPanel = () => {
             <div className="flex justify-between items-center mb-6">
               <div className="text-left">
                 <h3 className="text-lg font-semibold">UI Components</h3>
-                <p className="text-sm font-light italic">by Marcio Pavão</p>
+                <p className="text-sm font-light italic -mt-1">by Marcio Pavão</p>
               </div>
               <div className="flex items-center">
                 {isLoggedIn && (

@@ -76,7 +76,7 @@ const ActivityLogs = () => {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Usuário</TableHead>
+            <TableHead>Usuário ID</TableHead>
             <TableHead>Ação</TableHead>
             <TableHead>Descrição</TableHead>
             <TableHead>Data/Hora</TableHead>
@@ -85,7 +85,7 @@ const ActivityLogs = () => {
         <TableBody>
           {logs.map((log) => (
             <TableRow key={log.id}>
-              <TableCell>{log.user_email}</TableCell>
+              <TableCell>{log.user_id}</TableCell>
               <TableCell>{log.action}</TableCell>
               <TableCell>{log.description}</TableCell>
               <TableCell>{new Date(log.created_at).toLocaleString()}</TableCell>

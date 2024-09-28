@@ -9,7 +9,7 @@ export const useActivityLogs = ({ page, actionFilter, userFilter }) => {
     queryFn: async () => {
       let query = supabase
         .from('activity_logs')
-        .select('*, users(email)', { count: 'exact' })
+        .select('*', { count: 'exact' })
         .order('created_at', { ascending: false })
         .range((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE - 1);
 
@@ -25,13 +25,8 @@ export const useActivityLogs = ({ page, actionFilter, userFilter }) => {
 
       if (error) throw new Error(error.message);
 
-      const logsWithUserEmails = logs.map(log => ({
-        ...log,
-        user_email: log.users?.email || 'Desconhecido',
-      }));
-
       return {
-        data: logsWithUserEmails,
+        data: logs,
         count,
       };
     },

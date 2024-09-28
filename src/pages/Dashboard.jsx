@@ -26,7 +26,9 @@ const Dashboard = () => {
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase.from('products').select('*');
+      const { data, error } = await supabase
+        .from('products')
+        .select('name, price');
       if (error) throw error;
       setProducts(data);
     } catch (error) {
@@ -88,8 +90,8 @@ const Dashboard = () => {
       </form>
 
       <h2 className="mb-2 text-xl font-bold">Lista de Produtos</h2>
-      {products.map(product => (
-        <div key={product.id} className="mb-2 p-2 border rounded">
+      {products.map((product, index) => (
+        <div key={index} className="mb-2 p-2 border rounded">
           <p>{product.name} - R$ {product.price}</p>
         </div>
       ))}

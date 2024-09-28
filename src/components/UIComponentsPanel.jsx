@@ -84,7 +84,7 @@ const UIComponentsPanel = () => {
 
   const handleLogin = (e) => {
     e.preventDefault();
-    // Implementar lógica de login aqui
+    // Implement login logic here
     setIsLoggedIn(true);
   };
 
@@ -124,6 +124,16 @@ const UIComponentsPanel = () => {
                 <X size={20} />
               </button>
             </div>
+            {isLoggedIn && (
+              <div className="flex justify-between items-center mb-4">
+                <Button onClick={handleSettingsClick} variant="ghost" size="sm">
+                  <Settings size={20} />
+                </Button>
+                <Button onClick={() => setIsLoggedIn(false)} variant="ghost" size="sm">
+                  <LogOut size={20} />
+                </Button>
+              </div>
+            )}
             {!isLoggedIn ? (
               <div className="flex flex-col justify-center items-center h-full">
                 <div className="text-center mb-8">
@@ -140,19 +150,19 @@ const UIComponentsPanel = () => {
                   />
                   <Input
                     type="password"
-                    placeholder="Senha"
+                    placeholder="Password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
                   />
                   <div className="text-sm text-blue-500 hover:underline cursor-pointer">
-                    <Link to="/forgot-password">Esqueceu a senha?</Link>
+                    <Link to="/forgot-password">Forgot password?</Link>
                   </div>
                   <Button type="submit" className="w-full bg-[#14161A] hover:bg-[#14161A]/90">
-                    Entrar
+                    Sign In
                   </Button>
                   <div className="text-sm text-center">
-                    Não tem uma conta? <Link to="/register" className="text-blue-500 hover:underline">Cadastre-se</Link>
+                    Don't have an account? <Link to="/register" className="text-blue-500 hover:underline">Sign up</Link>
                   </div>
                 </form>
               </div>
@@ -183,20 +193,14 @@ const UIComponentsPanel = () => {
                     )}
                   </div>
                 </div>
-                <ComponentesUI panelWidth={panelWidth} selectedCategory={selectedCategory} isEditMode={isEditMode} />
+                {selectedCategory ? (
+                  <ComponentesUI panelWidth={panelWidth} selectedCategory={selectedCategory} isEditMode={isEditMode} />
+                ) : (
+                  <PreviewCards isEditMode={isEditMode} onCategorySelect={handleCategorySelect} />
+                )}
               </div>
             )}
           </div>
-          {isLoggedIn && (
-            <div className="mt-auto p-4 border-t flex justify-between items-center">
-              <Button onClick={handleSettingsClick} variant="ghost" size="sm">
-                <Settings size={20} />
-              </Button>
-              <Button onClick={() => setIsLoggedIn(false)} variant="ghost" size="sm">
-                <LogOut size={20} />
-              </Button>
-            </div>
-          )}
         </div>
       )}
     </>

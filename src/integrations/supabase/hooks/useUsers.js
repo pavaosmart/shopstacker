@@ -25,7 +25,7 @@ export const useCurrentUser = () => useQuery({
   queryFn: async () => {
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError) throw authError;
-    if (!user) throw new Error('Not authenticated');
+    if (!user) return null; // Return null if no authenticated user
     
     try {
       const { data, error } = await supabase
@@ -34,11 +34,18 @@ export const useCurrentUser = () => useQuery({
         .eq('id', user.id)
         .single();
       
-      if (error) throw error;
+      if (error) {
+        if (error.code === 'PGRST116') {
+          // No user found in the database, return basic info
+          return { id: user.id, email: user.email, full_name: null };
+        }
+        throw error;
+      }
       return data || { id: user.id, email: user.email, full_name: null };
     } catch (error) {
       console.error("Error fetching current user data:", error);
-      throw error;
+      // Return basic user info from auth if database query fails
+      return { id: user.id, email: user.email, full_name: null };
     }
   },
 });

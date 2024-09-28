@@ -7,7 +7,6 @@ import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import ActivityLogs from './components/ActivityLogs';
 import UsersAndPermissions from './pages/UsersAndPermissions';
-import ComponentesUI from './pages/ComponentesUI';
 import { SupabaseAuthProvider } from './integrations/supabase/auth';
 import UIComponentsPanel from './components/UIComponentsPanel';
 import { Menu } from 'lucide-react';
@@ -39,11 +38,9 @@ function App() {
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/logs" element={<ActivityLogs />} />
                 <Route path="/users" element={<UsersAndPermissions />} />
-                <Route path="/componentes-ui" element={<ComponentesUI />} />
                 <Route path="/" element={<Navigate to="/login" replace />} />
               </Routes>
             </div>
-            {isPanelOpen && <ComponentesUI />}
           </div>
         </Router>
       </SupabaseAuthProvider>

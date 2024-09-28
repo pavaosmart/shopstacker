@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { X, ChevronDown } from 'lucide-react';
+import ComponentesUI from '../pages/ComponentesUI';
 
 const UIComponentsPanel = ({ isOpen, onClose }) => {
   const [selectedCategory, setSelectedCategory] = useState('Sidebars');
@@ -16,12 +17,6 @@ const UIComponentsPanel = ({ isOpen, onClose }) => {
     'Typography',
     'Icons and Illustrations',
     'Notifications and Toasts'
-  ];
-
-  const illustrativeImages = [
-    'https://via.placeholder.com/300x150?text=Component+1',
-    'https://via.placeholder.com/300x150?text=Component+2',
-    'https://via.placeholder.com/300x150?text=Component+3'
   ];
 
   return (
@@ -68,13 +63,7 @@ const UIComponentsPanel = ({ isOpen, onClose }) => {
             )}
           </div>
         </div>
-        <div className="space-y-4">
-          {illustrativeImages.map((image, index) => (
-            <div key={index} className="border border-gray-200 rounded-md p-2">
-              <img src={image} alt={`Component ${index + 1}`} className="w-full h-auto rounded-md" />
-            </div>
-          ))}
-        </div>
+        <ComponentesUI />
       </div>
     </div>
   );

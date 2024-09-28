@@ -9,12 +9,13 @@ import Forms from '../components/ui-catalog/Forms';
 import Typography from '../components/ui-catalog/Typography';
 import IconsAndIllustrations from '../components/ui-catalog/IconsAndIllustrations';
 import Notifications from '../components/ui-catalog/Notifications';
+import PreviewCards from '../components/ui-catalog/PreviewCards';
 
 const ComponentesUI = ({ panelWidth, selectedCategory, isEditMode }) => {
   const renderComponent = () => {
     switch (selectedCategory) {
-      case 'Dialog Confirmations':
-        return <Dialogs />;
+      case 'Sidebars':
+        return <Sidebars />;
       case 'Top Bars (Navigation Bars)':
         return <TopBars />;
       case 'Buttons':
@@ -34,7 +35,7 @@ const ComponentesUI = ({ panelWidth, selectedCategory, isEditMode }) => {
       case 'Notifications and Toasts':
         return <Notifications />;
       default:
-        return <div>Select a category to view components</div>;
+        return <PreviewCards isEditMode={isEditMode} />;
     }
   };
 

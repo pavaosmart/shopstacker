@@ -15,6 +15,7 @@ const UIComponentsPanel = () => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPreviewCards, setShowPreviewCards] = useState(true);
   const panelRef = useRef(null);
   const resizeHandleRef = useRef(null);
   const dropdownRef = useRef(null);
@@ -79,17 +80,25 @@ const UIComponentsPanel = () => {
     if (isLoggedIn) {
       setIsEditMode(!isEditMode);
       setSelectedCategory('');
+      setShowPreviewCards(true);
     }
   };
 
   const handleLogin = (e) => {
     e.preventDefault();
-    // Implement login logic here
+    // Implementar lógica de login aqui
     setIsLoggedIn(true);
+  };
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    setEmail('');
+    setPassword('');
   };
 
   const handleCategorySelect = (category) => {
     setSelectedCategory(category);
+    setShowPreviewCards(false);
   };
 
   return (
@@ -117,30 +126,35 @@ const UIComponentsPanel = () => {
                 <h3 className="text-lg font-semibold">UI Components</h3>
                 <p className="text-sm font-light italic -mt-1">by Marcio Pavão</p>
               </div>
-              <button
-                onClick={() => setIsOpen(false)}
-                className="text-gray-500 hover:text-gray-700 transition-colors"
-              >
-                <X size={20} />
-              </button>
-            </div>
-            {isLoggedIn && (
-              <div className="flex justify-between items-center mb-4">
-                <Button onClick={handleSettingsClick} variant="ghost" size="sm">
-                  <Settings size={20} />
-                </Button>
-                <Button onClick={() => setIsLoggedIn(false)} variant="ghost" size="sm">
-                  <LogOut size={20} />
-                </Button>
+              <div className="flex items-center">
+                {isLoggedIn && (
+                  <>
+                    <button
+                      onClick={handleLogout}
+                      className="text-gray-500 hover:text-gray-700 transition-colors mr-2"
+                    >
+                      <LogOut size={20} />
+                    </button>
+                    <button
+                      onClick={handleSettingsClick}
+                      className="text-gray-500 hover:text-gray-700 transition-colors mr-2"
+                    >
+                      <Settings size={20} />
+                    </button>
+                  </>
+                )}
+                <button
+                  onClick={() => setIsOpen(false)}
+                  className="text-gray-500 hover:text-gray-700 transition-colors"
+                >
+                  <X size={20} />
+                </button>
               </div>
-            )}
+            </div>
             {!isLoggedIn ? (
-              <div className="flex flex-col justify-center items-center h-full">
-                <div className="text-center mb-8">
-                  <h2 className="text-2xl font-bold">Welcome to UI Elements</h2>
-                  <p className="text-sm text-gray-600">Sign in to access the component library</p>
-                </div>
-                <form onSubmit={handleLogin} className="space-y-4 w-full max-w-sm">
+              <div className="mb-4">
+                <h2 className="text-2xl font-bold mb-4 text-center">Login</h2>
+                <form onSubmit={handleLogin} className="space-y-4">
                   <Input
                     type="email"
                     placeholder="Email"
@@ -150,54 +164,36 @@ const UIComponentsPanel = () => {
                   />
                   <Input
                     type="password"
-                    placeholder="Password"
+                    placeholder="Senha"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
                   />
                   <div className="text-sm text-blue-500 hover:underline cursor-pointer">
-                    <Link to="/forgot-password">Forgot password?</Link>
+                    <Link to="/forgot-password">Esqueceu a senha?</Link>
                   </div>
                   <Button type="submit" className="w-full bg-[#14161A] hover:bg-[#14161A]/90">
-                    Sign In
+                    Entrar
                   </Button>
                   <div className="text-sm text-center">
-                    Don't have an account? <Link to="/register" className="text-blue-500 hover:underline">Sign up</Link>
+                    Não tem uma conta? <Link to="/register" className="text-blue-500 hover:underline">Cadastre-se</Link>
                   </div>
                 </form>
               </div>
             ) : (
               <div className="h-full">
-                <div className="mb-4">
-                  <div
-                    className="relative"
-                    ref={dropdownRef}
-                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                  >
-                    <div className="flex items-center justify-between p-2 border rounded cursor-pointer">
-                      <span>{selectedCategory || 'Select a category'}</span>
-                      <ChevronDown size={20} />
-                    </div>
-                    {isDropdownOpen && (
-                      <div className="absolute z-10 w-full bg-white border rounded mt-1 max-h-60 overflow-y-auto">
-                        {categories.map((category) => (
-                          <div
-                            key={category.id}
-                            className="p-2 hover:bg-gray-100 cursor-pointer"
-                            onClick={() => handleCategorySelect(category.name)}
-                          >
-                            {category.name}
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-                {selectedCategory ? (
-                  <ComponentesUI panelWidth={panelWidth} selectedCategory={selectedCategory} isEditMode={isEditMode} />
-                ) : (
+                {showPreviewCards ? (
                   <PreviewCards isEditMode={isEditMode} onCategorySelect={handleCategorySelect} />
+                ) : (
+                  <ComponentesUI panelWidth={panelWidth} selectedCategory={selectedCategory} isEditMode={isEditMode} />
                 )}
+              </div>
+            )}
+          </div>
+          <div className="flex-grow overflow-y-auto">
+            {isLoggedIn && !showPreviewCards && (
+              <div className="h-full">
+                <ComponentesUI panelWidth={panelWidth} selectedCategory={selectedCategory} isEditMode={isEditMode} />
               </div>
             )}
           </div>

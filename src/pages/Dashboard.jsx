@@ -43,6 +43,10 @@ const Dashboard = () => {
 
   const handleAddProduct = async (e) => {
     e.preventDefault();
+    if (!user) {
+      toast.error('Usuário não autenticado');
+      return;
+    }
     try {
       const supabaseClient = await getSupabase();
       const { data, error } = await supabaseClient
@@ -50,7 +54,7 @@ const Dashboard = () => {
         .insert([{ 
           name: newProduct.name, 
           price: parseFloat(newProduct.price),
-          user_id: user.id // Include the user's ID when inserting a new product
+          user_id: user.id
         }]);
       
       if (error) throw error;

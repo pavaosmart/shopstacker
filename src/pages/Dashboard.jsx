@@ -9,7 +9,6 @@ const Dashboard = ({ supabase, session }) => {
   const navigate = useNavigate();
   const [newProduct, setNewProduct] = useState({
     name: '',
-    sale_price: 0,
     product_cost: 0,
     taxes: 0,
     market_commissions: 0,
@@ -41,7 +40,6 @@ const Dashboard = ({ supabase, session }) => {
       toast.success('Product added successfully');
       setNewProduct({
         name: '',
-        sale_price: 0,
         product_cost: 0,
         taxes: 0,
         market_commissions: 0,
@@ -93,14 +91,6 @@ const Dashboard = ({ supabase, session }) => {
             value={newProduct.name}
             onChange={handleInputChange}
             placeholder="Product Name"
-            required
-          />
-          <Input
-            name="sale_price"
-            type="number"
-            value={newProduct.sale_price}
-            onChange={handleInputChange}
-            placeholder="Sale Price"
             required
           />
           <Input
@@ -160,7 +150,6 @@ const Dashboard = ({ supabase, session }) => {
         {products.map(product => (
           <div key={product.id} className="border p-4 rounded">
             <h3 className="text-xl font-bold">{product.name}</h3>
-            <p>Sale Price: ${product.sale_price}</p>
             <p>Cost: ${product.product_cost}</p>
             <Button onClick={() => handleUpdateProduct(product.id, { name: product.name + ' (Updated)' })} className="mr-2">
               Update

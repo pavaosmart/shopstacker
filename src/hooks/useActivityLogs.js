@@ -21,15 +21,15 @@ export const useActivityLogs = ({ page, actionFilter, userFilter }) => {
         query = query.eq('user_id', userFilter);
       }
 
-      const { data, error, count } = await query;
+      const { data: logs, error: logsError, count } = await query;
 
-      if (error) throw new Error(error.message);
+      if (logsError) throw new Error(logsError.message);
 
       // Fetch user information separately
-      if (data && data.length > 0) {
-        const userIds = [...new Set(data.map(log => log.user_id))];
+      if (logs && logs.length > 0) {
+        const userIds = [...new Set(logs.map(log => log.user_id))];
         const { data: users, error: userError } = await supabase
-          .from('users')
+          .from('auth.users')
           .select('id, email')
           .in('id', userIds);
 
@@ -38,7 +38,7 @@ export const useActivityLogs = ({ page, actionFilter, userFilter }) => {
         const userMap = Object.fromEntries(users.map(user => [user.id, user]));
 
         return {
-          data: data.map(log => ({
+          data: logs.map(log => ({
             ...log,
             user_email: userMap[log.user_id]?.email || 'Unknown'
           })),

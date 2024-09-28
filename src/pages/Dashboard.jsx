@@ -14,7 +14,6 @@ const Dashboard = () => {
     name: '',
     product_cost: 0,
     taxes: 0,
-    fixed_fee: 0,
     shipping: 0,
     marketplace_url: '',
     product_image: '',
@@ -70,7 +69,6 @@ const Dashboard = () => {
         name: '',
         product_cost: 0,
         taxes: 0,
-        fixed_fee: 0,
         shipping: 0,
         marketplace_url: '',
         product_image: '',
@@ -135,13 +133,6 @@ const Dashboard = () => {
             value={editingProduct ? editingProduct.taxes : newProduct.taxes}
             onChange={handleInputChange}
             placeholder="Impostos"
-          />
-          <Input
-            name="fixed_fee"
-            type="number"
-            value={editingProduct ? editingProduct.fixed_fee : newProduct.fixed_fee}
-            onChange={handleInputChange}
-            placeholder="Taxa Fixa"
           />
           <Input
             name="shipping"

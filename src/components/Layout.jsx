@@ -2,6 +2,7 @@ import React from 'react';
 import { Outlet } from 'react-router-dom';
 import Header from './Header';
 import Sidebars from './ui-catalog/Sidebars';
+import UIComponentsPanel from './UIComponentsPanel';
 
 const Layout = () => {
   return (
@@ -15,6 +16,7 @@ const Layout = () => {
           </div>
         </main>
       </div>
+      <UIComponentsPanel />
     </div>
   );
 };

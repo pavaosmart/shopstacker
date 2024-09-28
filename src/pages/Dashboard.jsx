@@ -1,12 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useProducts, useAddProduct, useUpdateProduct, useDeleteProduct } from '../hooks/useProducts';
 import { toast } from "sonner";
+import { supabase } from '../integrations/supabase/supabase';
 
-const Dashboard = ({ supabase, session }) => {
+const Dashboard = () => {
   const navigate = useNavigate();
+  const [session, setSession] = useState(null);
   const [newProduct, setNewProduct] = useState({
     name: '',
     price: 0,
@@ -22,6 +24,26 @@ const Dashboard = ({ supabase, session }) => {
   const addProductMutation = useAddProduct();
   const updateProductMutation = useUpdateProduct();
   const deleteProductMutation = useDeleteProduct();
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      if (!session) {
+        navigate('/login');
+      }
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+      if (!session) {
+        navigate('/login');
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -145,7 +167,7 @@ const Dashboard = ({ supabase, session }) => {
 
       <h2 className="text-2xl font-bold mb-2">Product List</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {products.map(product => (
+        {products && products.map(product => (
           <div key={product.id} className="border p-4 rounded">
             <h3 className="text-xl font-bold">{product.name}</h3>
             <p>Price: ${product.price}</p>

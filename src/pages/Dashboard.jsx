@@ -7,10 +7,20 @@ import { toast } from "sonner";
 import { supabase } from '../integrations/supabase/supabase';
 import { logActivity } from '../utils/logActivity';
 
+const defaultProduct = {
+  name: '',
+  sale_price: 0,
+  product_cost: 0,
+  taxes: 0,
+  shipping: 0,
+  marketplace_url: '',
+  product_image: '',
+};
+
 const Dashboard = () => {
   const navigate = useNavigate();
   const [session, setSession] = useState(null);
-  const [newProduct, setNewProduct] = useState({});
+  const [newProduct, setNewProduct] = useState(defaultProduct);
   const [editingProduct, setEditingProduct] = useState(null);
 
   const { data: products, isLoading, isError, error } = useProducts();
@@ -58,7 +68,7 @@ const Dashboard = () => {
       await addProductMutation.mutateAsync(newProduct);
       await logActivity(session.user.id, 'CREATE', `Produto "${newProduct.name}" adicionado`);
       toast.success('Produto adicionado com sucesso');
-      setNewProduct({});
+      setNewProduct(defaultProduct);
     } catch (error) {
       toast.error('Falha ao adicionar produto: ' + error.message);
     }
@@ -87,7 +97,11 @@ const Dashboard = () => {
   };
 
   if (isLoading) return <div className="flex justify-center items-center h-screen">Carregando produtos...</div>;
-  if (isError) return <div className="flex justify-center items-center h-screen">Erro ao carregar produtos: {error.message}</div>;
+  if (isError) return (
+    <div className="flex justify-center items-center h-screen">
+      Erro ao carregar produtos: {error.message}. Por favor, tente novamente mais tarde.
+    </div>
+  );
 
   return (
     <div className="p-8">
@@ -98,14 +112,14 @@ const Dashboard = () => {
       <form onSubmit={editingProduct ? handleUpdateProduct : handleAddProduct} className="mb-8">
         <h2 className="text-2xl font-bold mb-2">{editingProduct ? 'Editar Produto' : 'Adicionar Novo Produto'}</h2>
         <div className="grid grid-cols-2 gap-4">
-          {['name', 'product_cost', 'taxes', 'shipping', 'marketplace_url', 'product_image'].map((field) => (
+          {Object.keys(defaultProduct).map((field) => (
             <Input
               key={field}
               name={field}
               value={(editingProduct || newProduct)[field] || ''}
               onChange={handleInputChange}
               placeholder={field.charAt(0).toUpperCase() + field.slice(1).replace('_', ' ')}
-              type={['product_cost', 'taxes', 'shipping'].includes(field) ? 'number' : 'text'}
+              type={['product_cost', 'taxes', 'shipping', 'sale_price'].includes(field) ? 'number' : 'text'}
             />
           ))}
         </div>

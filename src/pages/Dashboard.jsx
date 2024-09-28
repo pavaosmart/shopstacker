@@ -34,7 +34,7 @@ const Dashboard = () => {
       });
       toast.success('Produto adicionado com sucesso');
       setNewProduct({ name: '', price: '', stock_quantity: '' });
-      refetch(); // Refetch products after adding
+      refetch();
     } catch (error) {
       toast.error('Erro ao adicionar produto: ' + error.message);
     }
@@ -58,7 +58,7 @@ const Dashboard = () => {
       });
       toast.success('Produto atualizado com sucesso');
       setEditingProduct(null);
-      refetch(); // Refetch products after updating
+      refetch();
     } catch (error) {
       toast.error('Erro ao atualizar produto: ' + error.message);
     }
@@ -68,7 +68,7 @@ const Dashboard = () => {
     try {
       await deleteProductMutation.mutateAsync(id);
       toast.success('Produto excluído com sucesso');
-      refetch(); // Refetch products after deleting
+      refetch();
     } catch (error) {
       toast.error('Erro ao excluir produto: ' + error.message);
     }

@@ -23,7 +23,7 @@ export const useAddProduct = () => {
       return data[0];
     },
     onSuccess: (data) => {
-      queryClient.setQueryData(['products'], (oldData) => [...(oldData || []), data]);
+      queryClient.invalidateQueries({ queryKey: ['products'] });
     },
   });
 };
@@ -36,10 +36,8 @@ export const useUpdateProduct = () => {
       if (error) throw error;
       return data[0];
     },
-    onSuccess: (updatedProduct) => {
-      queryClient.setQueryData(['products'], (oldData) => 
-        oldData.map((product) => product.id === updatedProduct.id ? updatedProduct : product)
-      );
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['products'] });
     },
   });
 };
@@ -52,10 +50,8 @@ export const useDeleteProduct = () => {
       if (error) throw error;
       return id;
     },
-    onSuccess: (deletedId) => {
-      queryClient.setQueryData(['products'], (oldData) => 
-        oldData.filter((product) => product.id !== deletedId)
-      );
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['products'] });
     },
   });
 };

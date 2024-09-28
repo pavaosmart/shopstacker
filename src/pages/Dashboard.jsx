@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useProducts, useAddProduct, useUpdateProduct, useDeleteProduct } from '../hooks/useProducts';
+import { useProducts } from '../hooks/useProducts';
 import { toast } from "sonner";
 import { supabase } from '../integrations/supabase/supabase';
 
@@ -20,10 +20,7 @@ const Dashboard = () => {
     marketplace_status: '',
   });
 
-  const { data: products, isLoading, isError } = useProducts();
-  const addProductMutation = useAddProduct();
-  const updateProductMutation = useUpdateProduct();
-  const deleteProductMutation = useDeleteProduct();
+  const { data: products, isLoading, isError, error } = useProducts();
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -58,8 +55,11 @@ const Dashboard = () => {
   const handleAddProduct = async (e) => {
     e.preventDefault();
     try {
-      await addProductMutation.mutateAsync(newProduct);
-      toast.success('Product added successfully');
+      const { data, error } = await supabase
+        .from('products')
+        .insert([newProduct]);
+      if (error) throw error;
+      toast.success('Produto adicionado com sucesso');
       setNewProduct({
         name: '',
         price: 0,
@@ -71,48 +71,30 @@ const Dashboard = () => {
         marketplace_status: '',
       });
     } catch (error) {
-      toast.error('Failed to add product');
+      toast.error('Falha ao adicionar produto: ' + error.message);
     }
   };
 
-  const handleUpdateProduct = async (id, updatedData) => {
-    try {
-      await updateProductMutation.mutateAsync({ id, ...updatedData });
-      toast.success('Product updated successfully');
-    } catch (error) {
-      toast.error('Failed to update product');
-    }
-  };
-
-  const handleDeleteProduct = async (id) => {
-    try {
-      await deleteProductMutation.mutateAsync(id);
-      toast.success('Product deleted successfully');
-    } catch (error) {
-      toast.error('Failed to delete product');
-    }
-  };
-
-  if (isLoading) return <div>Loading...</div>;
-  if (isError) return <div>Error loading products</div>;
+  if (isLoading) return <div>Carregando produtos...</div>;
+  if (isError) return <div>Erro ao carregar produtos: {error.message}</div>;
 
   return (
     <div className="p-8">
-      <h1 className="text-3xl font-bold mb-4">MyShopTools Dashboard</h1>
-      {session && <p className="mb-4">Logged in as: {session.user.email}</p>}
-      <Button onClick={handleLogout} className="mb-4">Logout</Button>
+      <h1 className="text-3xl font-bold mb-4">Dashboard MyShopTools</h1>
+      {session && <p className="mb-4">Logado como: {session.user.email}</p>}
+      <Button onClick={handleLogout} className="mb-4">Sair</Button>
       <Link to="/activity-logs" className="ml-4">
-        <Button>Activity Logs</Button>
+        <Button>Logs de Atividade</Button>
       </Link>
 
       <form onSubmit={handleAddProduct} className="mb-8">
-        <h2 className="text-2xl font-bold mb-2">Add New Product</h2>
+        <h2 className="text-2xl font-bold mb-2">Adicionar Novo Produto</h2>
         <div className="grid grid-cols-2 gap-4">
           <Input
             name="name"
             value={newProduct.name}
             onChange={handleInputChange}
-            placeholder="Product Name"
+            placeholder="Nome do Produto"
             required
           />
           <Input
@@ -120,7 +102,7 @@ const Dashboard = () => {
             type="number"
             value={newProduct.price}
             onChange={handleInputChange}
-            placeholder="Price"
+            placeholder="Preço"
             required
           />
           <Input
@@ -128,7 +110,7 @@ const Dashboard = () => {
             type="number"
             value={newProduct.stock_quantity}
             onChange={handleInputChange}
-            placeholder="Stock Quantity"
+            placeholder="Quantidade em Estoque"
             required
           />
           <Input
@@ -141,7 +123,7 @@ const Dashboard = () => {
             name="category"
             value={newProduct.category}
             onChange={handleInputChange}
-            placeholder="Category"
+            placeholder="Categoria"
           />
           <Input
             name="marketplace"
@@ -153,36 +135,30 @@ const Dashboard = () => {
             name="marketplace_product_id"
             value={newProduct.marketplace_product_id}
             onChange={handleInputChange}
-            placeholder="Marketplace Product ID"
+            placeholder="ID do Produto no Marketplace"
           />
           <Input
             name="marketplace_status"
             value={newProduct.marketplace_status}
             onChange={handleInputChange}
-            placeholder="Marketplace Status"
+            placeholder="Status no Marketplace"
           />
         </div>
-        <Button type="submit" className="mt-4">Add Product</Button>
+        <Button type="submit" className="mt-4">Adicionar Produto</Button>
       </form>
 
-      <h2 className="text-2xl font-bold mb-2">Product List</h2>
+      <h2 className="text-2xl font-bold mb-2">Lista de Produtos</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {products && products.map(product => (
           <div key={product.id} className="border p-4 rounded">
             <h3 className="text-xl font-bold">{product.name}</h3>
-            <p>Price: ${product.price}</p>
-            <p>Stock: {product.stock_quantity}</p>
+            <p>Preço: R${product.price}</p>
+            <p>Estoque: {product.stock_quantity}</p>
             <p>SKU: {product.sku}</p>
-            <p>Category: {product.category}</p>
+            <p>Categoria: {product.category}</p>
             <p>Marketplace: {product.marketplace}</p>
-            <p>Marketplace Product ID: {product.marketplace_product_id}</p>
-            <p>Marketplace Status: {product.marketplace_status}</p>
-            <Button onClick={() => handleUpdateProduct(product.id, { name: product.name + ' (Updated)' })} className="mr-2">
-              Update
-            </Button>
-            <Button onClick={() => handleDeleteProduct(product.id)} variant="destructive">
-              Delete
-            </Button>
+            <p>ID no Marketplace: {product.marketplace_product_id}</p>
+            <p>Status no Marketplace: {product.marketplace_status}</p>
           </div>
         ))}
       </div>

@@ -16,7 +16,7 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     if (!email || !password) {
-      toast.error("Please enter both email and password");
+      toast.error("Por favor, insira email e senha");
       return;
     }
     setLoading(true);
@@ -25,20 +25,14 @@ const Login = () => {
         email,
         password,
       });
-      if (error) {
-        if (error.message === "Invalid login credentials") {
-          toast.error("Invalid email or password. Please try again.");
-        } else {
-          toast.error(error.message || "An error occurred during login");
-        }
-      } else if (data?.user) {
-        toast.success("Logged in successfully");
-        console.log("Login successful, attempting to navigate...");
+      if (error) throw error;
+      if (data?.user) {
+        toast.success("Login realizado com sucesso");
         navigate('/');
       }
     } catch (error) {
-      console.error('Login error:', error);
-      toast.error("An unexpected error occurred. Please try again.");
+      console.error('Erro de login:', error);
+      toast.error(error.message || "Ocorreu um erro durante o login");
     } finally {
       setLoading(false);
     }
@@ -47,7 +41,7 @@ const Login = () => {
   const handleSignUp = async (e) => {
     e.preventDefault();
     if (!email || !password) {
-      toast.error("Please enter both email and password");
+      toast.error("Por favor, insira email e senha");
       return;
     }
     setLoading(true);
@@ -56,21 +50,14 @@ const Login = () => {
         email,
         password,
       });
-      if (error) {
-        if (error.message.includes("weak_password")) {
-          toast.error("Password is too weak. It should contain at least one lowercase letter, one uppercase letter, one number, and one special character.");
-        } else {
-          toast.error(error.message || "An error occurred during sign up");
-        }
-      } else if (data?.user) {
-        toast.success("Sign up successful. Please check your email for verification.");
+      if (error) throw error;
+      if (data?.user) {
+        toast.success("Cadastro realizado com sucesso. Por favor, verifique seu email.");
         setIsSignUp(false);
-      } else {
-        toast.info("Sign up successful. Please check your email for verification.");
       }
     } catch (error) {
-      console.error('Sign up error:', error);
-      toast.error("An unexpected error occurred. Please try again.");
+      console.error('Erro de cadastro:', error);
+      toast.error(error.message || "Ocorreu um erro durante o cadastro");
     } finally {
       setLoading(false);
     }
@@ -80,8 +67,8 @@ const Login = () => {
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>{isSignUp ? "Sign Up for MyShopTools" : "Login to MyShopTools"}</CardTitle>
-          <CardDescription>{isSignUp ? "Create a new account" : "Enter your email and password to access your account"}</CardDescription>
+          <CardTitle>{isSignUp ? "Cadastro no MyShopTools" : "Login no MyShopTools"}</CardTitle>
+          <CardDescription>{isSignUp ? "Crie uma nova conta" : "Entre com seu email e senha"}</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={isSignUp ? handleSignUp : handleLogin}>
@@ -95,25 +82,20 @@ const Login = () => {
               />
               <Input
                 type="password"
-                placeholder="Password"
+                placeholder="Senha"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
-              {isSignUp && (
-                <p className="text-sm text-gray-500">
-                  Password must contain at least one lowercase letter, one uppercase letter, one number, and one special character.
-                </p>
-              )}
             </div>
           </form>
         </CardContent>
         <CardFooter className="flex flex-col space-y-2">
           <Button className="w-full" onClick={isSignUp ? handleSignUp : handleLogin} disabled={loading}>
-            {loading ? (isSignUp ? 'Signing up...' : 'Logging in...') : (isSignUp ? 'Sign Up' : 'Login')}
+            {loading ? (isSignUp ? 'Cadastrando...' : 'Entrando...') : (isSignUp ? 'Cadastrar' : 'Entrar')}
           </Button>
           <Button className="w-full" onClick={() => setIsSignUp(!isSignUp)} variant="outline">
-            {isSignUp ? "Already have an account? Login" : "Don't have an account? Sign Up"}
+            {isSignUp ? "Já tem uma conta? Entre" : "Não tem uma conta? Cadastre-se"}
           </Button>
         </CardFooter>
       </Card>

@@ -7,20 +7,10 @@ import { toast } from "sonner";
 import { supabase } from '../integrations/supabase/supabase';
 import { logActivity } from '../utils/logActivity';
 
-const defaultProduct = {
-  name: '',
-  sale_price: 0,
-  product_cost: 0,
-  taxes: 0,
-  shipping: 0,
-  marketplace_url: '',
-  product_image: '',
-};
-
 const Dashboard = () => {
   const navigate = useNavigate();
   const [session, setSession] = useState(null);
-  const [newProduct, setNewProduct] = useState(defaultProduct);
+  const [newProduct, setNewProduct] = useState({});
   const [editingProduct, setEditingProduct] = useState(null);
 
   const { data: products, isLoading, isError, error } = useProducts();
@@ -68,7 +58,7 @@ const Dashboard = () => {
       await addProductMutation.mutateAsync(newProduct);
       await logActivity(session.user.id, 'CREATE', `Produto "${newProduct.name}" adicionado`);
       toast.success('Produto adicionado com sucesso');
-      setNewProduct(defaultProduct);
+      setNewProduct({});
     } catch (error) {
       toast.error('Falha ao adicionar produto: ' + error.message);
     }
@@ -103,6 +93,8 @@ const Dashboard = () => {
     </div>
   );
 
+  const productFields = products && products.length > 0 ? Object.keys(products[0]) : [];
+
   return (
     <div className="p-8">
       <h1 className="text-3xl font-bold mb-4">Dashboard MyShopTools</h1>
@@ -112,15 +104,17 @@ const Dashboard = () => {
       <form onSubmit={editingProduct ? handleUpdateProduct : handleAddProduct} className="mb-8">
         <h2 className="text-2xl font-bold mb-2">{editingProduct ? 'Editar Produto' : 'Adicionar Novo Produto'}</h2>
         <div className="grid grid-cols-2 gap-4">
-          {Object.keys(defaultProduct).map((field) => (
-            <Input
-              key={field}
-              name={field}
-              value={(editingProduct || newProduct)[field] || ''}
-              onChange={handleInputChange}
-              placeholder={field.charAt(0).toUpperCase() + field.slice(1).replace('_', ' ')}
-              type={['product_cost', 'taxes', 'shipping', 'sale_price'].includes(field) ? 'number' : 'text'}
-            />
+          {productFields.map((field) => (
+            field !== 'id' && (
+              <Input
+                key={field}
+                name={field}
+                value={(editingProduct || newProduct)[field] || ''}
+                onChange={handleInputChange}
+                placeholder={field.charAt(0).toUpperCase() + field.slice(1).replace('_', ' ')}
+                type={['price', 'stock_quantity'].includes(field) ? 'number' : 'text'}
+              />
+            )
           ))}
         </div>
         <Button type="submit" className="mt-4">{editingProduct ? 'Atualizar Produto' : 'Adicionar Produto'}</Button>
@@ -130,17 +124,22 @@ const Dashboard = () => {
       </form>
 
       <h2 className="text-2xl font-bold mb-2">Lista de Produtos</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {products && products.map(product => (
-          <div key={product.id} className="border p-4 rounded">
-            <h3 className="text-xl font-bold">{product.name}</h3>
-            {product.product_cost && <p>Custo do Produto: R${product.product_cost}</p>}
-            {product.product_image && <img src={product.product_image} alt={product.name} className="w-full h-40 object-cover mt-2 mb-2" />}
-            <Button onClick={() => setEditingProduct(product)} className="mr-2">Editar</Button>
-            <Button onClick={() => handleDeleteProduct(product.id, product.name)} variant="destructive">Excluir</Button>
-          </div>
-        ))}
-      </div>
+      {products && products.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {products.map(product => (
+            <div key={product.id} className="border p-4 rounded">
+              <h3 className="text-xl font-bold">{product.name}</h3>
+              {product.description && <p>{product.description}</p>}
+              {product.price && <p>Preço: R${product.price}</p>}
+              {product.stock_quantity && <p>Quantidade em estoque: {product.stock_quantity}</p>}
+              <Button onClick={() => setEditingProduct(product)} className="mr-2">Editar</Button>
+              <Button onClick={() => handleDeleteProduct(product.id, product.name)} variant="destructive">Excluir</Button>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p>Nenhum produto encontrado. Adicione um novo produto para começar.</p>
+      )}
     </div>
   );
 };

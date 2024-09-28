@@ -2,25 +2,23 @@ import { supabase } from '../integrations/supabase/supabase';
 
 export const fetchProductColumns = async () => {
   try {
-    // Fetch a single row from the products table
     const { data, error } = await supabase
       .from('products')
       .select('*')
-      .limit(1)
-      .single();
+      .limit(1);
 
     if (error) {
       console.error("Error fetching product data:", error);
       throw new Error("Error fetching product data");
     }
 
-    // If data is null (no products in the table), return a default set of columns
-    if (!data) {
+    // If data is empty array (no products in the table), return a default set of columns
+    if (!data || data.length === 0) {
       return ['id', 'name', 'description', 'price', 'stock_quantity'];
     }
 
-    // Return the keys of the data object, which represent the column names
-    return Object.keys(data);
+    // Return the keys of the first data object, which represent the column names
+    return Object.keys(data[0]);
   } catch (err) {
     console.error("Error in fetchProductColumns:", err);
     // Return a default set of columns in case of error

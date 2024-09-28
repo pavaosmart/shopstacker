@@ -123,7 +123,7 @@ const UIComponentsPanel = () => {
             </div>
             {isLoggedIn ? (
               <div className="mb-4">
-                <h4 className="text-sm font-medium mb-2 text-center">Select a category</h4>
+                <h4 className="text-sm font-medium mb-2">Select a category</h4>
                 <div className="relative">
                   <button
                     onClick={() => setIsDropdownOpen(!isDropdownOpen)}
@@ -152,7 +152,7 @@ const UIComponentsPanel = () => {
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center">
-                <h2 className="text-2xl font-bold mb-4 text-center">Welcome to UI Components Kit</h2>
+                <h2 className="text-2xl font-bold mb-4">Welcome to UI Components Kit</h2>
                 <p className="text-gray-600 mb-8 text-center">Log in to access our library of customizable UI components.</p>
                 <form onSubmit={handleLogin} className="w-full max-w-sm">
                   <Input

@@ -12,13 +12,6 @@ import Notifications from '../components/ui-catalog/Notifications';
 import PreviewCards from '../components/ui-catalog/PreviewCards';
 
 const ComponentesUI = ({ panelWidth, selectedCategory, isEditMode }) => {
-  const getColumnClass = () => {
-    if (panelWidth < 400) return 'grid-cols-1';
-    if (panelWidth < 600) return 'grid-cols-2';
-    if (panelWidth < 800) return 'grid-cols-3';
-    return 'grid-cols-4';
-  };
-
   const renderComponent = () => {
     switch (selectedCategory) {
       case 'Sidebars':
@@ -32,7 +25,7 @@ const ComponentesUI = ({ panelWidth, selectedCategory, isEditMode }) => {
       case 'Dialogs/Modals':
         return <Dialogs />;
       case 'Tables':
-        return <div className="h-full overflow-hidden"><Tables /></div>;
+        return <Tables />;
       case 'Forms':
         return <Forms />;
       case 'Typography':
@@ -47,7 +40,7 @@ const ComponentesUI = ({ panelWidth, selectedCategory, isEditMode }) => {
   };
 
   return (
-    <div className={`h-full ${selectedCategory === 'Tables' ? '' : `grid gap-4 ${getColumnClass()}`}`}>
+    <div className="h-full overflow-y-auto">
       {renderComponent()}
     </div>
   );

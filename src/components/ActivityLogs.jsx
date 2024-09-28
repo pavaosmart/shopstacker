@@ -21,7 +21,7 @@ const ActivityLogs = () => {
   const [userFilter, setUserFilter] = useState('');
   const navigate = useNavigate();
 
-  const { data: logs, isLoading, error } = useActivityLogs({
+  const { data: logsData, isLoading, error } = useActivityLogs({
     page,
     actionFilter,
     userFilter,
@@ -30,7 +30,8 @@ const ActivityLogs = () => {
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
 
-  const totalPages = Math.ceil(logs.count / ITEMS_PER_PAGE);
+  const { data: logs, count } = logsData || { data: [], count: 0 };
+  const totalPages = Math.ceil(count / ITEMS_PER_PAGE);
 
   const handleGoBack = () => {
     navigate(-1);
@@ -71,7 +72,7 @@ const ActivityLogs = () => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {logs.data.map((log) => (
+          {logs.map((log) => (
             <TableRow key={log.id}>
               <TableCell>{log.user_email}</TableCell>
               <TableCell>{log.action}</TableCell>

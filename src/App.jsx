@@ -5,21 +5,24 @@ import { Toaster } from "@/components/ui/sonner";
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import ActivityLogs from './components/ActivityLogs';
+import { SupabaseAuthProvider } from './integrations/supabase/auth';
 
 const queryClient = new QueryClient();
 
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <Toaster />
-      <Router>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/logs" element={<ActivityLogs />} />
-          <Route path="/" element={<Navigate to="/login" replace />} />
-        </Routes>
-      </Router>
+      <SupabaseAuthProvider>
+        <Toaster />
+        <Router>
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/logs" element={<ActivityLogs />} />
+            <Route path="/" element={<Navigate to="/login" replace />} />
+          </Routes>
+        </Router>
+      </SupabaseAuthProvider>
     </QueryClientProvider>
   );
 }

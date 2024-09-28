@@ -9,13 +9,7 @@ export const useActivityLogs = ({ page, actionFilter, userFilter }) => {
     queryFn: async () => {
       let query = supabase
         .from('activity_logs')
-        .select(`
-          *,
-          users:user_id (
-            id,
-            email
-          )
-        `, { count: 'exact' })
+        .select('*, users!fk_user(id, email)', { count: 'exact' })
         .order('created_at', { ascending: false })
         .range((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE - 1);
 
@@ -24,7 +18,7 @@ export const useActivityLogs = ({ page, actionFilter, userFilter }) => {
       }
 
       if (userFilter) {
-        query = query.eq('users.email', userFilter);
+        query = query.ilike('users.email', `%${userFilter}%`);
       }
 
       const { data, error, count } = await query;

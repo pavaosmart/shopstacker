@@ -32,15 +32,18 @@ function App() {
               <Menu size={24} />
             </button>
             <UIComponentsPanel isOpen={isPanelOpen} onClose={() => setIsPanelOpen(false)} />
-            <Routes>
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/logs" element={<ActivityLogs />} />
-              <Route path="/users" element={<UsersAndPermissions />} />
-              <Route path="/componentes-ui" element={<ComponentesUI />} />
-              <Route path="/" element={<Navigate to="/login" replace />} />
-            </Routes>
+            <div className={`transition-all duration-300 ${isPanelOpen ? 'mr-80' : ''}`}>
+              <Routes>
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/logs" element={<ActivityLogs />} />
+                <Route path="/users" element={<UsersAndPermissions />} />
+                <Route path="/componentes-ui" element={<ComponentesUI />} />
+                <Route path="/" element={<Navigate to="/login" replace />} />
+              </Routes>
+            </div>
+            {isPanelOpen && <ComponentesUI />}
           </div>
         </Router>
       </SupabaseAuthProvider>

@@ -83,6 +83,7 @@ const UIComponentsPanel = () => {
     setIsLoggedIn(false);
     setEmail('');
     setPassword('');
+    setSelectedCategory('');
   };
 
   return (
@@ -165,9 +166,8 @@ const UIComponentsPanel = () => {
                 </div>
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center">
-                <h2 className="text-2xl font-bold mb-4">Welcome to UI Components Kit</h2>
-                <p className="text-gray-600 mb-8 text-center">Log in to access our library of customizable UI components.</p>
+              <div className="flex flex-col items-center justify-center h-full">
+                <h2 className="text-2xl font-bold mb-4 text-center">Welcome to UI Components Kit</h2>
                 <form onSubmit={handleLogin} className="w-full max-w-sm">
                   <Input
                     type="email"
@@ -187,6 +187,7 @@ const UIComponentsPanel = () => {
                   />
                   <Button type="submit" className="w-full">Log In</Button>
                 </form>
+                <p className="text-gray-600 mt-8 text-center">Log in to access our library of customizable UI components.</p>
               </div>
             )}
           </div>

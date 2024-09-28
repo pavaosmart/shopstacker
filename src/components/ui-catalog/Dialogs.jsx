@@ -8,6 +8,8 @@ const Dialogs = () => {
   const [isAlertOpen, setIsAlertOpen] = useState(false);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isImagePreviewOpen, setIsImagePreviewOpen] = useState(false);
+  const [isInfoOpen, setIsInfoOpen] = useState(false);
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
 
   return (
     <div className="space-y-4">

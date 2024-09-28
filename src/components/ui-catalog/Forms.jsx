@@ -20,89 +20,64 @@ const Forms = () => {
     const { name, value, type, checked } = e.target;
     setFormData(prevData => ({
       ...prevData,
-      [name]: typeEntendo seu pedido para expandir significativamente o catálogo de componentes UI, incluindo mais variações e elementos adicionais. Vamos implementar essas mudanças para criar uma biblioteca de componentes muito mais abrangente.
+      [name]: type === 'checkbox' ? checked : value
+    }));
+  };
 
-<lov-code>
-Para expandir nossa biblioteca de componentes UI, precisaremos:
-1. Atualizar o arquivo ComponentesUI.jsx para incluir mais seções e componentes.
-2. Criar novos arquivos para cada categoria de componente expandida.
-3. Implementar variações adicionais para cada tipo de componente.
-
-Vamos começar atualizando o arquivo principal:
-
-<lov-write file_path="src/pages/ComponentesUI.jsx">
-import React from 'react';
-import Navigation from '../components/Navigation';
-import Sidebars from '../components/ui-catalog/Sidebars';
-import TopBars from '../components/ui-catalog/TopBars';
-import Buttons from '../components/ui-catalog/Buttons';
-import Cards from '../components/ui-catalog/Cards';
-import Dialogs from '../components/ui-catalog/Dialogs';
-import Tables from '../components/ui-catalog/Tables';
-import Forms from '../components/ui-catalog/Forms';
-import Typography from '../components/ui-catalog/Typography';
-import IconsAndIllustrations from '../components/ui-catalog/IconsAndIllustrations';
-import Notifications from '../components/ui-catalog/Notifications';
-
-const ComponentesUI = () => {
   return (
-    <div className="min-h-screen bg-gray-100">
-      <Navigation />
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-8">Catálogo de Componentes UI</h1>
-        
-        <section className="mb-12">
-          <h2 className="text-2xl font-semibold mb-4">Sidebars</h2>
-          <Sidebars />
-        </section>
-
-        <section className="mb-12">
-          <h2 className="text-2xl font-semibold mb-4">Top Bars (Navigation Bars)</h2>
-          <TopBars />
-        </section>
-
-        <section className="mb-12">
-          <h2 className="text-2xl font-semibold mb-4">Buttons</h2>
-          <Buttons />
-        </section>
-
-        <section className="mb-12">
-          <h2 className="text-2xl font-semibold mb-4">Cards</h2>
-          <Cards />
-        </section>
-
-        <section className="mb-12">
-          <h2 className="text-2xl font-semibold mb-4">Dialogs/Modals</h2>
-          <Dialogs />
-        </section>
-
-        <section className="mb-12">
-          <h2 className="text-2xl font-semibold mb-4">Tables</h2>
-          <Tables />
-        </section>
-
-        <section className="mb-12">
-          <h2 className="text-2xl font-semibold mb-4">Forms</h2>
-          <Forms />
-        </section>
-
-        <section className="mb-12">
-          <h2 className="text-2xl font-semibold mb-4">Typography</h2>
-          <Typography />
-        </section>
-
-        <section className="mb-12">
-          <h2 className="text-2xl font-semibold mb-4">Icons and Illustrations</h2>
-          <IconsAndIllustrations />
-        </section>
-
-        <section className="mb-12">
-          <h2 className="text-2xl font-semibold mb-4">Notifications and Toasts</h2>
-          <Notifications />
-        </section>
-      </div>
+    <div>
+      {/* Form content */}
+      <form>
+        <div>
+          <label>Name</label>
+          <input type="text" name="name" value={formData.name} onChange={handleChange} />
+        </div>
+        <div>
+          <label>Email</label>
+          <input type="email" name="email" value={formData.email} onChange={handleChange} />
+        </div>
+        <div>
+          <label>Password</label>
+          <input type={showPassword ? 'text' : 'password'} name="password" value={formData.password} onChange={handleChange} />
+          <button type="button" onClick={() => setShowPassword(!showPassword)}>
+            {showPassword ? <EyeOff /> : <Eye />}
+          </button>
+        </div>
+        <div>
+          <label>Confirm Password</label>
+          <input type={showPassword ? 'text' : 'password'} name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} />
+        </div>
+        <div>
+          <label>Gender</label>
+          <select name="gender" value={formData.gender} onChange={handleChange}>
+            <option value="">Select</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+          </select>
+        </div>
+        <div>
+          <label>Birthdate</label>
+          <input type="date" name="birthdate" value={formData.birthdate} onChange={handleChange} />
+        </div>
+        <div>
+          <label>Country</label>
+          <input type="text" name="country" value={formData.country} onChange={handleChange} />
+        </div>
+        <div>
+          <label>
+            <input type="checkbox" name="terms" checked={formData.terms} onChange={handleChange} />
+            Accept Terms
+          </label>
+        </div>
+        <button type="submit">
+          <Check /> Submit
+        </button>
+        <button type="button" onClick={() => setStep(1)}>
+          <X /> Cancel
+        </button>
+      </form>
     </div>
   );
 };
 
-export default ComponentesUI;
+export default Forms;

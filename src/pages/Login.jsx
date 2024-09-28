@@ -4,16 +4,18 @@ import { supabase } from '../integrations/supabase/supabase';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import { useSupabaseAuth } from '../integrations/supabase/auth';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
+  const { login } = useSupabaseAuth();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const { error } = await login(email, password);
       if (error) throw error;
       toast.success('Login bem-sucedido');
       navigate('/dashboard');

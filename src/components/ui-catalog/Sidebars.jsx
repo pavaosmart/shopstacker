@@ -18,10 +18,10 @@ const Sidebars = () => {
   ];
 
   return (
-    <div className={`bg-blue-500 text-white shadow-lg transition-all duration-300 flex flex-col ${isCollapsed ? 'w-16' : 'w-64'}`}>
+    <div className={`bg-blue-900 text-white shadow-lg transition-all duration-300 flex flex-col ${isCollapsed ? 'w-16' : 'w-64'}`}>
       <div className="p-4 flex justify-between items-center">
         {!isCollapsed && <span className="font-semibold">Menu</span>}
-        <Button onClick={toggleSidebar} variant="ghost" size="sm" className="text-white hover:bg-blue-600">
+        <Button onClick={toggleSidebar} variant="ghost" size="sm" className="text-white hover:bg-blue-800">
           {isCollapsed ? <Menu size={20} /> : <X size={20} />}
         </Button>
       </div>
@@ -30,14 +30,14 @@ const Sidebars = () => {
           <Link
             key={index}
             to={item.path}
-            className="flex items-center p-4 hover:bg-blue-600 transition-colors"
+            className="flex items-center p-4 hover:bg-blue-800 transition-colors"
           >
             {item.icon}
             {!isCollapsed && <span className="ml-4">{item.label}</span>}
           </Link>
         ))}
       </nav>
-      <div className="p-4 border-t border-blue-400">
+      <div className="p-4 border-t border-blue-800">
         <ThemeToggle />
       </div>
     </div>

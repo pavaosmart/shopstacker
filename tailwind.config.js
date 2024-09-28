@@ -52,7 +52,9 @@ module.exports = {
           foreground: "hsl(var(--card-foreground))",
         },
         blue: {
-          500: "#1e40af", // Ajustado para um azul mais escuro
+          500: "#1e40af",
+          800: "#1e3a8a",
+          900: "#1e3a5f", // Azul muito escuro, quase preto
         },
       },
       borderRadius: {

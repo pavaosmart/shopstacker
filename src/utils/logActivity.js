@@ -7,7 +7,8 @@ export const logActivity = async (action) => {
 
     const { data, error } = await supabase
       .from('activity_logs')
-      .insert([{ user_id: user.id, action }]);
+      .insert([{ user_id: user.id, action }])
+      .select();
     
     if (error) throw error;
     return data;

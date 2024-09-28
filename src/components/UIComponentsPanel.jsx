@@ -3,7 +3,7 @@ import { X, ChevronDown } from 'lucide-react';
 import ComponentesUI from '../pages/ComponentesUI';
 
 const UIComponentsPanel = ({ isOpen, onClose }) => {
-  const [selectedCategory, setSelectedCategory] = useState('Sidebars');
+  const [selectedCategory, setSelectedCategory] = useState('');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [panelWidth, setPanelWidth] = useState(320);
   const panelRef = useRef(null);
@@ -83,7 +83,7 @@ const UIComponentsPanel = ({ isOpen, onClose }) => {
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                 className="w-full flex justify-between items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-blue-500"
               >
-                {selectedCategory}
+                {selectedCategory || 'Select category'}
                 <ChevronDown size={20} className={`ml-2 transition-transform duration-200 ${isDropdownOpen ? 'transform rotate-180' : ''}`} />
               </button>
               {isDropdownOpen && (

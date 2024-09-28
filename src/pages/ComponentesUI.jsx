@@ -9,6 +9,7 @@ import Forms from '../components/ui-catalog/Forms';
 import Typography from '../components/ui-catalog/Typography';
 import IconsAndIllustrations from '../components/ui-catalog/IconsAndIllustrations';
 import Notifications from '../components/ui-catalog/Notifications';
+import PreviewCards from '../components/ui-catalog/PreviewCards';
 
 const ComponentesUI = ({ panelWidth, selectedCategory }) => {
   const getColumnClass = () => {
@@ -41,7 +42,7 @@ const ComponentesUI = ({ panelWidth, selectedCategory }) => {
       case 'Notifications and Toasts':
         return <Notifications />;
       default:
-        return null;
+        return <PreviewCards />;
     }
   };
 

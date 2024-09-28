@@ -46,7 +46,7 @@ const ActivityLogs = () => {
       
       <div className="mb-4 flex space-x-2">
         <Input
-          placeholder="Filter by user"
+          placeholder="Filter by user ID"
           value={userFilter}
           onChange={(e) => setUserFilter(e.target.value)}
           className="max-w-xs"
@@ -66,7 +66,7 @@ const ActivityLogs = () => {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>User</TableHead>
+            <TableHead>User Email</TableHead>
             <TableHead>Action</TableHead>
             <TableHead>Date/Time</TableHead>
           </TableRow>

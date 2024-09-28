@@ -9,7 +9,7 @@ export const useActivityLogs = ({ page, actionFilter, userFilter }) => {
     queryFn: async () => {
       let query = supabase
         .from('activity_logs')
-        .select('*, users!activity_logs_user_id_fkey(id, email)', { count: 'exact' })
+        .select('*')
         .order('created_at', { ascending: false })
         .range((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE - 1);
 
@@ -18,17 +18,28 @@ export const useActivityLogs = ({ page, actionFilter, userFilter }) => {
       }
 
       if (userFilter) {
-        query = query.ilike('users.email', `%${userFilter}%`);
+        query = query.eq('user_id', userFilter);
       }
 
       const { data, error, count } = await query;
 
       if (error) throw new Error(error.message);
 
+      // Fetch user information separately
+      const userIds = [...new Set(data.map(log => log.user_id))];
+      const { data: users, error: userError } = await supabase
+        .from('users')
+        .select('id, email')
+        .in('id', userIds);
+
+      if (userError) throw new Error(userError.message);
+
+      const userMap = Object.fromEntries(users.map(user => [user.id, user]));
+
       return {
         data: data.map(log => ({
           ...log,
-          user_email: log.users?.email
+          user_email: userMap[log.user_id]?.email || 'Unknown'
         })),
         count
       };

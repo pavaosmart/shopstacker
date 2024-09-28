@@ -92,7 +92,10 @@ const UIComponentsPanel = () => {
           />
           <div className="p-4 flex-grow overflow-y-auto">
             <div className="flex justify-between items-center mb-6">
-              <h3 className="text-lg font-semibold">Components</h3>
+              <div className="text-center flex-grow">
+                <h3 className="text-lg font-semibold">UI Components</h3>
+                <p className="text-sm font-light italic">by Marcio Pavão</p>
+              </div>
               <div className="flex items-center">
                 {isLoggedIn && (
                   <button

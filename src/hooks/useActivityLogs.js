@@ -18,7 +18,7 @@ export const useActivityLogs = ({ page, actionFilter, userFilter }) => {
       }
 
       if (userFilter) {
-        query = query.ilike('users.email', `%${userFilter}%`);
+        query = query.eq('user_id', userFilter);
       }
 
       const { data: logs, error, count } = await query;
@@ -27,7 +27,7 @@ export const useActivityLogs = ({ page, actionFilter, userFilter }) => {
 
       const logsWithUserEmails = logs.map(log => ({
         ...log,
-        user_email: log.users?.email || 'Unknown',
+        user_email: log.users?.email || 'Desconhecido',
       }));
 
       return {

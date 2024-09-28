@@ -32,7 +32,7 @@ const Dashboard = () => {
         const hasAccess = await checkProductPermissions();
         setHasPermission(hasAccess);
       } catch (error) {
-        console.error('Error checking permissions:', error);
+        console.error('Erro ao verificar permissões:', error);
         setHasPermission(false);
       }
     };
@@ -42,7 +42,7 @@ const Dashboard = () => {
   const handleAddProduct = async (e) => {
     e.preventDefault();
     if (!hasPermission) {
-      toast.error('You do not have permission to add products.');
+      toast.error('Você não tem permissão para adicionar produtos.');
       return;
     }
     try {
@@ -52,9 +52,9 @@ const Dashboard = () => {
         stock_quantity: parseInt(newProduct.stock_quantity),
       });
       setNewProduct({ name: '', price: '', stock_quantity: '' });
-      await logActivity('CREATE_PRODUCT', `Product "${addedProduct.name}" created`);
+      await logActivity('CREATE_PRODUCT', `Produto "${addedProduct.name}" criado`);
     } catch (error) {
-      // Error is handled by the mutation
+      // Erro tratado pela mutação
     }
   };
 
@@ -64,11 +64,11 @@ const Dashboard = () => {
 
   const handleUpdateProduct = async () => {
     if (!hasPermission) {
-      toast.error('You do not have permission to update products.');
+      toast.error('Você não tem permissão para atualizar produtos.');
       return;
     }
     if (!editingProduct || !editingProduct.id) {
-      toast.error('Invalid product for editing');
+      toast.error('Produto inválido para edição');
       return;
     }
     try {
@@ -79,42 +79,42 @@ const Dashboard = () => {
         stock_quantity: parseInt(editingProduct.stock_quantity)
       });
       setEditingProduct(null);
-      await logActivity('UPDATE_PRODUCT', `Product "${updatedProduct.name}" updated`);
+      await logActivity('UPDATE_PRODUCT', `Produto "${updatedProduct.name}" atualizado`);
     } catch (error) {
-      // Error is handled by the mutation
+      // Erro tratado pela mutação
     }
   };
 
   const handleDeleteProduct = async (id) => {
     if (!hasPermission) {
-      toast.error('You do not have permission to delete products.');
+      toast.error('Você não tem permissão para excluir produtos.');
       return;
     }
     try {
       const deletedProduct = await deleteProductMutation.mutateAsync(id);
-      await logActivity('DELETE_PRODUCT', `Product "${deletedProduct.name}" deleted`);
+      await logActivity('DELETE_PRODUCT', `Produto "${deletedProduct.name}" excluído`);
     } catch (error) {
-      // Error is handled by the mutation
+      // Erro tratado pela mutação
     }
   };
 
   const handleLogout = async () => {
     try {
       await supabase.auth.signOut();
-      const logResult = await logActivity('LOGOUT', 'User logged out');
+      const logResult = await logActivity('LOGOUT', 'Usuário fez logout');
       if (!logResult) {
-        console.warn('Failed to log logout activity');
+        console.warn('Falha ao registrar atividade de logout');
       }
       navigate('/login');
     } catch (error) {
-      console.error('Error during logout:', error);
-      toast.error('An error occurred during logout');
+      console.error('Erro durante o logout:', error);
+      toast.error('Ocorreu um erro durante o logout');
     }
   };
 
-  if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>Error loading products: {error.message}</div>;
-  if (!hasPermission) return <div>You do not have permission to manage products. Please contact an administrator.</div>;
+  if (isLoading) return <div>Carregando...</div>;
+  if (error) return <div>Erro ao carregar produtos: {error.message}</div>;
+  if (!hasPermission) return <div>Você não tem permissão para gerenciar produtos. Por favor, contate um administrador.</div>;
 
   return (
     <div className="p-8">
@@ -122,14 +122,14 @@ const Dashboard = () => {
       <div className="mb-4 flex space-x-2">
         <Button onClick={handleLogout}>Logout</Button>
         <Link to="/logs">
-          <Button>View Activity Logs</Button>
+          <Button>Ver Logs de Atividade</Button>
         </Link>
       </div>
 
       <form onSubmit={handleAddProduct} className="mb-8">
-        <h2 className="mb-2 text-xl font-bold">Add New Product</h2>
+        <h2 className="mb-2 text-xl font-bold">Adicionar Novo Produto</h2>
         <Input
-          placeholder="Product Name"
+          placeholder="Nome do Produto"
           value={newProduct.name}
           onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
           className="mb-2"
@@ -137,7 +137,7 @@ const Dashboard = () => {
         />
         <Input
           type="number"
-          placeholder="Price"
+          placeholder="Preço"
           value={newProduct.price}
           onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
           className="mb-2"
@@ -145,16 +145,16 @@ const Dashboard = () => {
         />
         <Input
           type="number"
-          placeholder="Stock Quantity"
+          placeholder="Quantidade em Estoque"
           value={newProduct.stock_quantity}
           onChange={(e) => setNewProduct({ ...newProduct, stock_quantity: e.target.value })}
           className="mb-2"
           required
         />
-        <Button type="submit">Add Product</Button>
+        <Button type="submit">Adicionar Produto</Button>
       </form>
 
-      <h2 className="mb-2 text-xl font-bold">Product List</h2>
+      <h2 className="mb-2 text-xl font-bold">Lista de Produtos</h2>
       {products && products.map((product) => (
         <div key={product.id} className="mb-4 p-4 border rounded">
           {editingProduct && editingProduct.id === product.id ? (
@@ -176,14 +176,14 @@ const Dashboard = () => {
                 onChange={(e) => setEditingProduct({ ...editingProduct, stock_quantity: e.target.value })}
                 className="mb-2"
               />
-              <Button onClick={handleUpdateProduct} className="mr-2">Save</Button>
-              <Button onClick={() => setEditingProduct(null)}>Cancel</Button>
+              <Button onClick={handleUpdateProduct} className="mr-2">Salvar</Button>
+              <Button onClick={() => setEditingProduct(null)}>Cancelar</Button>
             </div>
           ) : (
             <div>
-              <p>{product.name} - ${product.price} - Stock: {product.stock_quantity}</p>
-              <Button onClick={() => handleEditProduct(product)} className="mr-2 mt-2">Edit</Button>
-              <Button onClick={() => handleDeleteProduct(product.id)} className="mt-2">Delete</Button>
+              <p>{product.name} - R${product.price} - Estoque: {product.stock_quantity}</p>
+              <Button onClick={() => handleEditProduct(product)} className="mr-2 mt-2">Editar</Button>
+              <Button onClick={() => handleDeleteProduct(product.id)} className="mt-2">Excluir</Button>
             </div>
           )}
         </div>

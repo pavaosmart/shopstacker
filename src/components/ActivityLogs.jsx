@@ -39,8 +39,8 @@ const ActivityLogs = () => {
     fetchCurrentUser();
   }, []);
 
-  if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error.message}</div>;
+  if (isLoading) return <div>Carregando...</div>;
+  if (error) return <div>Erro: {error.message}</div>;
 
   const { data: logs, count } = logsData || { data: [], count: 0 };
   const totalPages = Math.ceil(count / ITEMS_PER_PAGE);
@@ -52,13 +52,13 @@ const ActivityLogs = () => {
   return (
     <div className="p-4">
       <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold">Activity Logs</h1>
+        <h1 className="text-2xl font-bold">Logs de Atividade</h1>
         <Button onClick={handleGoBack}>Voltar</Button>
       </div>
       
       <div className="mb-4 flex space-x-2">
         <Input
-          placeholder="Filter by action"
+          placeholder="Filtrar por ação"
           value={actionFilter}
           onChange={(e) => setActionFilter(e.target.value)}
           className="max-w-xs"
@@ -68,18 +68,18 @@ const ActivityLogs = () => {
           onValueChange={setUserFilter}
           className="max-w-xs"
         >
-          <option value="">All Users</option>
-          <option value={currentUserId}>Current User</option>
+          <option value="">Todos os Usuários</option>
+          <option value={currentUserId}>Usuário Atual</option>
         </Select>
       </div>
 
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>User</TableHead>
-            <TableHead>Action</TableHead>
-            <TableHead>Description</TableHead>
-            <TableHead>Date/Time</TableHead>
+            <TableHead>Usuário</TableHead>
+            <TableHead>Ação</TableHead>
+            <TableHead>Descrição</TableHead>
+            <TableHead>Data/Hora</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -99,16 +99,16 @@ const ActivityLogs = () => {
           onClick={() => setPage((p) => Math.max(1, p - 1))}
           disabled={page === 1}
         >
-          Previous
+          Anterior
         </Button>
         <span>
-          Page {page} of {totalPages}
+          Página {page} de {totalPages}
         </span>
         <Button
           onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
           disabled={page === totalPages}
         >
-          Next
+          Próxima
         </Button>
       </div>
     </div>

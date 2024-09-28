@@ -1,29 +1,24 @@
--- Update users table to use UUID
-ALTER TABLE users
+-- Update products table to use UUID if it's not already
+ALTER TABLE products
 ALTER COLUMN id TYPE uuid USING (uuid_generate_v4());
 
--- Update activity_logs table to use UUID for user_id
-ALTER TABLE activity_logs
-ALTER COLUMN user_id TYPE uuid USING (uuid_generate_v4());
+-- Update RLS policy for products
+CREATE POLICY "Users can view all products" ON products
+    FOR SELECT
+    TO authenticated
+    USING (true);
 
--- Update foreign key constraint
-ALTER TABLE activity_logs
-DROP CONSTRAINT IF EXISTS activity_logs_user_id_fkey,
-ADD CONSTRAINT activity_logs_user_id_fkey
-FOREIGN KEY (user_id) REFERENCES users(id);
+CREATE POLICY "Users can insert their own products" ON products
+    FOR INSERT
+    TO authenticated
+    WITH CHECK (auth.uid() = user_id);
 
--- Update RLS policy for activity_logs
-CREATE OR REPLACE FUNCTION auth.user_id() RETURNS uuid
-    LANGUAGE sql STABLE
-    AS $$
-  SELECT COALESCE(
-    current_setting('request.jwt.claim.sub', true),
-    (current_setting('request.jwt.claims', true)::jsonb ->> 'sub')
-  )::uuid
-$$;
+CREATE POLICY "Users can update their own products" ON products
+    FOR UPDATE
+    TO authenticated
+    USING (auth.uid() = user_id);
 
-DROP POLICY IF EXISTS "Users can only access their own logs" ON activity_logs;
-CREATE POLICY "Users can only access their own logs"
-ON activity_logs
-FOR ALL
-USING (auth.uid() = user_id);
+CREATE POLICY "Users can delete their own products" ON products
+    FOR DELETE
+    TO authenticated
+    USING (auth.uid() = user_id);

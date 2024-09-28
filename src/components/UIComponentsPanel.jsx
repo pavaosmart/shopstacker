@@ -178,7 +178,7 @@ const UIComponentsPanel = () => {
           </div>
           <div className="flex-grow overflow-y-auto">
             {isLoggedIn && (
-              <div className="p-4">
+              <div className="p-4 w-full h-full">
                 <ComponentesUI panelWidth={panelWidth} selectedCategory={selectedCategory} isEditMode={isEditMode} />
               </div>
             )}

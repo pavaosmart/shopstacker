@@ -83,7 +83,7 @@ const Tables = () => {
         </Select>
       </div>
       <div className="overflow-x-auto">
-        <table className="min-w-full bg-white border border-gray-300">
+        <table className="w-full bg-white border border-gray-300">
           <thead>
             <tr className="bg-gray-100">
               {Object.keys(data[0]).map(column => (

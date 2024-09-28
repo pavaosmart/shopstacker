@@ -65,14 +65,36 @@ ALTER TABLE competitor_prices ENABLE ROW LEVEL SECURITY;
 ALTER TABLE orders ENABLE ROW LEVEL SECURITY;
 ALTER TABLE order_items ENABLE ROW LEVEL SECURITY;
 
--- Example RLS policy for users (adjust as needed)
-CREATE POLICY "Users can only view and edit their own data" ON users
+-- RLS policy for users
+CREATE POLICY "Users can view and edit their own data" ON users
     USING (auth.uid() = id)
     WITH CHECK (auth.uid() = id);
 
--- Example RLS policy for activity_logs
-CREATE POLICY "Users can only view their own logs" ON activity_logs
+-- RLS policy for activity_logs
+CREATE POLICY "Users can view their own logs" ON activity_logs
     FOR SELECT
     USING (auth.uid() = user_id);
 
--- Add more RLS policies as needed for other tables
+-- RLS policy for pricing_settings
+CREATE POLICY "Users can view all pricing settings" ON pricing_settings
+    FOR SELECT
+    TO authenticated
+    USING (true);
+
+-- RLS policy for competitor_prices
+CREATE POLICY "Users can view all competitor prices" ON competitor_prices
+    FOR SELECT
+    TO authenticated
+    USING (true);
+
+-- RLS policy for orders
+CREATE POLICY "Users can view their own orders" ON orders
+    USING (auth.uid() = user_id);
+
+-- RLS policy for order_items
+CREATE POLICY "Users can view their own order items" ON order_items
+    USING (EXISTS (
+        SELECT 1 FROM orders
+        WHERE orders.id = order_items.order_id
+        AND orders.user_id = auth.uid()
+    ));

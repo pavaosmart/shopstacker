@@ -87,6 +87,10 @@ export const useAddUser = () => {
 export const useUsers = () => useQuery({
   queryKey: ['users'],
   queryFn: async () => {
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError) throw authError;
+    if (!user) throw new Error('Not authenticated');
+
     const { data, error } = await supabase
       .from('users')
       .select('id, email, full_name');

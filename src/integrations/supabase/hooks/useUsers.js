@@ -20,7 +20,6 @@ export const useCurrentUser = () => useQuery({
         throw new Error(`Error fetching user data: ${error.message}`);
       }
       
-      // If no data is returned, use the auth user data
       return data || { id: user.id, email: user.email, full_name: null };
     } catch (error) {
       console.error("Error in useCurrentUser:", error);
@@ -47,3 +46,50 @@ export const useUpdateUser = () => {
     },
   });
 };
+
+export const useDeleteUser = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (userId) => {
+      const { error } = await supabase
+        .from('users')
+        .delete()
+        .eq('id', userId);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+    },
+  });
+};
+
+export const useAddUser = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (userData) => {
+      const { data, error } = await supabase
+        .from('users')
+        .insert([userData])
+        .select();
+      
+      if (error) throw error;
+      return data[0];
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+    },
+  });
+};
+
+export const useUsers = () => useQuery({
+  queryKey: ['users'],
+  queryFn: async () => {
+    const { data, error } = await supabase
+      .from('users')
+      .select('id, email, full_name');
+    
+    if (error) throw error;
+    return data;
+  },
+});

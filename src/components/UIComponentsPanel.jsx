@@ -1,14 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { X, ChevronDown, Settings } from 'lucide-react';
+import { X, ChevronDown } from 'lucide-react';
 import ComponentesUI from '../pages/ComponentesUI';
-import SettingsModal from './SettingsModal';
 
 const UIComponentsPanel = ({ isOpen, onClose }) => {
   const [selectedCategory, setSelectedCategory] = useState('');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [panelWidth, setPanelWidth] = useState(320);
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [editingCardIndex, setEditingCardIndex] = useState(null);
   const panelRef = useRef(null);
   const resizeHandleRef = useRef(null);
 
@@ -55,11 +52,6 @@ const UIComponentsPanel = ({ isOpen, onClose }) => {
     }
   };
 
-  const handleEditCard = (index) => {
-    setEditingCardIndex(index);
-    setIsSettingsOpen(true);
-  };
-
   return (
     <>
       <div
@@ -77,20 +69,12 @@ const UIComponentsPanel = ({ isOpen, onClose }) => {
         <div className="p-4 flex-grow overflow-y-auto">
           <div className="flex justify-between items-center mb-6">
             <h3 className="text-lg font-semibold">Components</h3>
-            <div className="flex items-center space-x-2">
-              <button
-                onClick={() => setIsSettingsOpen(true)}
-                className="text-gray-500 hover:text-gray-700 transition-colors"
-              >
-                <Settings size={20} />
-              </button>
-              <button
-                onClick={onClose}
-                className="text-gray-500 hover:text-gray-700 transition-colors"
-              >
-                <X size={20} />
-              </button>
-            </div>
+            <button
+              onClick={onClose}
+              className="text-gray-500 hover:text-gray-700 transition-colors"
+            >
+              <X size={20} />
+            </button>
           </div>
           <div className="mb-4">
             <h4 className="text-sm font-medium mb-2">Select a category</h4>
@@ -121,7 +105,7 @@ const UIComponentsPanel = ({ isOpen, onClose }) => {
             </div>
           </div>
           <div className="mt-4">
-            <ComponentesUI panelWidth={panelWidth} selectedCategory={selectedCategory} onEditCard={handleEditCard} />
+            <ComponentesUI panelWidth={panelWidth} selectedCategory={selectedCategory} />
           </div>
         </div>
       </div>
@@ -129,13 +113,6 @@ const UIComponentsPanel = ({ isOpen, onClose }) => {
         <div
           className="fixed inset-0 bg-black bg-opacity-50 z-40"
           onClick={onClose}
-        />
-      )}
-      {isSettingsOpen && (
-        <SettingsModal
-          isOpen={isSettingsOpen}
-          onClose={() => setIsSettingsOpen(false)}
-          editingCardIndex={editingCardIndex}
         />
       )}
     </>

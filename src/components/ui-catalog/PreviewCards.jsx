@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { Pencil, Upload } from 'lucide-react';
+import { Pencil, Upload, Plus } from 'lucide-react';
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 const PreviewCards = ({ onEdit }) => {
   const [previewItems, setPreviewItems] = useState([
@@ -20,6 +22,8 @@ const PreviewCards = ({ onEdit }) => {
     },
   ]);
 
+  const [editingIndex, setEditingIndex] = useState(null);
+
   const handleImageUpload = (index, e) => {
     const file = e.target.files[0];
     if (file) {
@@ -33,16 +37,29 @@ const PreviewCards = ({ onEdit }) => {
     }
   };
 
+  const handleEdit = (index) => {
+    setEditingIndex(index);
+  };
+
+  const handleSave = (index) => {
+    setEditingIndex(null);
+    // Here you would typically save the changes to a backend
+  };
+
+  const handleChange = (index, field, value) => {
+    const newPreviewItems = [...previewItems];
+    newPreviewItems[index][field] = value;
+    setPreviewItems(newPreviewItems);
+  };
+
   return (
     <>
       {previewItems.map((item, index) => (
         <div key={index} className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow duration-300 relative">
-          <img src={item.image} alt={item.title} className="w-full h-32 object-cover mb-4 rounded" />
-          <h3 className="text-lg font-semibold mb-2">{item.title}</h3>
-          <p className="text-gray-600">{item.description}</p>
-          <div className="absolute top-2 right-2 flex space-x-2">
-            <label className="cursor-pointer">
-              <Upload className="w-5 h-5 text-gray-500 hover:text-gray-700" />
+          <div className="relative mb-4">
+            <img src={item.image} alt={item.title} className="w-full h-32 object-cover rounded" />
+            <label className="absolute top-2 right-2 cursor-pointer bg-white rounded-full p-1 shadow-md">
+              <Plus className="w-5 h-5 text-gray-500 hover:text-gray-700" />
               <input 
                 type="file" 
                 className="hidden" 
@@ -50,10 +67,30 @@ const PreviewCards = ({ onEdit }) => {
                 onChange={(e) => handleImageUpload(index, e)}
               />
             </label>
-            <button onClick={() => onEdit(index)}>
-              <Pencil className="w-5 h-5 text-gray-500 hover:text-gray-700" />
-            </button>
           </div>
+          {editingIndex === index ? (
+            <>
+              <Input 
+                value={item.title}
+                onChange={(e) => handleChange(index, 'title', e.target.value)}
+                className="mb-2"
+              />
+              <Input 
+                value={item.description}
+                onChange={(e) => handleChange(index, 'description', e.target.value)}
+                className="mb-2"
+              />
+              <Button onClick={() => handleSave(index)} className="mt-2">Save</Button>
+            </>
+          ) : (
+            <>
+              <h3 className="text-lg font-semibold mb-2">{item.title}</h3>
+              <p className="text-gray-600">{item.description}</p>
+              <button onClick={() => handleEdit(index)} className="absolute bottom-2 right-2">
+                <Pencil className="w-5 h-5 text-gray-500 hover:text-gray-700" />
+              </button>
+            </>
+          )}
         </div>
       ))}
     </>

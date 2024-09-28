@@ -21,6 +21,11 @@ const Navigation = () => {
             <Button variant="ghost">Usuários e Permissões</Button>
           </Link>
         </li>
+        <li>
+          <Link to="/componentes-ui">
+            <Button variant="ghost">Componentes</Button>
+          </Link>
+        </li>
       </ul>
     </nav>
   );

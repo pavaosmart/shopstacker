@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '../integrations/supabase/supabase';
+import { supabase, getAuthenticatedClient } from '../integrations/supabase/supabase';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
@@ -8,26 +8,40 @@ import { toast } from "sonner";
 const Dashboard = () => {
   const [products, setProducts] = useState([]);
   const [newProduct, setNewProduct] = useState({ name: '', price: '' });
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchProducts();
-  }, []);
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        navigate('/login');
+      } else {
+        fetchProducts();
+      }
+    };
+    checkAuth();
+  }, [navigate]);
 
   const fetchProducts = async () => {
     try {
-      const { data, error } = await supabase.from('products').select('*');
+      setLoading(true);
+      const client = await getAuthenticatedClient();
+      const { data, error } = await client.from('products').select('*');
       if (error) throw error;
       setProducts(data);
     } catch (error) {
-      toast.error('Erro ao carregar produtos');
+      toast.error('Erro ao carregar produtos: ' + error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleAddProduct = async (e) => {
     e.preventDefault();
     try {
-      const { data, error } = await supabase
+      const client = await getAuthenticatedClient();
+      const { data, error } = await client
         .from('products')
         .insert([{ name: newProduct.name, price: parseFloat(newProduct.price) }]);
       if (error) throw error;
@@ -35,7 +49,7 @@ const Dashboard = () => {
       setNewProduct({ name: '', price: '' });
       fetchProducts();
     } catch (error) {
-      toast.error('Erro ao adicionar produto');
+      toast.error('Erro ao adicionar produto: ' + error.message);
     }
   };
 
@@ -43,6 +57,10 @@ const Dashboard = () => {
     await supabase.auth.signOut();
     navigate('/login');
   };
+
+  if (loading) {
+    return <div>Carregando...</div>;
+  }
 
   return (
     <div className="p-8">

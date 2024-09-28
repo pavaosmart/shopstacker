@@ -53,7 +53,6 @@ const Tables = () => {
 
   const handleSave = (id) => {
     setEditingId(null);
-    // Here you would typically update the data in your backend
   };
 
   const handleDelete = (id) => {

@@ -32,7 +32,7 @@ export const useCurrentUser = () => useQuery({
         .from('users')
         .select('id, email, full_name')
         .eq('id', user.id)
-        .single();
+        .maybeSingle(); // Use maybeSingle() instead of single()
 
       if (error) {
         console.error("Error fetching user data:", error);

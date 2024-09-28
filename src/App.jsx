@@ -8,6 +8,7 @@ import ActivityLogs from './pages/ActivityLogs';
 import UsersAndPermissions from './pages/UsersAndPermissions';
 import Register from './pages/Register';
 import Login from './pages/Login';
+import ForgotPassword from './pages/ForgotPassword';
 import Header from './components/Header';
 import UIComponentsPanel from './components/UIComponentsPanel';
 import { SupabaseAuthProvider } from './integrations/supabase/auth';
@@ -28,6 +29,7 @@ function App() {
             <Route path="/users" element={<UsersAndPermissions />} />
             <Route path="/register" element={<Register />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
           </Routes>
           <UIComponentsPanel />
         </Router>

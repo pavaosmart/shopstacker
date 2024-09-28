@@ -9,15 +9,6 @@ if (!supabaseUrl || !supabaseKey) {
 
 export const supabase = createClient(supabaseUrl, supabaseKey);
 
-// Function to get an authenticated Supabase client
-export const getAuthenticatedClient = async () => {
-  const { data: { session } } = await supabase.auth.getSession();
-  if (session) {
-    return supabase.auth.setSession(session);
-  }
-  return supabase;
-};
-
 // Verificar se o cliente Supabase foi inicializado corretamente
 if (!supabase.auth) {
   console.error('Supabase client was not initialized correctly. Auth object is missing.');

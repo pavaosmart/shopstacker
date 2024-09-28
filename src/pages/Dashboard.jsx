@@ -53,8 +53,10 @@ const Dashboard = () => {
       });
       setNewProduct({ name: '', price: '', stock_quantity: '' });
       await logActivity('CREATE_PRODUCT', `Produto "${addedProduct.name}" criado`);
+      toast.success('Produto adicionado com sucesso');
     } catch (error) {
-      // Erro tratado pela mutação
+      console.error('Erro ao adicionar produto:', error);
+      toast.error('Erro ao adicionar produto');
     }
   };
 
@@ -80,8 +82,10 @@ const Dashboard = () => {
       });
       setEditingProduct(null);
       await logActivity('UPDATE_PRODUCT', `Produto "${updatedProduct.name}" atualizado`);
+      toast.success('Produto atualizado com sucesso');
     } catch (error) {
-      // Erro tratado pela mutação
+      console.error('Erro ao atualizar produto:', error);
+      toast.error('Erro ao atualizar produto');
     }
   };
 
@@ -93,18 +97,17 @@ const Dashboard = () => {
     try {
       const deletedProduct = await deleteProductMutation.mutateAsync(id);
       await logActivity('DELETE_PRODUCT', `Produto "${deletedProduct.name}" excluído`);
+      toast.success('Produto excluído com sucesso');
     } catch (error) {
-      // Erro tratado pela mutação
+      console.error('Erro ao excluir produto:', error);
+      toast.error('Erro ao excluir produto');
     }
   };
 
   const handleLogout = async () => {
     try {
       await supabase.auth.signOut();
-      const logResult = await logActivity('LOGOUT', 'Usuário fez logout');
-      if (!logResult) {
-        console.warn('Falha ao registrar atividade de logout');
-      }
+      await logActivity('LOGOUT', 'Usuário fez logout');
       navigate('/login');
     } catch (error) {
       console.error('Erro durante o logout:', error);

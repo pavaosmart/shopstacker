@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useProducts, useAddProduct, useUpdateProduct, useDeleteProduct } from '../hooks/useProducts';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { supabase } from '../integrations/supabase/supabase';
 import { logActivity } from '../utils/logActivity';
+import Navigation from '../components/Navigation';
 
 const Dashboard = () => {
   const [newProduct, setNewProduct] = useState({ name: '', price: '', stock_quantity: '' });
@@ -95,77 +96,75 @@ const Dashboard = () => {
   if (error) return <div>Erro ao carregar produtos: {error.message}</div>;
 
   return (
-    <div className="p-8">
-      <h1 className="mb-4 text-2xl font-bold">Dashboard</h1>
-      <div className="mb-4 flex space-x-2">
-        <Button onClick={handleLogout}>Logout</Button>
-        <Link to="/logs">
-          <Button>Ver Logs de Atividade</Button>
-        </Link>
+    <div>
+      <Navigation />
+      <div className="p-8">
+        <h1 className="mb-4 text-2xl font-bold">Dashboard</h1>
+        <Button onClick={handleLogout} className="mb-4">Logout</Button>
+
+        <form onSubmit={handleAddProduct} className="mb-8">
+          <h2 className="mb-2 text-xl font-bold">Adicionar Novo Produto</h2>
+          <Input
+            placeholder="Nome do Produto"
+            value={newProduct.name}
+            onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
+            className="mb-2"
+            required
+          />
+          <Input
+            type="number"
+            placeholder="Preço"
+            value={newProduct.price}
+            onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
+            className="mb-2"
+            required
+          />
+          <Input
+            type="number"
+            placeholder="Quantidade em Estoque"
+            value={newProduct.stock_quantity}
+            onChange={(e) => setNewProduct({ ...newProduct, stock_quantity: e.target.value })}
+            className="mb-2"
+            required
+          />
+          <Button type="submit">Adicionar Produto</Button>
+        </form>
+
+        <h2 className="mb-2 text-xl font-bold">Lista de Produtos</h2>
+        {products && products.map((product) => (
+          <div key={product.id} className="mb-4 p-4 border rounded">
+            {editingProduct && editingProduct.id === product.id ? (
+              <div>
+                <Input
+                  value={editingProduct.name}
+                  onChange={(e) => setEditingProduct({ ...editingProduct, name: e.target.value })}
+                  className="mb-2"
+                />
+                <Input
+                  type="number"
+                  value={editingProduct.price}
+                  onChange={(e) => setEditingProduct({ ...editingProduct, price: e.target.value })}
+                  className="mb-2"
+                />
+                <Input
+                  type="number"
+                  value={editingProduct.stock_quantity}
+                  onChange={(e) => setEditingProduct({ ...editingProduct, stock_quantity: e.target.value })}
+                  className="mb-2"
+                />
+                <Button onClick={handleUpdateProduct} className="mr-2">Salvar</Button>
+                <Button onClick={() => setEditingProduct(null)}>Cancelar</Button>
+              </div>
+            ) : (
+              <div>
+                <p>{product.name} - R${product.price} - Estoque: {product.stock_quantity}</p>
+                <Button onClick={() => handleEditProduct(product)} className="mr-2 mt-2">Editar</Button>
+                <Button onClick={() => handleDeleteProduct(product.id)} className="mt-2">Excluir</Button>
+              </div>
+            )}
+          </div>
+        ))}
       </div>
-
-      <form onSubmit={handleAddProduct} className="mb-8">
-        <h2 className="mb-2 text-xl font-bold">Adicionar Novo Produto</h2>
-        <Input
-          placeholder="Nome do Produto"
-          value={newProduct.name}
-          onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
-          className="mb-2"
-          required
-        />
-        <Input
-          type="number"
-          placeholder="Preço"
-          value={newProduct.price}
-          onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
-          className="mb-2"
-          required
-        />
-        <Input
-          type="number"
-          placeholder="Quantidade em Estoque"
-          value={newProduct.stock_quantity}
-          onChange={(e) => setNewProduct({ ...newProduct, stock_quantity: e.target.value })}
-          className="mb-2"
-          required
-        />
-        <Button type="submit">Adicionar Produto</Button>
-      </form>
-
-      <h2 className="mb-2 text-xl font-bold">Lista de Produtos</h2>
-      {products && products.map((product) => (
-        <div key={product.id} className="mb-4 p-4 border rounded">
-          {editingProduct && editingProduct.id === product.id ? (
-            <div>
-              <Input
-                value={editingProduct.name}
-                onChange={(e) => setEditingProduct({ ...editingProduct, name: e.target.value })}
-                className="mb-2"
-              />
-              <Input
-                type="number"
-                value={editingProduct.price}
-                onChange={(e) => setEditingProduct({ ...editingProduct, price: e.target.value })}
-                className="mb-2"
-              />
-              <Input
-                type="number"
-                value={editingProduct.stock_quantity}
-                onChange={(e) => setEditingProduct({ ...editingProduct, stock_quantity: e.target.value })}
-                className="mb-2"
-              />
-              <Button onClick={handleUpdateProduct} className="mr-2">Salvar</Button>
-              <Button onClick={() => setEditingProduct(null)}>Cancelar</Button>
-            </div>
-          ) : (
-            <div>
-              <p>{product.name} - R${product.price} - Estoque: {product.stock_quantity}</p>
-              <Button onClick={() => handleEditProduct(product)} className="mr-2 mt-2">Editar</Button>
-              <Button onClick={() => handleDeleteProduct(product.id)} className="mt-2">Excluir</Button>
-            </div>
-          )}
-        </div>
-      ))}
     </div>
   );
 };

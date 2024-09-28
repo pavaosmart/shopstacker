@@ -42,7 +42,9 @@ const Dashboard = () => {
       const { data, error } = await supabase
         .from('products')
         .insert([{ name: newProduct.name, price: parseFloat(newProduct.price) }]);
+      
       if (error) throw error;
+      
       toast.success('Produto adicionado com sucesso');
       setNewProduct({ name: '', price: '' });
       fetchProducts();

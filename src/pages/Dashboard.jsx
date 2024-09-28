@@ -4,7 +4,6 @@ import { useProducts } from '../hooks/useProducts';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { RecentSales } from "@/components/ui/recent-sales";
 import DashboardCard from '../components/DashboardCard';
 import BarChart from '../components/BarChart';
 import { Package, Users, DollarSign, Activity } from 'lucide-react';
@@ -53,7 +52,6 @@ const Dashboard = () => {
                   <CardTitle>Visão Geral</CardTitle>
                 </CardHeader>
                 <CardContent className="pl-2">
-                  {/* Placeholder for Overview content */}
                   <p>Overview content goes here</p>
                 </CardContent>
               </Card>
@@ -62,7 +60,7 @@ const Dashboard = () => {
                   <CardTitle>Vendas Recentes</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <RecentSales />
+                  <p>Recent sales content goes here</p>
                 </CardContent>
               </Card>
             </div>

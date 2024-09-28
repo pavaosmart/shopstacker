@@ -4,21 +4,21 @@ import ComponentesUI from '../pages/ComponentesUI';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import ConfirmationDialog from './ConfirmationDialog';
+import Login from '../pages/Login';
+import { useSupabaseAuth } from '../integrations/supabase/auth';
 
 const UIComponentsPanel = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [panelWidth, setPanelWidth] = useState(320);
   const [isEditMode, setIsEditMode] = useState(false);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedComponent, setSelectedComponent] = useState('');
   const panelRef = useRef(null);
   const resizeHandleRef = useRef(null);
   const dropdownRef = useRef(null);
+  const { session, logout } = useSupabaseAuth();
 
   const categories = [
     'Sidebars', 'Top Bars (Navigation Bars)', 'Buttons', 'Cards',
@@ -70,20 +70,12 @@ const UIComponentsPanel = () => {
   };
 
   const handleSettingsClick = () => {
-    if (isLoggedIn) {
-      setIsEditMode(!isEditMode);
-    }
+    setIsEditMode(!isEditMode);
   };
 
-  const handleLogin = (e) => {
-    e.preventDefault();
-    setIsLoggedIn(true);
-  };
-
-  const handleLogout = () => {
-    setIsLoggedIn(false);
-    setEmail('');
-    setPassword('');
+  const handleLogout = async () => {
+    await logout();
+    setIsOpen(false);
   };
 
   const handleComponentClick = (componentName) => {
@@ -93,11 +85,6 @@ const UIComponentsPanel = () => {
 
   const handleConfirmImplementation = () => {
     console.log(`Implementing ${selectedComponent} on the current page`);
-    if (selectedComponent.includes('Sidebar')) {
-      // Implement the logic to add the sidebar
-    } else if (selectedComponent.includes('Top Bar')) {
-      // Implement the logic to add the top bar
-    }
     setIsDialogOpen(false);
   };
 
@@ -127,7 +114,7 @@ const UIComponentsPanel = () => {
                 <p className="text-sm font-light italic -mt-1">by Marcio Pavão</p>
               </div>
               <div className="flex items-center">
-                {isLoggedIn && (
+                {session && (
                   <>
                     <button
                       onClick={handleLogout}
@@ -151,7 +138,7 @@ const UIComponentsPanel = () => {
                 </button>
               </div>
             </div>
-            {isLoggedIn ? (
+            {session ? (
               <div className="mb-4">
                 <h4 className="text-sm font-medium mb-2">Select a category</h4>
                 <div className="relative" ref={dropdownRef}>
@@ -181,35 +168,11 @@ const UIComponentsPanel = () => {
                 </div>
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center h-full">
-                <div className="flex flex-col items-center justify-center flex-grow">
-                  <h2 className="text-2xl font-bold mb-2 text-center">Welcome to UI Components Kit</h2>
-                  <p className="text-sm text-gray-600 mb-8 text-center">Log in to access our library of customizable UI components.</p>
-                  <form onSubmit={handleLogin} className="w-full max-w-sm">
-                    <Input
-                      type="email"
-                      placeholder="Email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="mb-4"
-                      required
-                    />
-                    <Input
-                      type="password"
-                      placeholder="Password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="mb-4"
-                      required
-                    />
-                    <Button type="submit" className="w-full">Log In</Button>
-                  </form>
-                </div>
-              </div>
+              <Login />
             )}
           </div>
           <div className="flex-grow overflow-y-auto">
-            {isLoggedIn && (
+            {session && (
               <div className="h-full">
                 <ComponentesUI 
                   panelWidth={panelWidth} 
@@ -227,7 +190,7 @@ const UIComponentsPanel = () => {
         onClose={() => setIsDialogOpen(false)}
         onConfirm={handleConfirmImplementation}
         componentName={selectedComponent}
-        pageName="current" // You might want to replace this with the actual page name
+        pageName="current"
       />
     </>
   );

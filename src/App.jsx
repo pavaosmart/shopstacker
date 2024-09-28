@@ -9,6 +9,7 @@ import ActivityLogs from './pages/ActivityLogs';
 import UsersAndPermissions from './pages/UsersAndPermissions';
 import Login from './pages/Login';
 import { SupabaseAuthProvider } from './integrations/supabase/auth';
+import UIComponentsPanel from './components/UIComponentsPanel';
 
 const queryClient = new QueryClient();
 
@@ -27,6 +28,7 @@ function App() {
               <Route path="users" element={<UsersAndPermissions />} />
             </Route>
           </Routes>
+          <UIComponentsPanel />
         </Router>
       </SupabaseAuthProvider>
     </QueryClientProvider>

@@ -5,15 +5,12 @@ const handleSupabaseResponse = async (promise) => {
   try {
     const { data, error } = await promise;
     if (error) {
-      if (error.message.includes("column")) {
-        console.warn("Aviso: Coluna faltante na consulta", error);
-        return [];
-      }
+      console.error("Supabase error:", error);
       throw new Error(error.message);
     }
     return data;
   } catch (err) {
-    console.error("Erro no Supabase:", err);
+    console.error("Error in Supabase operation:", err);
     throw err;
   }
 };
@@ -24,20 +21,12 @@ export const useProducts = () => {
     queryFn: async () => {
       const { data: session } = await supabase.auth.getSession();
       if (!session) {
-        throw new Error('Não autenticado');
+        throw new Error('Not authenticated');
       }
-
-      // Buscando colunas dinamicamente
-      const { data: columns } = await supabase
-        .from('information_schema.columns')
-        .select('column_name')
-        .eq('table_name', 'products');
-
-      const columnsList = columns.map(col => col.column_name).join(', ');
 
       return handleSupabaseResponse(supabase
         .from('products')
-        .select(columnsList)
+        .select('*')
       );
     },
   });
@@ -49,7 +38,7 @@ export const useAddProduct = () => {
     mutationFn: async (newProduct) => {
       const { data: session } = await supabase.auth.getSession();
       if (!session) {
-        throw new Error('Não autenticado');
+        throw new Error('Not authenticated');
       }
       return handleSupabaseResponse(supabase.from('products').insert([newProduct]));
     },
@@ -65,7 +54,7 @@ export const useUpdateProduct = () => {
     mutationFn: async ({ id, ...product }) => {
       const { data: session } = await supabase.auth.getSession();
       if (!session) {
-        throw new Error('Não autenticado');
+        throw new Error('Not authenticated');
       }
       return handleSupabaseResponse(supabase.from('products').update(product).eq('id', id));
     },
@@ -81,7 +70,7 @@ export const useDeleteProduct = () => {
     mutationFn: async (id) => {
       const { data: session } = await supabase.auth.getSession();
       if (!session) {
-        throw new Error('Não autenticado');
+        throw new Error('Not authenticated');
       }
       return handleSupabaseResponse(supabase.from('products').delete().eq('id', id));
     },

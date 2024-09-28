@@ -99,9 +99,17 @@ const Dashboard = () => {
   };
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
-    await logActivity('LOGOUT', 'User logged out');
-    navigate('/login');
+    try {
+      await supabase.auth.signOut();
+      const logResult = await logActivity('LOGOUT', 'User logged out');
+      if (!logResult) {
+        console.warn('Failed to log logout activity');
+      }
+      navigate('/login');
+    } catch (error) {
+      console.error('Error during logout:', error);
+      toast.error('An error occurred during logout');
+    }
   };
 
   if (isLoading) return <div>Loading...</div>;

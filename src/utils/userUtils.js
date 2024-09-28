@@ -1,8 +1,8 @@
 import { supabase } from '../integrations/supabase/supabase';
 
-export const getUserInfo = async (userId) => {
+export const getUserInfo = async () => {
   try {
-    const { data: { user }, error } = await supabase.auth.getUser(userId);
+    const { data: { user }, error } = await supabase.auth.getUser();
     
     if (error) {
       throw error;

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useActivityLogs } from '../hooks/useActivityLogs';
+import { getUserInfo } from '../utils/userUtils';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
@@ -12,7 +13,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { supabase } from '../integrations/supabase/supabase';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -20,7 +20,7 @@ const ActivityLogs = () => {
   const [page, setPage] = useState(1);
   const [actionFilter, setActionFilter] = useState('');
   const [userFilter, setUserFilter] = useState('');
-  const [userEmails, setUserEmails] = useState({});
+  const [currentUserEmail, setCurrentUserEmail] = useState('');
   const navigate = useNavigate();
 
   const { data: logsData, isLoading, error } = useActivityLogs({
@@ -30,21 +30,16 @@ const ActivityLogs = () => {
   });
 
   useEffect(() => {
-    const fetchUserEmails = async () => {
-      if (logsData && logsData.data) {
-        const userIds = [...new Set(logsData.data.map(log => log.user_id))];
-        const emails = {};
-        for (const userId of userIds) {
-          const { data, error } = await supabase.auth.admin.getUserById(userId);
-          if (!error && data) {
-            emails[userId] = data.user.email;
-          }
-        }
-        setUserEmails(emails);
+    const fetchCurrentUser = async () => {
+      try {
+        const userInfo = await getUserInfo();
+        setCurrentUserEmail(userInfo.email);
+      } catch (error) {
+        console.error('Error fetching current user:', error);
       }
     };
-    fetchUserEmails();
-  }, [logsData]);
+    fetchCurrentUser();
+  }, []);
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
@@ -65,27 +60,25 @@ const ActivityLogs = () => {
       
       <div className="mb-4 flex space-x-2">
         <Input
-          placeholder="Filter by user ID"
-          value={userFilter}
-          onChange={(e) => setUserFilter(e.target.value)}
+          placeholder="Filter by action"
+          value={actionFilter}
+          onChange={(e) => setActionFilter(e.target.value)}
           className="max-w-xs"
         />
         <Select
-          value={actionFilter}
-          onValueChange={setActionFilter}
+          value={userFilter}
+          onValueChange={setUserFilter}
           className="max-w-xs"
         >
-          <option value="">All Actions</option>
-          <option value="CREATE">Create</option>
-          <option value="UPDATE">Update</option>
-          <option value="DELETE">Delete</option>
+          <option value="">All Users</option>
+          <option value={currentUserEmail}>Current User</option>
         </Select>
       </div>
 
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>User Email</TableHead>
+            <TableHead>User</TableHead>
             <TableHead>Action</TableHead>
             <TableHead>Date/Time</TableHead>
           </TableRow>
@@ -93,7 +86,7 @@ const ActivityLogs = () => {
         <TableBody>
           {logs.map((log) => (
             <TableRow key={log.id}>
-              <TableCell>{userEmails[log.user_id] || 'Unknown'}</TableCell>
+              <TableCell>{log.user_id === currentUserEmail ? 'You' : 'Other User'}</TableCell>
               <TableCell>{log.action}</TableCell>
               <TableCell>{new Date(log.created_at).toLocaleString()}</TableCell>
             </TableRow>

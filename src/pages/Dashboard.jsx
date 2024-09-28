@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase, getAuthenticatedClient } from '../integrations/supabase/supabase';
+import { supabase } from '../integrations/supabase/supabase';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
@@ -26,8 +26,7 @@ const Dashboard = () => {
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      const client = await getAuthenticatedClient();
-      const { data, error } = await client.from('products').select('*');
+      const { data, error } = await supabase.from('products').select('*');
       if (error) throw error;
       setProducts(data);
     } catch (error) {
@@ -40,8 +39,7 @@ const Dashboard = () => {
   const handleAddProduct = async (e) => {
     e.preventDefault();
     try {
-      const client = await getAuthenticatedClient();
-      const { data, error } = await client
+      const { data, error } = await supabase
         .from('products')
         .insert([{ name: newProduct.name, price: parseFloat(newProduct.price) }]);
       if (error) throw error;

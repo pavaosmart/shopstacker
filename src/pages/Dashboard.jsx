@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useProducts, useAddProduct, useUpdateProduct, useDeleteProduct, checkProductPermissions } from '../hooks/useProducts';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -106,7 +106,12 @@ const Dashboard = () => {
   return (
     <div className="p-8">
       <h1 className="mb-4 text-2xl font-bold">Dashboard</h1>
-      <Button onClick={handleLogout} className="mb-4">Logout</Button>
+      <div className="mb-4 flex space-x-2">
+        <Button onClick={handleLogout}>Logout</Button>
+        <Link to="/logs">
+          <Button>View Activity Logs</Button>
+        </Link>
+      </div>
 
       <form onSubmit={handleAddProduct} className="mb-8">
         <h2 className="mb-2 text-xl font-bold">Add New Product</h2>

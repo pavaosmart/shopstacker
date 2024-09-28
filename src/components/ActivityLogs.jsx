@@ -68,7 +68,7 @@ const ActivityLogs = () => {
               <TableCell>{log.user_email}</TableCell>
               <TableCell>{log.action}</TableCell>
               <TableCell>{log.description}</TableCell>
-              <TableCell>{new Date(log.timestamp).toLocaleString()}</TableCell>
+              <TableCell>{new Date(log.created_at).toLocaleString()}</TableCell>
             </TableRow>
           ))}
         </TableBody>

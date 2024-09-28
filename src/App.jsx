@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from "@/components/ui/sonner";
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
+import ActivityLogs from './components/ActivityLogs';
 
 const queryClient = new QueryClient();
 
@@ -15,6 +16,7 @@ function App() {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/logs" element={<ActivityLogs />} />
           <Route path="/" element={<Navigate to="/login" replace />} />
         </Routes>
       </Router>

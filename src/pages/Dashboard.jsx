@@ -12,7 +12,6 @@ const Dashboard = () => {
   const [session, setSession] = useState(null);
   const [newProduct, setNewProduct] = useState({
     name: '',
-    min_margin: 0,
     sale_price: 0,
     product_cost: 0,
     taxes: 0,
@@ -71,7 +70,6 @@ const Dashboard = () => {
       toast.success('Produto adicionado com sucesso');
       setNewProduct({
         name: '',
-        min_margin: 0,
         sale_price: 0,
         product_cost: 0,
         taxes: 0,
@@ -125,14 +123,6 @@ const Dashboard = () => {
             value={editingProduct ? editingProduct.name : newProduct.name}
             onChange={handleInputChange}
             placeholder="Nome do Produto"
-            required
-          />
-          <Input
-            name="min_margin"
-            type="number"
-            value={editingProduct ? editingProduct.min_margin : newProduct.min_margin}
-            onChange={handleInputChange}
-            placeholder="Margem Mínima"
             required
           />
           <Input
@@ -205,7 +195,6 @@ const Dashboard = () => {
             <h3 className="text-xl font-bold">{product.name}</h3>
             <p>Preço de Venda: R${product.sale_price}</p>
             <p>Custo do Produto: R${product.product_cost}</p>
-            <p>Margem Mínima: {product.min_margin}%</p>
             <img src={product.product_image} alt={product.name} className="w-full h-40 object-cover mt-2 mb-2" />
             <Button onClick={() => setEditingProduct(product)} className="mr-2">Editar</Button>
             <Button onClick={() => handleDeleteProduct(product.id, product.name)} variant="destructive">Excluir</Button>

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { X, CheckCircle, AlertTriangle, Info } from 'lucide-react';
+import { Button } from "@/components/ui/button";
 
 const Notifications = () => {
   const [toasts, setToasts] = useState([]);
@@ -30,32 +31,35 @@ const Notifications = () => {
   };
 
   return (
-    <div>
-      <div className="space-y-4 mb-8">
-        <button
-          onClick={() => addToast('success', 'Action completed successfully!')}
-          className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors"
-        >
-          Show Success Toast
-        </button>
-        <button
-          onClick={() => addToast('error', 'An error occurred. Please try again.')}
-          className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition-colors"
-        >
-          Show Error Toast
-        </button>
-        <button
-          onClick={() => addToast('info', 'New update available.')}
-          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
-        >
-          Show Info Toast
-        </button>
-        <button
-          onClick={() => showSnackbar('This is a snackbar notification')}
-          className="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600 transition-colors"
-        >
-          Show Snackbar
-        </button>
+    <div className="p-6 space-y-8">
+      <h2 className="text-2xl font-bold mb-4">Notifications and Toasts</h2>
+      <div className="space-y-4">
+        <div className="flex flex-wrap gap-4">
+          <Button
+            onClick={() => addToast('success', 'Action completed successfully!')}
+            className="bg-green-500 text-white hover:bg-green-600 transition-colors"
+          >
+            Show Success Toast
+          </Button>
+          <Button
+            onClick={() => addToast('error', 'An error occurred. Please try again.')}
+            className="bg-red-500 text-white hover:bg-red-600 transition-colors"
+          >
+            Show Error Toast
+          </Button>
+          <Button
+            onClick={() => addToast('info', 'New update available.')}
+            className="bg-blue-500 text-white hover:bg-blue-600 transition-colors"
+          >
+            Show Info Toast
+          </Button>
+          <Button
+            onClick={() => showSnackbar('This is a snackbar notification')}
+            className="bg-purple-500 text-white hover:bg-purple-600 transition-colors"
+          >
+            Show Snackbar
+          </Button>
+        </div>
       </div>
 
       {/* Toast Container */}

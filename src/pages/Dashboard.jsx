@@ -12,7 +12,6 @@ const Dashboard = ({ supabase, session }) => {
     min_margin: 0,
     sale_price: 0,
     product_cost: 0,
-    extra_inputs: 0,
     taxes: 0,
     market_commissions: 0,
     fixed_fee: 0,
@@ -46,7 +45,6 @@ const Dashboard = ({ supabase, session }) => {
         min_margin: 0,
         sale_price: 0,
         product_cost: 0,
-        extra_inputs: 0,
         taxes: 0,
         market_commissions: 0,
         fixed_fee: 0,
@@ -122,13 +120,6 @@ const Dashboard = ({ supabase, session }) => {
             onChange={handleInputChange}
             placeholder="Product Cost"
             required
-          />
-          <Input
-            name="extra_inputs"
-            type="number"
-            value={newProduct.extra_inputs}
-            onChange={handleInputChange}
-            placeholder="Extra Inputs"
           />
           <Input
             name="taxes"

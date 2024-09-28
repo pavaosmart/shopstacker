@@ -7,6 +7,7 @@ export const useActivityLogs = ({ page, actionFilter, userFilter }) => {
   return useQuery({
     queryKey: ['activityLogs', page, actionFilter, userFilter],
     queryFn: async () => {
+      // Fetch activity logs
       let query = supabase
         .from('activity_logs')
         .select('*', { count: 'exact' })

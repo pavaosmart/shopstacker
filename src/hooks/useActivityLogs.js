@@ -26,22 +26,23 @@ export const useActivityLogs = ({ page, actionFilter, userFilter }) => {
       if (logsError) throw new Error(logsError.message);
 
       // Fetch user emails for each log entry
-      const userIds = [...new Set(logs.map(log => log.user_id))];
-      const { data: users, error: usersError } = await supabase
-        .from('users')
-        .select('id, email')
-        .in('id', userIds);
+      if (logs.length > 0) {
+        const userIds = [...new Set(logs.map(log => log.user_id))];
+        const { data: users, error: usersError } = await supabase
+          .from('users')
+          .select('id, email')
+          .in('id', userIds);
 
-      if (usersError) throw new Error(usersError.message);
+        if (usersError) throw new Error(usersError.message);
 
-      const userMap = Object.fromEntries(users.map(user => [user.id, user.email]));
+        const userMap = Object.fromEntries(users.map(user => [user.id, user.email]));
 
-      const logsWithUserEmails = logs.map(log => ({
-        ...log,
-        user_email: userMap[log.user_id] || 'Unknown'
-      }));
+        logs.forEach(log => {
+          log.user_email = userMap[log.user_id] || 'Unknown';
+        });
+      }
 
-      return { data: logsWithUserEmails, count };
+      return { data: logs, count };
     },
   });
 };

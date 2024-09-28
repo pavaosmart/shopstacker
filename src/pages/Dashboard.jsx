@@ -8,6 +8,7 @@ import { toast } from "sonner";
 const Dashboard = () => {
   const [products, setProducts] = useState([]);
   const [newProduct, setNewProduct] = useState({ name: '', price: '', stock_quantity: '' });
+  const [editingProduct, setEditingProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
@@ -30,7 +31,7 @@ const Dashboard = () => {
       setLoading(true);
       const { data, error } = await supabase
         .from('products')
-        .select('name, price, stock_quantity');
+        .select('id, name, price, stock_quantity');
       if (error) throw error;
       setProducts(data);
     } catch (error) {
@@ -63,6 +64,48 @@ const Dashboard = () => {
       fetchProducts();
     } catch (error) {
       toast.error('Erro ao adicionar produto: ' + error.message);
+    }
+  };
+
+  const handleEditProduct = async (product) => {
+    setEditingProduct({ ...product });
+  };
+
+  const handleUpdateProduct = async () => {
+    if (!editingProduct) return;
+    try {
+      const { error } = await supabase
+        .from('products')
+        .update({ 
+          name: editingProduct.name,
+          price: parseFloat(editingProduct.price),
+          stock_quantity: parseInt(editingProduct.stock_quantity)
+        })
+        .eq('id', editingProduct.id);
+
+      if (error) throw error;
+
+      toast.success('Produto atualizado com sucesso');
+      setEditingProduct(null);
+      fetchProducts();
+    } catch (error) {
+      toast.error('Erro ao atualizar produto: ' + error.message);
+    }
+  };
+
+  const handleDeleteProduct = async (id) => {
+    try {
+      const { error } = await supabase
+        .from('products')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      toast.success('Produto excluído com sucesso');
+      fetchProducts();
+    } catch (error) {
+      toast.error('Erro ao excluir produto: ' + error.message);
     }
   };
 
@@ -109,9 +152,37 @@ const Dashboard = () => {
       </form>
 
       <h2 className="mb-2 text-xl font-bold">Lista de Produtos</h2>
-      {products.map((product, index) => (
-        <div key={index} className="mb-2 p-2 border rounded">
-          <p>{product.name} - R$ {product.price} - Estoque: {product.stock_quantity}</p>
+      {products.map((product) => (
+        <div key={product.id} className="mb-4 p-4 border rounded">
+          {editingProduct && editingProduct.id === product.id ? (
+            <div>
+              <Input
+                value={editingProduct.name}
+                onChange={(e) => setEditingProduct({ ...editingProduct, name: e.target.value })}
+                className="mb-2"
+              />
+              <Input
+                type="number"
+                value={editingProduct.price}
+                onChange={(e) => setEditingProduct({ ...editingProduct, price: e.target.value })}
+                className="mb-2"
+              />
+              <Input
+                type="number"
+                value={editingProduct.stock_quantity}
+                onChange={(e) => setEditingProduct({ ...editingProduct, stock_quantity: e.target.value })}
+                className="mb-2"
+              />
+              <Button onClick={handleUpdateProduct} className="mr-2">Salvar</Button>
+              <Button onClick={() => setEditingProduct(null)}>Cancelar</Button>
+            </div>
+          ) : (
+            <div>
+              <p>{product.name} - R$ {product.price} - Estoque: {product.stock_quantity}</p>
+              <Button onClick={() => handleEditProduct(product)} className="mr-2 mt-2">Editar</Button>
+              <Button onClick={() => handleDeleteProduct(product.id)} className="mt-2">Excluir</Button>
+            </div>
+          )}
         </div>
       ))}
     </div>

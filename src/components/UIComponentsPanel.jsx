@@ -15,7 +15,6 @@ const UIComponentsPanel = () => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [showPreviewCards, setShowPreviewCards] = useState(true);
   const panelRef = useRef(null);
   const resizeHandleRef = useRef(null);
   const dropdownRef = useRef(null);
@@ -80,7 +79,6 @@ const UIComponentsPanel = () => {
     if (isLoggedIn) {
       setIsEditMode(!isEditMode);
       setSelectedCategory('');
-      setShowPreviewCards(true);
     }
   };
 
@@ -92,7 +90,6 @@ const UIComponentsPanel = () => {
 
   const handleCategorySelect = (category) => {
     setSelectedCategory(category);
-    setShowPreviewCards(false);
   };
 
   return (
@@ -161,14 +158,45 @@ const UIComponentsPanel = () => {
               </div>
             ) : (
               <div className="h-full">
-                {showPreviewCards ? (
-                  <PreviewCards isEditMode={isEditMode} onCategorySelect={handleCategorySelect} />
-                ) : (
-                  <ComponentesUI panelWidth={panelWidth} selectedCategory={selectedCategory} isEditMode={isEditMode} />
-                )}
+                <div className="mb-4">
+                  <div
+                    className="relative"
+                    ref={dropdownRef}
+                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                  >
+                    <div className="flex items-center justify-between p-2 border rounded cursor-pointer">
+                      <span>{selectedCategory || 'Select a category'}</span>
+                      <ChevronDown size={20} />
+                    </div>
+                    {isDropdownOpen && (
+                      <div className="absolute z-10 w-full bg-white border rounded mt-1 max-h-60 overflow-y-auto">
+                        {categories.map((category) => (
+                          <div
+                            key={category.id}
+                            className="p-2 hover:bg-gray-100 cursor-pointer"
+                            onClick={() => handleCategorySelect(category.name)}
+                          >
+                            {category.name}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <ComponentesUI panelWidth={panelWidth} selectedCategory={selectedCategory} isEditMode={isEditMode} />
               </div>
             )}
           </div>
+          {isLoggedIn && (
+            <div className="mt-auto p-4 border-t flex justify-between items-center">
+              <Button onClick={handleSettingsClick} variant="ghost" size="sm">
+                <Settings size={20} />
+              </Button>
+              <Button onClick={() => setIsLoggedIn(false)} variant="ghost" size="sm">
+                <LogOut size={20} />
+              </Button>
+            </div>
+          )}
         </div>
       )}
     </>

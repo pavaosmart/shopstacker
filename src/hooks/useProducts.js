@@ -1,17 +1,16 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../integrations/supabase/supabase';
-import { fetchProductColumns, handleSupabaseResponse } from '../utils/supabaseHelpers';
+
+const fetchProducts = async () => {
+  const { data, error } = await supabase.from('products').select('*');
+  if (error) throw error;
+  return data;
+};
 
 export const useProducts = () => {
   return useQuery({
     queryKey: ['products'],
-    queryFn: async () => {
-      const columns = await fetchProductColumns();
-      return handleSupabaseResponse(supabase
-        .from('products')
-        .select(columns.join(', '))
-      );
-    },
+    queryFn: fetchProducts,
   });
 };
 
@@ -19,11 +18,9 @@ export const useAddProduct = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (newProduct) => {
-      const { data: session } = await supabase.auth.getSession();
-      if (!session) {
-        throw new Error('Not authenticated');
-      }
-      return handleSupabaseResponse(supabase.from('products').insert([newProduct]));
+      const { data, error } = await supabase.from('products').insert([newProduct]);
+      if (error) throw error;
+      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
@@ -35,11 +32,9 @@ export const useUpdateProduct = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, ...product }) => {
-      const { data: session } = await supabase.auth.getSession();
-      if (!session) {
-        throw new Error('Not authenticated');
-      }
-      return handleSupabaseResponse(supabase.from('products').update(product).eq('id', id));
+      const { data, error } = await supabase.from('products').update(product).eq('id', id);
+      if (error) throw error;
+      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
@@ -51,11 +46,9 @@ export const useDeleteProduct = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (id) => {
-      const { data: session } = await supabase.auth.getSession();
-      if (!session) {
-        throw new Error('Not authenticated');
-      }
-      return handleSupabaseResponse(supabase.from('products').delete().eq('id', id));
+      const { data, error } = await supabase.from('products').delete().eq('id', id);
+      if (error) throw error;
+      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });

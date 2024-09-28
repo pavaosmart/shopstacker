@@ -1,93 +1,61 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '../integrations/supabase/supabase';
+import { useProducts, useAddProduct, useUpdateProduct, useDeleteProduct } from '../hooks/useProducts';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 
 const Dashboard = () => {
-  const [products, setProducts] = useState([]);
   const [newProduct, setNewProduct] = useState({ name: '', price: '', stock_quantity: '' });
   const [editingProduct, setEditingProduct] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState(null);
   const navigate = useNavigate();
+
+  const { data: products, isLoading, refetch } = useProducts();
+  const addProductMutation = useAddProduct();
+  const updateProductMutation = useUpdateProduct();
+  const deleteProductMutation = useDeleteProduct();
 
   useEffect(() => {
     const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        navigate('/login');
-      } else {
-        setUser(session.user);
-        fetchProducts();
-      }
+      // Implement your authentication check here
+      // If not authenticated, redirect to login
+      // navigate('/login');
     };
     checkAuth();
   }, [navigate]);
 
-  const fetchProducts = async () => {
-    try {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from('products')
-        .select('id, name, price, stock_quantity');
-      if (error) throw error;
-      setProducts(data);
-    } catch (error) {
-      toast.error('Erro ao carregar produtos: ' + error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleAddProduct = async (e) => {
     e.preventDefault();
-    if (!user) {
-      toast.error('Usuário não autenticado');
-      return;
-    }
     try {
-      const { data, error } = await supabase
-        .from('products')
-        .insert([{ 
-          name: newProduct.name, 
-          price: parseFloat(newProduct.price),
-          stock_quantity: parseInt(newProduct.stock_quantity),
-          user_id: user.id
-        }]);
-      
-      if (error) throw error;
-      
+      await addProductMutation.mutateAsync({
+        name: newProduct.name,
+        price: parseFloat(newProduct.price),
+        stock_quantity: parseInt(newProduct.stock_quantity),
+      });
       toast.success('Produto adicionado com sucesso');
       setNewProduct({ name: '', price: '', stock_quantity: '' });
-      fetchProducts();
+      refetch();
     } catch (error) {
       toast.error('Erro ao adicionar produto: ' + error.message);
     }
   };
 
-  const handleEditProduct = async (product) => {
+  const handleEditProduct = (product) => {
     setEditingProduct({ ...product });
   };
 
   const handleUpdateProduct = async () => {
     if (!editingProduct) return;
     try {
-      const { error } = await supabase
-        .from('products')
-        .update({ 
-          name: editingProduct.name,
-          price: parseFloat(editingProduct.price),
-          stock_quantity: parseInt(editingProduct.stock_quantity)
-        })
-        .eq('id', editingProduct.id);
-
-      if (error) throw error;
-
+      await updateProductMutation.mutateAsync({
+        id: editingProduct.id,
+        name: editingProduct.name,
+        price: parseFloat(editingProduct.price),
+        stock_quantity: parseInt(editingProduct.stock_quantity)
+      });
       toast.success('Produto atualizado com sucesso');
       setEditingProduct(null);
-      fetchProducts();
+      refetch();
     } catch (error) {
       toast.error('Erro ao atualizar produto: ' + error.message);
     }
@@ -95,33 +63,22 @@ const Dashboard = () => {
 
   const handleDeleteProduct = async (id) => {
     try {
-      const { error } = await supabase
-        .from('products')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
-
+      await deleteProductMutation.mutateAsync(id);
       toast.success('Produto excluído com sucesso');
-      fetchProducts();
+      refetch();
     } catch (error) {
       toast.error('Erro ao excluir produto: ' + error.message);
     }
   };
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    navigate('/login');
-  };
-
-  if (loading) {
+  if (isLoading) {
     return <div>Carregando...</div>;
   }
 
   return (
     <div className="p-8">
       <h1 className="mb-4 text-2xl font-bold">Dashboard</h1>
-      <Button onClick={handleLogout} className="mb-4">Sair</Button>
+      <Button onClick={() => navigate('/login')} className="mb-4">Sair</Button>
 
       <form onSubmit={handleAddProduct} className="mb-8">
         <h2 className="mb-2 text-xl font-bold">Adicionar Novo Produto</h2>
@@ -152,7 +109,7 @@ const Dashboard = () => {
       </form>
 
       <h2 className="mb-2 text-xl font-bold">Lista de Produtos</h2>
-      {products.map((product) => (
+      {products && products.map((product) => (
         <div key={product.id} className="mb-4 p-4 border rounded">
           {editingProduct && editingProduct.id === product.id ? (
             <div>

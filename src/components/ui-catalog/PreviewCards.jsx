@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Pencil, Upload, Plus } from 'lucide-react';
+import { Pencil, Upload, Settings } from 'lucide-react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
@@ -23,6 +23,7 @@ const PreviewCards = ({ onEdit }) => {
   ]);
 
   const [editingIndex, setEditingIndex] = useState(null);
+  const [showOptions, setShowOptions] = useState(null);
 
   const handleImageUpload = (index, e) => {
     const file = e.target.files[0];
@@ -39,6 +40,7 @@ const PreviewCards = ({ onEdit }) => {
 
   const handleEdit = (index) => {
     setEditingIndex(index);
+    setShowOptions(null);
   };
 
   const handleSave = (index) => {
@@ -52,21 +54,40 @@ const PreviewCards = ({ onEdit }) => {
     setPreviewItems(newPreviewItems);
   };
 
+  const toggleOptions = (index) => {
+    setShowOptions(showOptions === index ? null : index);
+  };
+
   return (
     <>
       {previewItems.map((item, index) => (
         <div key={index} className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow duration-300 relative">
           <div className="relative mb-4">
             <img src={item.image} alt={item.title} className="w-full h-32 object-cover rounded" />
-            <label className="absolute top-2 right-2 cursor-pointer bg-white rounded-full p-1 shadow-md">
-              <Plus className="w-5 h-5 text-gray-500 hover:text-gray-700" />
-              <input 
-                type="file" 
-                className="hidden" 
-                accept="image/*"
-                onChange={(e) => handleImageUpload(index, e)}
-              />
-            </label>
+            <button 
+              onClick={() => toggleOptions(index)} 
+              className="absolute top-2 right-2 bg-white rounded-full p-1 shadow-md"
+            >
+              <Settings className="w-5 h-5 text-gray-500 hover:text-gray-700" />
+            </button>
+            {showOptions === index && (
+              <div className="absolute top-10 right-2 bg-white rounded shadow-md p-2">
+                <label className="cursor-pointer block mb-2">
+                  <Upload className="w-5 h-5 text-gray-500 hover:text-gray-700 inline mr-2" />
+                  <span>Upload Image</span>
+                  <input 
+                    type="file" 
+                    className="hidden" 
+                    accept="image/*"
+                    onChange={(e) => handleImageUpload(index, e)}
+                  />
+                </label>
+                <button onClick={() => handleEdit(index)} className="flex items-center text-gray-500 hover:text-gray-700">
+                  <Pencil className="w-5 h-5 mr-2" />
+                  <span>Edit Text</span>
+                </button>
+              </div>
+            )}
           </div>
           {editingIndex === index ? (
             <>
@@ -86,9 +107,6 @@ const PreviewCards = ({ onEdit }) => {
             <>
               <h3 className="text-lg font-semibold mb-2">{item.title}</h3>
               <p className="text-gray-600">{item.description}</p>
-              <button onClick={() => handleEdit(index)} className="absolute bottom-2 right-2">
-                <Pencil className="w-5 h-5 text-gray-500 hover:text-gray-700" />
-              </button>
             </>
           )}
         </div>

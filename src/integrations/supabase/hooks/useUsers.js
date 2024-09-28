@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { supabase } from '../supabase';
 
 export const useCurrentUser = () => useQuery({
@@ -13,13 +13,14 @@ export const useCurrentUser = () => useQuery({
         .from('users')
         .select('id, email, full_name')
         .eq('id', user.id)
-        .single();
+        .maybeSingle();
       
       if (error) {
         console.error("Error fetching user data:", error);
         throw new Error(`Error fetching user data: ${error.message}`);
       }
       
+      // If no data is returned, use the auth user data
       return data || { id: user.id, email: user.email, full_name: null };
     } catch (error) {
       console.error("Error in useCurrentUser:", error);

@@ -83,7 +83,6 @@ const UIComponentsPanel = () => {
     setIsLoggedIn(false);
     setEmail('');
     setPassword('');
-    setSelectedCategory('');
   };
 
   return (
@@ -167,26 +166,28 @@ const UIComponentsPanel = () => {
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center h-full">
-                <h2 className="text-2xl font-bold mb-4 text-center">Welcome to UI Components Kit</h2>
-                <form onSubmit={handleLogin} className="w-full max-w-sm">
-                  <Input
-                    type="email"
-                    placeholder="Email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="mb-4"
-                    required
-                  />
-                  <Input
-                    type="password"
-                    placeholder="Password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="mb-4"
-                    required
-                  />
-                  <Button type="submit" className="w-full">Log In</Button>
-                </form>
+                <div className="flex flex-col items-center justify-center flex-grow">
+                  <h2 className="text-2xl font-bold mb-8 text-center">Welcome to UI Components Kit</h2>
+                  <form onSubmit={handleLogin} className="w-full max-w-sm">
+                    <Input
+                      type="email"
+                      placeholder="Email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="mb-4"
+                      required
+                    />
+                    <Input
+                      type="password"
+                      placeholder="Password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="mb-4"
+                      required
+                    />
+                    <Button type="submit" className="w-full">Log In</Button>
+                  </form>
+                </div>
                 <p className="text-gray-600 mt-8 text-center">Log in to access our library of customizable UI components.</p>
               </div>
             )}

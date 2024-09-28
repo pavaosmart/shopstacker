@@ -4,7 +4,8 @@ import ComponentesUI from '../pages/ComponentesUI';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import ConfirmationDialog from './ConfirmationDialog';
-import Login from '../pages/Login';
+import LoginModal from './LoginModal';
+import RegisterModal from './RegisterModal';
 import { useSupabaseAuth } from '../integrations/supabase/auth';
 
 const UIComponentsPanel = () => {
@@ -15,6 +16,7 @@ const UIComponentsPanel = () => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedComponent, setSelectedComponent] = useState('');
+  const [activeTab, setActiveTab] = useState('login'); // New state for managing tabs
   const panelRef = useRef(null);
   const resizeHandleRef = useRef(null);
   const dropdownRef = useRef(null);
@@ -138,7 +140,29 @@ const UIComponentsPanel = () => {
                 </button>
               </div>
             </div>
-            {session ? (
+            {!session ? (
+              <div className="mb-4">
+                <div className="flex mb-4">
+                  <Button
+                    onClick={() => setActiveTab('login')}
+                    className={`flex-1 ${activeTab === 'login' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+                  >
+                    Login
+                  </Button>
+                  <Button
+                    onClick={() => setActiveTab('register')}
+                    className={`flex-1 ${activeTab === 'register' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+                  >
+                    Register
+                  </Button>
+                </div>
+                {activeTab === 'login' ? (
+                  <LoginModal isOpen={true} onClose={() => {}} onLogin={() => {}} />
+                ) : (
+                  <RegisterModal isOpen={true} onClose={() => {}} onRegister={() => {}} />
+                )}
+              </div>
+            ) : (
               <div className="mb-4">
                 <h4 className="text-sm font-medium mb-2">Select a category</h4>
                 <div className="relative" ref={dropdownRef}>
@@ -167,8 +191,6 @@ const UIComponentsPanel = () => {
                   )}
                 </div>
               </div>
-            ) : (
-              <Login />
             )}
           </div>
           <div className="flex-grow overflow-y-auto">

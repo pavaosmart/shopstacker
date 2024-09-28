@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useActivityLogs } from '../hooks/useActivityLogs';
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { supabase } from '../integrations/supabase/supabase';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -19,6 +20,7 @@ const ActivityLogs = () => {
   const [page, setPage] = useState(1);
   const [actionFilter, setActionFilter] = useState('');
   const [userFilter, setUserFilter] = useState('');
+  const [userEmails, setUserEmails] = useState({});
   const navigate = useNavigate();
 
   const { data: logsData, isLoading, error } = useActivityLogs({
@@ -26,6 +28,23 @@ const ActivityLogs = () => {
     actionFilter,
     userFilter,
   });
+
+  useEffect(() => {
+    const fetchUserEmails = async () => {
+      if (logsData && logsData.data) {
+        const userIds = [...new Set(logsData.data.map(log => log.user_id))];
+        const emails = {};
+        for (const userId of userIds) {
+          const { data, error } = await supabase.auth.admin.getUserById(userId);
+          if (!error && data) {
+            emails[userId] = data.user.email;
+          }
+        }
+        setUserEmails(emails);
+      }
+    };
+    fetchUserEmails();
+  }, [logsData]);
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
@@ -74,7 +93,7 @@ const ActivityLogs = () => {
         <TableBody>
           {logs.map((log) => (
             <TableRow key={log.id}>
-              <TableCell>{log.user_email}</TableCell>
+              <TableCell>{userEmails[log.user_id] || 'Unknown'}</TableCell>
               <TableCell>{log.action}</TableCell>
               <TableCell>{new Date(log.created_at).toLocaleString()}</TableCell>
             </TableRow>

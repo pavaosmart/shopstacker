@@ -26,7 +26,7 @@ export const useProducts = () => {
 
       return handleSupabaseResponse(supabase
         .from('products')
-        .select('*')
+        .select('name, product_cost, taxes, shipping, marketplace_url, product_image')
       );
     },
   });

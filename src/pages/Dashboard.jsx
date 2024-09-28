@@ -4,7 +4,6 @@ import { useProducts } from '../hooks/useProducts';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Overview } from "@/components/ui/overview";
 import { RecentSales } from "@/components/ui/recent-sales";
 import DashboardCard from '../components/DashboardCard';
 import BarChart from '../components/BarChart';
@@ -54,7 +53,8 @@ const Dashboard = () => {
                   <CardTitle>Visão Geral</CardTitle>
                 </CardHeader>
                 <CardContent className="pl-2">
-                  <Overview />
+                  {/* Placeholder for Overview content */}
+                  <p>Overview content goes here</p>
                 </CardContent>
               </Card>
               <Card className="col-span-3">

@@ -2,14 +2,34 @@ import React, { useState } from 'react';
 import { X } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { supabase } from '../integrations/supabase/supabase';
+import { toast } from "sonner";
 
 const LoginModal = ({ isOpen, onClose, onLogin }) => {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onLogin(username, password);
+    try {
+      const { data, error } = await supabase
+        .from('ui_editors')
+        .select()
+        .eq('email', email)
+        .eq('password', password)
+        .single();
+
+      if (error) throw error;
+
+      if (data) {
+        onLogin(data);
+        onClose();
+      } else {
+        toast.error('Credenciais inválidas');
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
   };
 
   if (!isOpen) return null;
@@ -25,15 +45,15 @@ const LoginModal = ({ isOpen, onClose, onLogin }) => {
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input
-            type="text"
-            placeholder="Username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             required
           />
           <Input
             type="password"
-            placeholder="Password"
+            placeholder="Senha"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required

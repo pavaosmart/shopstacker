@@ -8,28 +8,14 @@ import { toast } from "sonner";
 const Register = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [fullName, setFullName] = useState('');
   const navigate = useNavigate();
 
   const handleRegister = async (e) => {
     e.preventDefault();
     try {
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            full_name: fullName,
-          }
-        }
-      });
-
-      if (authError) throw authError;
-
-      // Call the sync_user function
-      const { data, error } = await supabase.functions.invoke('sync_user', {
-        body: { user: authData.user },
-      });
+      const { data, error } = await supabase
+        .from('ui_editors')
+        .insert([{ email, password }]);
 
       if (error) throw error;
 
@@ -43,15 +29,7 @@ const Register = () => {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <form onSubmit={handleRegister} className="p-8 bg-white rounded shadow-md">
-        <h1 className="mb-4 text-2xl font-bold">Registro</h1>
-        <Input
-          type="text"
-          placeholder="Nome Completo"
-          value={fullName}
-          onChange={(e) => setFullName(e.target.value)}
-          className="mb-4"
-          required
-        />
+        <h1 className="mb-4 text-2xl font-bold">Registro de Editor UI</h1>
         <Input
           type="email"
           placeholder="Email"

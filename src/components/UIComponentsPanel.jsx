@@ -9,6 +9,7 @@ const UIComponentsPanel = ({ isOpen, onClose }) => {
   const [panelWidth, setPanelWidth] = useState(320);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
   const panelRef = useRef(null);
   const resizeHandleRef = useRef(null);
 
@@ -56,16 +57,17 @@ const UIComponentsPanel = ({ isOpen, onClose }) => {
   };
 
   const handleSettingsClick = () => {
-    setIsLoginModalOpen(true);
+    if (currentUser) {
+      setIsEditMode(true);
+    } else {
+      setIsLoginModalOpen(true);
+    }
   };
 
-  const handleLogin = (username, password) => {
-    if (username === 'admin' && password === 'password') {
-      setIsEditMode(true);
-      setIsLoginModalOpen(false);
-    } else {
-      alert('Invalid credentials');
-    }
+  const handleLogin = (user) => {
+    setCurrentUser(user);
+    setIsEditMode(true);
+    setIsLoginModalOpen(false);
   };
 
   return (

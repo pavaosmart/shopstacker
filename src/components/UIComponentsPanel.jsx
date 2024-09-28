@@ -4,7 +4,6 @@ import ComponentesUI from '../pages/ComponentesUI';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Link } from 'react-router-dom';
-import PreviewCards from './ui-catalog/PreviewCards';
 
 const UIComponentsPanel = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -15,7 +14,6 @@ const UIComponentsPanel = () => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [showPreviewCards, setShowPreviewCards] = useState(true);
   const panelRef = useRef(null);
   const resizeHandleRef = useRef(null);
   const dropdownRef = useRef(null);
@@ -80,7 +78,6 @@ const UIComponentsPanel = () => {
     if (isLoggedIn) {
       setIsEditMode(!isEditMode);
       setSelectedCategory('');
-      setShowPreviewCards(true);
     }
   };
 
@@ -94,11 +91,6 @@ const UIComponentsPanel = () => {
     setIsLoggedIn(false);
     setEmail('');
     setPassword('');
-  };
-
-  const handleCategorySelect = (category) => {
-    setSelectedCategory(category);
-    setShowPreviewCards(false);
   };
 
   return (
@@ -182,16 +174,12 @@ const UIComponentsPanel = () => {
               </div>
             ) : (
               <div className="h-full">
-                {showPreviewCards ? (
-                  <PreviewCards isEditMode={isEditMode} onCategorySelect={handleCategorySelect} />
-                ) : (
-                  <ComponentesUI panelWidth={panelWidth} selectedCategory={selectedCategory} isEditMode={isEditMode} />
-                )}
+                <ComponentesUI panelWidth={panelWidth} selectedCategory={selectedCategory} isEditMode={isEditMode} />
               </div>
             )}
           </div>
           <div className="flex-grow overflow-y-auto">
-            {isLoggedIn && !showPreviewCards && (
+            {isLoggedIn && (
               <div className="h-full">
                 <ComponentesUI panelWidth={panelWidth} selectedCategory={selectedCategory} isEditMode={isEditMode} />
               </div>

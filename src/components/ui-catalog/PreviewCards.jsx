@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
-const PreviewCards = ({ isEditMode, onCategorySelect }) => {
+const PreviewCards = ({ isEditMode }) => {
   const [previewItems, setPreviewItems] = useState([
     { 
       id: '001',
@@ -22,48 +22,6 @@ const PreviewCards = ({ isEditMode, onCategorySelect }) => {
       id: '003',
       title: 'Buttons', 
       description: 'Various button styles for different actions',
-      image: 'https://via.placeholder.com/150'
-    },
-    { 
-      id: '004',
-      title: 'Cards', 
-      description: 'Versatile card components for displaying content',
-      image: 'https://via.placeholder.com/150'
-    },
-    { 
-      id: '005',
-      title: 'Dialogs/Modals', 
-      description: 'Pop-up dialogs and modal windows',
-      image: 'https://via.placeholder.com/150'
-    },
-    { 
-      id: '006',
-      title: 'Tables', 
-      description: 'Data tables for organizing information',
-      image: 'https://via.placeholder.com/150'
-    },
-    { 
-      id: '007',
-      title: 'Forms', 
-      description: 'Input forms and form elements',
-      image: 'https://via.placeholder.com/150'
-    },
-    { 
-      id: '008',
-      title: 'Typography', 
-      description: 'Text styles and formatting options',
-      image: 'https://via.placeholder.com/150'
-    },
-    { 
-      id: '009',
-      title: 'Icons and Illustrations', 
-      description: 'A collection of icons and illustrations',
-      image: 'https://via.placeholder.com/150'
-    },
-    { 
-      id: '010',
-      title: 'Notifications and Toasts', 
-      description: 'Alert and notification components',
       image: 'https://via.placeholder.com/150'
     },
   ]);
@@ -110,18 +68,12 @@ const PreviewCards = ({ isEditMode, onCategorySelect }) => {
         {previewItems.map((item, index) => (
           <Tooltip key={item.id}>
             <TooltipTrigger>
-              <div 
-                className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow duration-300 relative transform hover:scale-105 transition-transform duration-300 cursor-pointer"
-                onClick={() => onCategorySelect(item.title)}
-              >
+              <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow duration-300 relative transform hover:scale-105 transition-transform duration-300">
                 <div className="relative mb-4">
                   <img src={item.image} alt={item.title} className="w-full h-32 object-cover rounded" />
                   {isEditMode && (
                     <button 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        toggleOptions(index);
-                      }} 
+                      onClick={() => toggleOptions(index)} 
                       className="absolute top-2 right-2 p-1"
                     >
                       <MoreVertical className="w-5 h-5 text-gray-500 hover:text-gray-700" />
@@ -136,19 +88,10 @@ const PreviewCards = ({ isEditMode, onCategorySelect }) => {
                           type="file" 
                           className="hidden" 
                           accept="image/*"
-                          onChange={(e) => {
-                            e.stopPropagation();
-                            handleImageUpload(index, e);
-                          }}
+                          onChange={(e) => handleImageUpload(index, e)}
                         />
                       </label>
-                      <button 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleEdit(index);
-                        }} 
-                        className="flex items-center text-gray-500 hover:text-gray-700"
-                      >
+                      <button onClick={() => handleEdit(index)} className="flex items-center text-gray-500 hover:text-gray-700">
                         <Pencil className="w-5 h-5 mr-2" />
                         <span>Edit Text</span>
                       </button>
@@ -161,23 +104,13 @@ const PreviewCards = ({ isEditMode, onCategorySelect }) => {
                       value={item.title}
                       onChange={(e) => handleChange(index, 'title', e.target.value)}
                       className="mb-2"
-                      onClick={(e) => e.stopPropagation()}
                     />
                     <Input 
                       value={item.description}
                       onChange={(e) => handleChange(index, 'description', e.target.value)}
                       className="mb-2"
-                      onClick={(e) => e.stopPropagation()}
                     />
-                    <Button 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleSave(index);
-                      }} 
-                      className="mt-2"
-                    >
-                      Save
-                    </Button>
+                    <Button onClick={() => handleSave(index)} className="mt-2">Save</Button>
                   </>
                 ) : (
                   <>

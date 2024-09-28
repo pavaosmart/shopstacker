@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useActivityLogs } from '../hooks/useActivityLogs';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,6 +19,7 @@ const ActivityLogs = () => {
   const [page, setPage] = useState(1);
   const [actionFilter, setActionFilter] = useState('');
   const [userFilter, setUserFilter] = useState('');
+  const navigate = useNavigate();
 
   const { data: logs, isLoading, error } = useActivityLogs({
     page,
@@ -30,9 +32,16 @@ const ActivityLogs = () => {
 
   const totalPages = Math.ceil(logs.count / ITEMS_PER_PAGE);
 
+  const handleGoBack = () => {
+    navigate(-1);
+  };
+
   return (
     <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">Activity Logs</h1>
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-2xl font-bold">Activity Logs</h1>
+        <Button onClick={handleGoBack}>Voltar</Button>
+      </div>
       
       <div className="mb-4 flex space-x-2">
         <Input

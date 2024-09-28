@@ -19,23 +19,23 @@ const ComponentesUI = ({ panelWidth, selectedCategory, isEditMode, onComponentCl
       case 'Top Bars (Navigation Bars)':
         return <TopBars onComponentClick={onComponentClick} onImplementComponent={onImplementComponent} />;
       case 'Buttons':
-        return <Buttons onComponentClick={onComponentClick} />;
+        return <Buttons onComponentClick={onComponentClick} onImplementComponent={onImplementComponent} />;
       case 'Cards':
-        return <Cards onComponentClick={onComponentClick} />;
+        return <Cards onComponentClick={onComponentClick} onImplementComponent={onImplementComponent} />;
       case 'Dialogs/Modals':
-        return <Dialogs onComponentClick={onComponentClick} />;
+        return <Dialogs onComponentClick={onComponentClick} onImplementComponent={onImplementComponent} />;
       case 'Tables':
-        return <Tables onComponentClick={onComponentClick} />;
+        return <Tables onComponentClick={onComponentClick} onImplementComponent={onImplementComponent} />;
       case 'Forms':
-        return <Forms onComponentClick={onComponentClick} />;
+        return <Forms onComponentClick={onComponentClick} onImplementComponent={onImplementComponent} />;
       case 'Typography':
-        return <Typography onComponentClick={onComponentClick} />;
+        return <Typography onComponentClick={onComponentClick} onImplementComponent={onImplementComponent} />;
       case 'Icons and Illustrations':
-        return <IconsAndIllustrations onComponentClick={onComponentClick} />;
+        return <IconsAndIllustrations onComponentClick={onComponentClick} onImplementComponent={onImplementComponent} />;
       case 'Notifications and Toasts':
-        return <Notifications onComponentClick={onComponentClick} />;
+        return <Notifications onComponentClick={onComponentClick} onImplementComponent={onImplementComponent} />;
       default:
-        return <PreviewCards isEditMode={isEditMode} onComponentClick={onComponentClick} />;
+        return <PreviewCards isEditMode={isEditMode} onComponentClick={onComponentClick} onImplementComponent={onImplementComponent} />;
     }
   };
 

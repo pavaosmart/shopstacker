@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import ConfirmationDialog from './ConfirmationDialog';
 import { useSupabaseAuth } from '../integrations/supabase/auth';
+import { useLocation } from 'react-router-dom';
 
 const UIComponentsPanel = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -19,6 +20,7 @@ const UIComponentsPanel = () => {
   const resizeHandleRef = useRef(null);
   const dropdownRef = useRef(null);
   const { session, login, logout } = useSupabaseAuth();
+  const location = useLocation();
 
   const categories = [
     'Sidebars', 'Top Bars (Navigation Bars)', 'Buttons', 'Cards',
@@ -84,10 +86,11 @@ const UIComponentsPanel = () => {
   };
 
   const handleConfirmImplementation = () => {
-    console.log(`Implementing ${selectedComponent} on the current page`);
+    const currentPage = location.pathname.slice(1) || 'index';
+    console.log(`Implementing ${selectedComponent} on the ${currentPage} page`);
+    // Here you would add the logic to actually implement the component
     setIsDialogOpen(false);
   };
-
 
   const LoginForm = () => {
     const [email, setEmail] = useState('');
@@ -277,6 +280,7 @@ const UIComponentsPanel = () => {
                   selectedCategory={selectedCategory} 
                   isEditMode={isEditMode} 
                   onComponentClick={handleComponentClick}
+                  onImplementComponent={handleConfirmImplementation}
                 />
               </div>
             )}
@@ -288,7 +292,7 @@ const UIComponentsPanel = () => {
         onClose={() => setIsDialogOpen(false)}
         onConfirm={handleConfirmImplementation}
         componentName={selectedComponent}
-        pageName="current"
+        pageName={location.pathname.slice(1) || 'index'}
       />
     </>
   );

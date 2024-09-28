@@ -84,16 +84,11 @@ const UIComponentsPanel = () => {
     }
   };
 
+
   const handleLogin = (e) => {
     e.preventDefault();
     // Implementar lógica de login aqui
     setIsLoggedIn(true);
-  };
-
-  const handleLogout = () => {
-    setIsLoggedIn(false);
-    setEmail('');
-    setPassword('');
   };
 
   const handleCategorySelect = (category) => {
@@ -126,35 +121,20 @@ const UIComponentsPanel = () => {
                 <h3 className="text-lg font-semibold">UI Components</h3>
                 <p className="text-sm font-light italic -mt-1">by Marcio Pavão</p>
               </div>
-              <div className="flex items-center">
-                {isLoggedIn && (
-                  <>
-                    <button
-                      onClick={handleLogout}
-                      className="text-gray-500 hover:text-gray-700 transition-colors mr-2"
-                    >
-                      <LogOut size={20} />
-                    </button>
-                    <button
-                      onClick={handleSettingsClick}
-                      className="text-gray-500 hover:text-gray-700 transition-colors mr-2"
-                    >
-                      <Settings size={20} />
-                    </button>
-                  </>
-                )}
-                <button
-                  onClick={() => setIsOpen(false)}
-                  className="text-gray-500 hover:text-gray-700 transition-colors"
-                >
-                  <X size={20} />
-                </button>
-              </div>
+              <button
+                onClick={() => setIsOpen(false)}
+                className="text-gray-500 hover:text-gray-700 transition-colors"
+              >
+                <X size={20} />
+              </button>
             </div>
             {!isLoggedIn ? (
-              <div className="mb-4">
-                <h2 className="text-2xl font-bold mb-4 text-center">Login</h2>
-                <form onSubmit={handleLogin} className="space-y-4">
+              <div className="flex flex-col justify-center items-center h-full">
+                <div className="text-center mb-8">
+                  <h2 className="text-2xl font-bold">Welcome to UI Elements</h2>
+                  <p className="text-sm text-gray-600">Sign in to access the component library</p>
+                </div>
+                <form onSubmit={handleLogin} className="space-y-4 w-full max-w-sm">
                   <Input
                     type="email"
                     placeholder="Email"
@@ -187,13 +167,6 @@ const UIComponentsPanel = () => {
                 ) : (
                   <ComponentesUI panelWidth={panelWidth} selectedCategory={selectedCategory} isEditMode={isEditMode} />
                 )}
-              </div>
-            )}
-          </div>
-          <div className="flex-grow overflow-y-auto">
-            {isLoggedIn && !showPreviewCards && (
-              <div className="h-full">
-                <ComponentesUI panelWidth={panelWidth} selectedCategory={selectedCategory} isEditMode={isEditMode} />
               </div>
             )}
           </div>

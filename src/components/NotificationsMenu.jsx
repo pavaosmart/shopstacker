@@ -1,0 +1,42 @@
+import React, { useState } from 'react';
+import { Bell } from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+
+const NotificationsMenu = () => {
+  const [notifications, setNotifications] = useState([
+    { id: 1, message: 'Nova mensagem recebida' },
+    { id: 2, message: 'Atualização do sistema disponível' },
+    { id: 3, message: 'Lembrete: reunião em 30 minutos' },
+  ]);
+
+  const clearNotification = (id) => {
+    setNotifications(notifications.filter(notif => notif.id !== id));
+  };
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" size="icon">
+          <Bell className="h-5 w-5" />
+          {notifications.length > 0 && (
+            <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500"></span>
+          )}
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        {notifications.length > 0 ? (
+          notifications.map((notif) => (
+            <DropdownMenuItem key={notif.id} onSelect={() => clearNotification(notif.id)}>
+              {notif.message}
+            </DropdownMenuItem>
+          ))
+        ) : (
+          <DropdownMenuItem disabled>Nenhuma notificação</DropdownMenuItem>
+        )}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+};
+
+export default NotificationsMenu;

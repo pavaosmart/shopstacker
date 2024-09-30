@@ -4,6 +4,7 @@ import { listAssistants, getOpenAIInstance } from '../utils/openai';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
 
 const ChatWithBot = () => {
@@ -35,7 +36,7 @@ const ChatWithBot = () => {
   const handleSendMessage = async () => {
     if (!inputMessage.trim() || !selectedAssistant) return;
 
-    const newMessage = { role: 'user', content: inputMessage };
+    const newMessage = { role: 'user', content: inputMessage, sender: 'Você' };
     setMessages(prevMessages => [...prevMessages, newMessage]);
     setInputMessage('');
     setIsLoading(true);
@@ -56,7 +57,7 @@ const ChatWithBot = () => {
         ],
       });
 
-      const botResponse = { role: 'assistant', content: response.choices[0].message.content };
+      const botResponse = { role: 'assistant', content: response.choices[0].message.content, sender: selectedAssistant.name };
       setMessages(prevMessages => [...prevMessages, botResponse]);
     } catch (error) {
       console.error('Erro ao enviar mensagem:', error);
@@ -87,12 +88,21 @@ const ChatWithBot = () => {
         <div className="space-y-4 mb-4 h-80 overflow-y-auto p-4 bg-gray-50 rounded-lg">
           {messages.map((message, index) => (
             <div key={index} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-              <div className={`max-w-[70%] p-3 rounded-lg ${
-                message.role === 'user' 
-                  ? 'bg-blue-500 text-white rounded-br-none' 
-                  : 'bg-gray-200 text-gray-800 rounded-bl-none'
-              }`}>
-                {message.content}
+              <div className={`flex items-start max-w-[70%] ${message.role === 'user' ? 'flex-row-reverse' : ''}`}>
+                <Avatar className="w-8 h-8 mr-2">
+                  <AvatarImage src={message.role === 'user' ? session?.user?.user_metadata?.avatar_url : '/bot-avatar.png'} />
+                  <AvatarFallback>{message.role === 'user' ? 'U' : 'B'}</AvatarFallback>
+                </Avatar>
+                <div>
+                  <p className={`text-xs mb-1 ${message.role === 'user' ? 'text-right' : 'text-left'}`}>{message.sender}</p>
+                  <div className={`p-3 rounded-lg ${
+                    message.role === 'user' 
+                      ? 'bg-blue-500 text-white rounded-br-none' 
+                      : 'bg-gray-200 text-gray-800 rounded-bl-none'
+                  }`}>
+                    {message.content}
+                  </div>
+                </div>
               </div>
             </div>
           ))}

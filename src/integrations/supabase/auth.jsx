@@ -41,17 +41,26 @@ export const SupabaseAuthProviderInner = ({ children }) => {
   }, [queryClient]);
 
   const login = async (email, password) => {
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) throw error;
-    setSession(data.session);
-    return { data, error };
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+      setSession(data.session);
+      return { data, error: null };
+    } catch (error) {
+      console.error('Login error:', error);
+      return { data: null, error };
+    }
   };
 
   const logout = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) throw error;
-    setSession(null);
-    queryClient.invalidateQueries('user');
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      setSession(null);
+      queryClient.invalidateQueries('user');
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
   };
 
   return (

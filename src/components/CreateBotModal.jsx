@@ -3,12 +3,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Select } from "@/components/ui/select";
 
 const CreateBotModal = ({ isOpen, onClose, onCreateBot }) => {
   const [botName, setBotName] = useState('');
   const [botDescription, setBotDescription] = useState('');
-  const [model, setModel] = useState('gpt-3.5-turbo');
   const [temperature, setTemperature] = useState(0.7);
 
   const handleSubmit = (e) => {
@@ -16,7 +14,6 @@ const CreateBotModal = ({ isOpen, onClose, onCreateBot }) => {
     onCreateBot({
       name: botName,
       description: botDescription,
-      model,
       temperature
     });
     resetForm();
@@ -25,7 +22,6 @@ const CreateBotModal = ({ isOpen, onClose, onCreateBot }) => {
   const resetForm = () => {
     setBotName('');
     setBotDescription('');
-    setModel('gpt-3.5-turbo');
     setTemperature(0.7);
   };
 
@@ -54,18 +50,6 @@ const CreateBotModal = ({ isOpen, onClose, onCreateBot }) => {
               onChange={(e) => setBotDescription(e.target.value)}
               className="mt-1"
             />
-          </div>
-          <div>
-            <label htmlFor="model" className="block text-sm font-medium text-gray-700">Modelo</label>
-            <Select
-              id="model"
-              value={model}
-              onValueChange={setModel}
-              className="mt-1"
-            >
-              <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
-              <option value="gpt-4">GPT-4</option>
-            </Select>
           </div>
           <div>
             <label htmlFor="temperature" className="block text-sm font-medium text-gray-700">Temperatura</label>

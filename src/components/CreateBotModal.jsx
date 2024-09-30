@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { ceoAssistantPrompt } from '../prompts/ceoAssistantPrompt';
 
 const CreateBotModal = ({ isOpen, onClose, onCreateBot }) => {
   const [botName, setBotName] = useState('');
@@ -11,7 +12,7 @@ const CreateBotModal = ({ isOpen, onClose, onCreateBot }) => {
   const [model, setModel] = useState('gpt-3.5-turbo');
   const [temperature, setTemperature] = useState(0.7);
   const [maxTokens, setMaxTokens] = useState(150);
-  const [prompts, setPrompts] = useState(['']);
+  const [prompts, setPrompts] = useState([ceoAssistantPrompt]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -32,11 +33,7 @@ const CreateBotModal = ({ isOpen, onClose, onCreateBot }) => {
     setModel('gpt-3.5-turbo');
     setTemperature(0.7);
     setMaxTokens(150);
-    setPrompts(['']);
-  };
-
-  const handleAddPrompt = () => {
-    setPrompts([...prompts, '']);
+    setPrompts([ceoAssistantPrompt]);
   };
 
   const handlePromptChange = (index, value) => {
@@ -101,7 +98,7 @@ const CreateBotModal = ({ isOpen, onClose, onCreateBot }) => {
           <div>
             <Label>Prompts</Label>
             {prompts.map((prompt, index) => (
-              <Input
+              <Textarea
                 key={index}
                 value={prompt}
                 onChange={(e) => handlePromptChange(index, e.target.value)}
@@ -109,9 +106,6 @@ const CreateBotModal = ({ isOpen, onClose, onCreateBot }) => {
                 className="mt-2"
               />
             ))}
-            <Button type="button" onClick={handleAddPrompt} className="mt-2">
-              Adicionar Prompt
-            </Button>
           </div>
           <DialogFooter>
             <Button type="submit">Criar Bot</Button>

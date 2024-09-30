@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { User, Bell, Activity, HelpCircle, FileText, MessageSquare, LogOut } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,12 @@ import { useSupabaseAuth } from '../integrations/supabase/auth';
 
 const UserMenu = ({ user }) => {
   const { logout } = useSupabaseAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/login');
+  };
 
   return (
     <DropdownMenu>
@@ -28,34 +34,46 @@ const UserMenu = ({ user }) => {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem>
-            <User className="mr-2 h-4 w-4" />
-            <Link to="/profile">Perfil</Link>
+          <DropdownMenuItem asChild>
+            <Link to="/profile" className="w-full">
+              <User className="mr-2 h-4 w-4" />
+              <span>Perfil</span>
+            </Link>
           </DropdownMenuItem>
-          <DropdownMenuItem>
-            <Bell className="mr-2 h-4 w-4" />
-            <span>Notificações</span>
+          <DropdownMenuItem asChild>
+            <Link to="/notifications" className="w-full">
+              <Bell className="mr-2 h-4 w-4" />
+              <span>Notificações</span>
+            </Link>
           </DropdownMenuItem>
-          <DropdownMenuItem>
-            <Activity className="mr-2 h-4 w-4" />
-            <span>Atividades</span>
+          <DropdownMenuItem asChild>
+            <Link to="/activity-logs" className="w-full">
+              <Activity className="mr-2 h-4 w-4" />
+              <span>Atividades</span>
+            </Link>
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
-          <HelpCircle className="mr-2 h-4 w-4" />
-          <span>Ajuda</span>
+        <DropdownMenuItem asChild>
+          <Link to="/help" className="w-full">
+            <HelpCircle className="mr-2 h-4 w-4" />
+            <span>Ajuda</span>
+          </Link>
         </DropdownMenuItem>
-        <DropdownMenuItem>
-          <FileText className="mr-2 h-4 w-4" />
-          <span>Documentação</span>
+        <DropdownMenuItem asChild>
+          <Link to="/documentation" className="w-full">
+            <FileText className="mr-2 h-4 w-4" />
+            <span>Documentação</span>
+          </Link>
         </DropdownMenuItem>
-        <DropdownMenuItem>
-          <MessageSquare className="mr-2 h-4 w-4" />
-          <span>Suporte</span>
+        <DropdownMenuItem asChild>
+          <Link to="/support" className="w-full">
+            <MessageSquare className="mr-2 h-4 w-4" />
+            <span>Suporte</span>
+          </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={logout}>
+        <DropdownMenuItem onClick={handleLogout}>
           <LogOut className="mr-2 h-4 w-4" />
           <span>Sair</span>
         </DropdownMenuItem>

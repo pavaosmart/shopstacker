@@ -5,8 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Activity } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select } from "@/components/ui/select";
-import Navigation from '../components/Navigation';
+import Layout from '../components/Layout';
 
 const ActivityLogs = () => {
   const [page, setPage] = useState(1);
@@ -19,16 +18,15 @@ const ActivityLogs = () => {
     userFilter,
   });
 
-  if (isLoading) return <div>Carregando logs de atividade...</div>;
-  if (error) return <div>Erro ao carregar logs de atividade: {error.message}</div>;
+  if (isLoading) return <Layout><div>Carregando logs de atividade...</div></Layout>;
+  if (error) return <Layout><div>Erro ao carregar logs de atividade: {error.message}</div></Layout>;
 
   const logs = logsData?.data || [];
   const totalCount = logsData?.count || 0;
   const totalPages = Math.ceil(totalCount / 10);
 
   return (
-    <div>
-      <Navigation />
+    <Layout>
       <div className="container mx-auto px-4 py-8">
         <Card>
           <CardHeader>
@@ -98,7 +96,7 @@ const ActivityLogs = () => {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </Layout>
   );
 };
 

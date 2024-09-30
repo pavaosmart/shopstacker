@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
+import { Robot } from 'lucide-react'; // Importando o ícone de robô
 
 const ChatWithBot = () => {
   const [assistants, setAssistants] = useState([]);
@@ -90,7 +91,13 @@ const ChatWithBot = () => {
             <div key={index} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
               <div className={`flex items-start max-w-[70%] ${message.role === 'user' ? 'flex-row-reverse' : ''}`}>
                 <Avatar className="w-8 h-8 mr-2">
-                  <AvatarImage src={message.role === 'user' ? session?.user?.user_metadata?.avatar_url : '/bot-avatar.png'} />
+                  {message.role === 'user' ? (
+                    <AvatarImage src={session?.user?.user_metadata?.avatar_url} />
+                  ) : (
+                    <AvatarFallback className="bg-blue-500 text-white">
+                      <Robot size={20} /> {/* Ícone de robô para o bot */}
+                    </AvatarFallback>
+                  )}
                   <AvatarFallback>{message.role === 'user' ? 'U' : 'B'}</AvatarFallback>
                 </Avatar>
                 <div>

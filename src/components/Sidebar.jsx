@@ -9,7 +9,6 @@ import {
   Activity, 
   Users, 
   Settings, 
-  PlusCircle, 
   LogOut,
   MessageSquare,
   Cpu,
@@ -81,9 +80,9 @@ const Sidebar = () => {
             </Link>
           </li>
           <li>
-            <Link to="/api-settings" className="flex items-center space-x-2 p-2 hover:bg-gray-700 rounded">
+            <Link to="/api" className="flex items-center space-x-2 p-2 hover:bg-gray-700 rounded">
               <Cpu size={20} />
-              <span>Configurações de API</span>
+              <span>API</span>
             </Link>
           </li>
           <li>

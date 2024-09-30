@@ -13,7 +13,7 @@ import Login from './pages/Login';
 import Settings from './pages/Settings';
 import Support from './pages/Support';
 import Help from './pages/Help';
-import ApiSettings from './pages/ApiSettings';
+import API from './pages/API';
 import { SupabaseAuthProvider } from './integrations/supabase/auth';
 import UIComponentsPanel from './components/UIComponentsPanel';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -38,7 +38,7 @@ function App() {
               <Route path="settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
               <Route path="support" element={<ProtectedRoute><Support /></ProtectedRoute>} />
               <Route path="help" element={<ProtectedRoute><Help /></ProtectedRoute>} />
-              <Route path="api-settings" element={<ProtectedRoute><ApiSettings /></ProtectedRoute>} />
+              <Route path="api" element={<ProtectedRoute><API /></ProtectedRoute>} />
             </Route>
           </Routes>
           <UIComponentsPanel />

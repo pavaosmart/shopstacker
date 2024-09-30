@@ -28,14 +28,39 @@ const UserProfileEditor = () => {
         .eq('id', session.user.id)
         .single();
 
+      if (error) {
+        if (error.code === 'PGRST116') {
+          // Profile not found, create a new one
+          await createProfile();
+        } else {
+          throw error;
+        }
+      } else {
+        setFullName(profile.full_name || '');
+        setAvatarUrl(profile.avatar_url || '');
+      }
+      
+      setEmail(session.user.email || '');
+    } catch (error) {
+      console.error('Error fetching profile:', error);
+      toast.error('Failed to load profile');
+    }
+  };
+
+  const createProfile = async () => {
+    try {
+      const { error } = await supabase.from('profiles').insert({
+        id: session.user.id,
+        full_name: session.user.user_metadata.full_name || '',
+        avatar_url: null,
+      });
+
       if (error) throw error;
 
-      setFullName(profile.full_name || '');
-      setEmail(session.user.email || '');
-      setAvatarUrl(profile.avatar_url || '');
+      await fetchUserProfile(); // Fetch the newly created profile
     } catch (error) {
-      console.error('Erro ao buscar perfil:', error);
-      toast.error('Falha ao carregar o perfil');
+      console.error('Error creating profile:', error);
+      toast.error('Failed to create profile');
     }
   };
 
@@ -52,10 +77,10 @@ const UserProfileEditor = () => {
       const { error } = await supabase.from('profiles').upsert(updates);
 
       if (error) throw error;
-      toast.success('Perfil atualizado com sucesso');
+      toast.success('Profile updated successfully');
     } catch (error) {
-      console.error('Erro ao atualizar perfil:', error);
-      toast.error('Falha ao atualizar perfil: ' + error.message);
+      console.error('Error updating profile:', error);
+      toast.error('Failed to update profile: ' + error.message);
     } finally {
       setIsLoading(false);
     }
@@ -85,7 +110,7 @@ const UserProfileEditor = () => {
     try {
       setIsLoading(true);
       if (!event.target.files || event.target.files.length === 0) {
-        throw new Error('Você precisa selecionar uma imagem para upload.');
+        throw new Error('You need to select an image to upload.');
       }
 
       await createBucketIfNotExists();
@@ -106,10 +131,10 @@ const UserProfileEditor = () => {
       const { data } = supabase.storage.from('avatars').getPublicUrl(filePath);
 
       setAvatarUrl(data.publicUrl);
-      await handleUpdateProfile(); // Atualiza o perfil com a nova URL do avatar
-      toast.success('Avatar atualizado com sucesso');
+      await handleUpdateProfile(); // Update the profile with the new avatar URL
+      toast.success('Avatar updated successfully');
     } catch (error) {
-      toast.error('Erro no upload do avatar: ' + error.message);
+      toast.error('Error uploading avatar: ' + error.message);
     } finally {
       setIsLoading(false);
     }
@@ -118,7 +143,7 @@ const UserProfileEditor = () => {
   return (
     <Card className="w-full max-w-md mx-auto mt-8">
       <CardHeader>
-        <CardTitle>Editar Perfil</CardTitle>
+        <CardTitle>Edit Profile</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
@@ -135,7 +160,7 @@ const UserProfileEditor = () => {
             disabled={isLoading}
           />
           <Input
-            placeholder="Nome Completo"
+            placeholder="Full Name"
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
             disabled={isLoading}
@@ -146,7 +171,7 @@ const UserProfileEditor = () => {
             disabled={true}
           />
           <Button onClick={handleUpdateProfile} disabled={isLoading}>
-            {isLoading ? 'Atualizando...' : 'Atualizar Perfil'}
+            {isLoading ? 'Updating...' : 'Update Profile'}
           </Button>
         </div>
       </CardContent>

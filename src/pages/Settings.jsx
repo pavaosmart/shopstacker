@@ -27,13 +27,22 @@ const Settings = () => {
         .from('user_settings')
         .select('openai_api_key')
         .eq('user_id', session.user.id)
+        .limit(1)
         .single();
 
-      if (error) throw error;
+      if (error) {
+        if (error.code === 'PGRST116') {
+          console.log('No API key found for the user');
+          return;
+        }
+        throw error;
+      }
       
       if (data?.openai_api_key) {
         setOpenaiApiKey(data.openai_api_key);
         initializeOpenAI(data.openai_api_key);
+      } else {
+        console.log('No API key found for the user');
       }
     } catch (error) {
       console.error('Erro ao buscar chave da API:', error);
@@ -54,7 +63,7 @@ const Settings = () => {
       if (error) throw error;
 
       initializeOpenAI(openaiApiKey);
-      await testConnection(); // Test the connection after saving
+      await testConnection();
       toast.success('Chave da API salva e testada com sucesso');
     } catch (error) {
       console.error('Erro ao salvar ou testar chave da API:', error);

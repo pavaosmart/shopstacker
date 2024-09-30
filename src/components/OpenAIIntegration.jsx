@@ -40,13 +40,20 @@ const OpenAIIntegration = () => {
         .from('user_settings')
         .select('openai_api_key')
         .eq('user_id', session.user.id)
-        .limit(1);
+        .limit(1)
+        .single();
 
-      if (error) throw error;
+      if (error) {
+        if (error.code === 'PGRST116') {
+          console.log('No API key found for the user');
+          return;
+        }
+        throw error;
+      }
 
-      if (data && data.length > 0) {
-        setOpenaiApiKey(data[0].openai_api_key);
-        initializeOpenAI(data[0].openai_api_key);
+      if (data?.openai_api_key) {
+        setOpenaiApiKey(data.openai_api_key);
+        initializeOpenAI(data.openai_api_key);
       } else {
         console.log('No API key found for the user');
       }
@@ -186,7 +193,7 @@ const OpenAIIntegration = () => {
       </Card>
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>Create New Bot</DialogTitle>
           </DialogHeader>

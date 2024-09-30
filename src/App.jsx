@@ -33,7 +33,7 @@ function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/" element={<Layout />}>
-              <Route index element={<ProtectedRoute><Index /></ProtectedRoute>} />
+              <Route index element={<Index />} />
               <Route path="products" element={<ProtectedRoute><Products /></ProtectedRoute>} />
               <Route path="orders" element={<ProtectedRoute><Orders /></ProtectedRoute>} />
               <Route path="activity-logs" element={<ProtectedRoute><ActivityLogs /></ProtectedRoute>} />

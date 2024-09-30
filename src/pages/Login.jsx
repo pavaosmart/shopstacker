@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
@@ -26,7 +26,7 @@ const Login = () => {
         return;
       }
       toast.success('Login bem-sucedido');
-      navigate('/dashboard');
+      navigate('/'); // Redirecionando para a página inicial após o login
     } catch (error) {
       console.error('Login error:', error);
       toast.error('Ocorreu um erro ao tentar fazer login. Por favor, tente novamente.');
@@ -63,16 +63,6 @@ const Login = () => {
           <Button type="submit" className="w-full mb-4" disabled={isLoading}>
             {isLoading ? 'Entrando...' : 'Entrar'}
           </Button>
-          <div className="text-center mt-4">
-            <Link to="/register" className="text-blue-500 hover:text-blue-700">
-              Não tem uma conta? Cadastre-se
-            </Link>
-          </div>
-          <div className="text-center mt-2">
-            <Link to="/forgot-password" className="text-blue-500 hover:text-blue-700">
-              Esqueceu sua senha?
-            </Link>
-          </div>
         </form>
       </div>
     </div>

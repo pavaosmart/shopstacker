@@ -11,23 +11,17 @@ import { toast } from "sonner";
 const UserProfileEditor = () => {
   const { session } = useSupabaseAuth();
   const [activeTab, setActiveTab] = useState("personal");
-  const [personalInfo, setPersonalInfo] = useState({
+  const [profileData, setProfileData] = useState({
     fullName: '',
     email: '',
     phone: '',
     avatarUrl: '',
-  });
-  const [companyInfo, setCompanyInfo] = useState({
     companyName: '',
     position: '',
     industry: '',
-  });
-  const [bankInfo, setBankInfo] = useState({
     bankName: '',
     accountNumber: '',
     routingNumber: '',
-  });
-  const [addressInfo, setAddressInfo] = useState({
     cep: '',
     street: '',
     number: '',
@@ -50,28 +44,22 @@ const UserProfileEditor = () => {
         .from('profiles')
         .select('*')
         .eq('id', session.user.id)
-        .maybeSingle();
+        .single();
 
       if (error) throw error;
 
       if (profile) {
-        setPersonalInfo({
+        setProfileData({
           fullName: profile.full_name || '',
           email: session.user.email || '',
           phone: profile.phone || '',
           avatarUrl: profile.avatar_url || '',
-        });
-        setCompanyInfo({
           companyName: profile.company_name || '',
           position: profile.position || '',
           industry: profile.industry || '',
-        });
-        setBankInfo({
           bankName: profile.bank_name || '',
           accountNumber: profile.account_number || '',
           routingNumber: profile.routing_number || '',
-        });
-        setAddressInfo({
           cep: profile.cep || '',
           street: profile.street || '',
           number: profile.number || '',
@@ -79,59 +67,6 @@ const UserProfileEditor = () => {
           neighborhood: profile.neighborhood || '',
           city: profile.city || '',
           state: profile.state || '',
-        });
-      } else {
-        // If no profile exists, we'll create one with default values
-        const defaultProfile = {
-          id: session.user.id,
-          full_name: '',
-          phone: '',
-          avatar_url: '',
-          company_name: '',
-          position: '',
-          industry: '',
-          bank_name: '',
-          account_number: '',
-          routing_number: '',
-          cep: '',
-          street: '',
-          number: '',
-          complement: '',
-          neighborhood: '',
-          city: '',
-          state: '',
-        };
-        const { error: insertError } = await supabase
-          .from('profiles')
-          .insert(defaultProfile);
-        
-        if (insertError) throw insertError;
-        
-        // Set state with default values
-        setPersonalInfo({
-          fullName: '',
-          email: session.user.email || '',
-          phone: '',
-          avatarUrl: '',
-        });
-        setCompanyInfo({
-          companyName: '',
-          position: '',
-          industry: '',
-        });
-        setBankInfo({
-          bankName: '',
-          accountNumber: '',
-          routingNumber: '',
-        });
-        setAddressInfo({
-          cep: '',
-          street: '',
-          number: '',
-          complement: '',
-          neighborhood: '',
-          city: '',
-          state: '',
         });
       }
     } catch (error) {
@@ -145,22 +80,22 @@ const UserProfileEditor = () => {
     try {
       const updates = {
         id: session.user.id,
-        full_name: personalInfo.fullName,
-        phone: personalInfo.phone,
-        avatar_url: personalInfo.avatarUrl,
-        company_name: companyInfo.companyName,
-        position: companyInfo.position,
-        industry: companyInfo.industry,
-        bank_name: bankInfo.bankName,
-        account_number: bankInfo.accountNumber,
-        routing_number: bankInfo.routingNumber,
-        cep: addressInfo.cep,
-        street: addressInfo.street,
-        number: addressInfo.number,
-        complement: addressInfo.complement,
-        neighborhood: addressInfo.neighborhood,
-        city: addressInfo.city,
-        state: addressInfo.state,
+        full_name: profileData.fullName,
+        phone: profileData.phone,
+        avatar_url: profileData.avatarUrl,
+        company_name: profileData.companyName,
+        position: profileData.position,
+        industry: profileData.industry,
+        bank_name: profileData.bankName,
+        account_number: profileData.accountNumber,
+        routing_number: profileData.routingNumber,
+        cep: profileData.cep,
+        street: profileData.street,
+        number: profileData.number,
+        complement: profileData.complement,
+        neighborhood: profileData.neighborhood,
+        city: profileData.city,
+        state: profileData.state,
         updated_at: new Date().toISOString(),
       };
 
@@ -174,6 +109,11 @@ const UserProfileEditor = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setProfileData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleAvatarUpload = async (event) => {
@@ -230,7 +170,7 @@ const UserProfileEditor = () => {
 
   const handleCEPChange = (e) => {
     const cep = e.target.value.replace(/\D/g, '');
-    setAddressInfo(prev => ({ ...prev, cep }));
+    setProfileData(prev => ({ ...prev, cep }));
     if (cep.length === 8) {
       fetchAddressFromCEP(cep);
     }
@@ -253,8 +193,8 @@ const UserProfileEditor = () => {
             <div className="space-y-4">
               <div className="flex justify-center">
                 <Avatar className="w-24 h-24">
-                  <AvatarImage src={personalInfo.avatarUrl} />
-                  <AvatarFallback>{personalInfo.fullName.charAt(0)}</AvatarFallback>
+                  <AvatarImage src={profileData.avatarUrl} />
+                  <AvatarFallback>{profileData.fullName.charAt(0)}</AvatarFallback>
                 </Avatar>
               </div>
               <Input
@@ -264,20 +204,23 @@ const UserProfileEditor = () => {
                 disabled={isLoading}
               />
               <Input
+                name="fullName"
                 placeholder="Full Name"
-                value={personalInfo.fullName}
-                onChange={(e) => setPersonalInfo(prev => ({ ...prev, fullName: e.target.value }))}
+                value={profileData.fullName}
+                onChange={handleInputChange}
                 disabled={isLoading}
               />
               <Input
+                name="email"
                 placeholder="Email"
-                value={personalInfo.email}
+                value={profileData.email}
                 disabled={true}
               />
               <Input
+                name="phone"
                 placeholder="Phone"
-                value={personalInfo.phone}
-                onChange={(e) => setPersonalInfo(prev => ({ ...prev, phone: e.target.value }))}
+                value={profileData.phone}
+                onChange={handleInputChange}
                 disabled={isLoading}
               />
             </div>
@@ -285,21 +228,24 @@ const UserProfileEditor = () => {
           <TabsContent value="company">
             <div className="space-y-4">
               <Input
+                name="companyName"
                 placeholder="Company Name"
-                value={companyInfo.companyName}
-                onChange={(e) => setCompanyInfo(prev => ({ ...prev, companyName: e.target.value }))}
+                value={profileData.companyName}
+                onChange={handleInputChange}
                 disabled={isLoading}
               />
               <Input
+                name="position"
                 placeholder="Position"
-                value={companyInfo.position}
-                onChange={(e) => setCompanyInfo(prev => ({ ...prev, position: e.target.value }))}
+                value={profileData.position}
+                onChange={handleInputChange}
                 disabled={isLoading}
               />
               <Input
+                name="industry"
                 placeholder="Industry"
-                value={companyInfo.industry}
-                onChange={(e) => setCompanyInfo(prev => ({ ...prev, industry: e.target.value }))}
+                value={profileData.industry}
+                onChange={handleInputChange}
                 disabled={isLoading}
               />
             </div>
@@ -307,21 +253,24 @@ const UserProfileEditor = () => {
           <TabsContent value="bank">
             <div className="space-y-4">
               <Input
+                name="bankName"
                 placeholder="Bank Name"
-                value={bankInfo.bankName}
-                onChange={(e) => setBankInfo(prev => ({ ...prev, bankName: e.target.value }))}
+                value={profileData.bankName}
+                onChange={handleInputChange}
                 disabled={isLoading}
               />
               <Input
+                name="accountNumber"
                 placeholder="Account Number"
-                value={bankInfo.accountNumber}
-                onChange={(e) => setBankInfo(prev => ({ ...prev, accountNumber: e.target.value }))}
+                value={profileData.accountNumber}
+                onChange={handleInputChange}
                 disabled={isLoading}
               />
               <Input
+                name="routingNumber"
                 placeholder="Routing Number"
-                value={bankInfo.routingNumber}
-                onChange={(e) => setBankInfo(prev => ({ ...prev, routingNumber: e.target.value }))}
+                value={profileData.routingNumber}
+                onChange={handleInputChange}
                 disabled={isLoading}
               />
             </div>
@@ -329,45 +278,52 @@ const UserProfileEditor = () => {
           <TabsContent value="address">
             <div className="space-y-4">
               <Input
+                name="cep"
                 placeholder="CEP"
-                value={addressInfo.cep}
+                value={profileData.cep}
                 onChange={handleCEPChange}
                 disabled={isLoading}
               />
               <Input
+                name="street"
                 placeholder="Street"
-                value={addressInfo.street}
-                onChange={(e) => setAddressInfo(prev => ({ ...prev, street: e.target.value }))}
+                value={profileData.street}
+                onChange={handleInputChange}
                 disabled={isLoading}
               />
               <Input
+                name="number"
                 placeholder="Number"
-                value={addressInfo.number}
-                onChange={(e) => setAddressInfo(prev => ({ ...prev, number: e.target.value }))}
+                value={profileData.number}
+                onChange={handleInputChange}
                 disabled={isLoading}
               />
               <Input
+                name="complement"
                 placeholder="Complement"
-                value={addressInfo.complement}
-                onChange={(e) => setAddressInfo(prev => ({ ...prev, complement: e.target.value }))}
+                value={profileData.complement}
+                onChange={handleInputChange}
                 disabled={isLoading}
               />
               <Input
+                name="neighborhood"
                 placeholder="Neighborhood"
-                value={addressInfo.neighborhood}
-                onChange={(e) => setAddressInfo(prev => ({ ...prev, neighborhood: e.target.value }))}
+                value={profileData.neighborhood}
+                onChange={handleInputChange}
                 disabled={isLoading}
               />
               <Input
+                name="city"
                 placeholder="City"
-                value={addressInfo.city}
-                onChange={(e) => setAddressInfo(prev => ({ ...prev, city: e.target.value }))}
+                value={profileData.city}
+                onChange={handleInputChange}
                 disabled={isLoading}
               />
               <Input
+                name="state"
                 placeholder="State"
-                value={addressInfo.state}
-                onChange={(e) => setAddressInfo(prev => ({ ...prev, state: e.target.value }))}
+                value={profileData.state}
+                onChange={handleInputChange}
                 disabled={isLoading}
               />
             </div>

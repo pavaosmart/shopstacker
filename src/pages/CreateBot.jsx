@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSupabaseAuth } from '../integrations/supabase/auth';
-import { supabase } from '../integrations/supabase/supabase';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import Navigation from '../components/Navigation';
-import { testConnection, createAssistant, listAssistants } from '../utils/openai';
+import { testConnection, createAssistant, saveBotToDatabase, verifyBotData } from '../utils/openai';
 import CreateBotModal from '../components/CreateBotModal';
-import { testBotCreation } from '../utils/testBotCreation';
 
 const CreateBot = () => {
   const { session } = useSupabaseAuth();
@@ -43,40 +41,21 @@ const CreateBot = () => {
     try {
       const assistant = await createAssistant(newBot.name, newBot.description);
       
-      const { data, error } = await supabase
-        .from('bots')
-        .insert([{ 
-          ...newBot, 
-          user_id: session.user.id,
-          openai_assistant_id: assistant.id
-        }])
-        .select()
-        .single();
+      const botData = {
+        name: newBot.name,
+        description: newBot.description,
+        user_id: session.user.id,
+        openai_assistant_id: assistant.id
+      };
 
-      if (error) throw error;
+      const savedBot = await saveBotToDatabase(botData);
 
-      // Salvar configuração do bot
-      await supabase
-        .from('bot_configurations')
-        .insert({
-          bot_id: data.id,
-          model: newBot.model || 'gpt-3.5-turbo',
-          temperature: newBot.temperature || 0.7,
-          max_tokens: newBot.max_tokens || 150
-        });
-
-      // Salvar prompts do bot
-      if (newBot.prompts && newBot.prompts.length > 0) {
-        await supabase
-          .from('bot_prompts')
-          .insert(newBot.prompts.map((prompt, index) => ({
-            bot_id: data.id,
-            prompt_text: prompt,
-            prompt_order: index + 1
-          })));
+      const isVerified = await verifyBotData(savedBot.id);
+      if (!isVerified) {
+        throw new Error('Failed to verify bot data in the database');
       }
 
-      toast.success('Bot criado com sucesso na OpenAI e no Supabase');
+      toast.success('Bot criado e salvo com sucesso');
       setIsModalOpen(false);
       fetchBots();
     } catch (error) {
@@ -86,20 +65,11 @@ const CreateBot = () => {
   };
 
   const handleTestConnection = async () => {
-    try {
-      await testConnection();
+    const isConnected = await testConnection();
+    if (isConnected) {
       toast.success('Conexão com a OpenAI testada com sucesso');
-    } catch (error) {
-      toast.error(`Erro ao testar conexão: ${error.message}`);
-    }
-  };
-
-  const handleTestBotCreation = async () => {
-    const result = await testBotCreation();
-    if (result.success) {
-      toast.success(result.message);
     } else {
-      toast.error(result.message);
+      toast.error('Falha na conexão com a OpenAI');
     }
   };
 
@@ -130,9 +100,8 @@ const CreateBot = () => {
             </Card>
           ))}
         </div>
-        <div className="mt-4 space-x-2">
+        <div className="mt-4">
           <Button onClick={handleTestConnection}>Testar Conexão com OpenAI</Button>
-          <Button onClick={handleTestBotCreation}>Testar Criação de Bot</Button>
         </div>
       </div>
       <CreateBotModal

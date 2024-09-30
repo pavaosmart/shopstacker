@@ -34,7 +34,7 @@ const Sidebar = () => {
     { icon: <Bell size={20} />, label: 'Notificações', to: '/notifications' },
     { icon: <MessageSquare size={20} />, label: 'Suporte', to: '/support' },
     { icon: <HelpCircle size={20} />, label: 'Ajuda', to: '/help' },
-    { icon: <Store size={20} />, label: 'Mercado API', to: '/mercado-api' },
+    { icon: <Store size={20} />, label: 'API Marketplace', to: '/mercado-api' },
   ];
 
   return (

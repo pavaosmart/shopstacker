@@ -10,22 +10,46 @@ import { toast } from "sonner";
 const UserProfileEditor = () => {
   const { session } = useSupabaseAuth();
   const [fullName, setFullName] = useState('');
+  const [email, setEmail] = useState('');
   const [avatarUrl, setAvatarUrl] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (session?.user) {
-      setFullName(session.user.user_metadata?.full_name || '');
-      setAvatarUrl(session.user.user_metadata?.avatar_url || '');
+      fetchUserProfile();
     }
   }, [session]);
+
+  const fetchUserProfile = async () => {
+    try {
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', session.user.id)
+        .single();
+
+      if (error) throw error;
+
+      setFullName(profile.full_name || '');
+      setEmail(session.user.email || '');
+      setAvatarUrl(profile.avatar_url || '');
+    } catch (error) {
+      console.error('Erro ao buscar perfil:', error);
+      toast.error('Falha ao carregar o perfil');
+    }
+  };
 
   const handleUpdateProfile = async () => {
     setIsLoading(true);
     try {
-      const { error } = await supabase.auth.updateUser({
-        data: { full_name: fullName, avatar_url: avatarUrl }
-      });
+      const updates = {
+        id: session.user.id,
+        full_name: fullName,
+        avatar_url: avatarUrl,
+        updated_at: new Date().toISOString(),
+      };
+
+      const { error } = await supabase.from('profiles').upsert(updates);
 
       if (error) throw error;
       toast.success('Perfil atualizado com sucesso');
@@ -82,6 +106,7 @@ const UserProfileEditor = () => {
       const { data } = supabase.storage.from('avatars').getPublicUrl(filePath);
 
       setAvatarUrl(data.publicUrl);
+      await handleUpdateProfile(); // Atualiza o perfil com a nova URL do avatar
       toast.success('Avatar atualizado com sucesso');
     } catch (error) {
       toast.error('Erro no upload do avatar: ' + error.message);
@@ -114,6 +139,11 @@ const UserProfileEditor = () => {
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
             disabled={isLoading}
+          />
+          <Input
+            placeholder="Email"
+            value={email}
+            disabled={true}
           />
           <Button onClick={handleUpdateProfile} disabled={isLoading}>
             {isLoading ? 'Atualizando...' : 'Atualizar Perfil'}

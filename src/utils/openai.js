@@ -62,34 +62,82 @@ export const createAssistant = async (name, instructions) => {
 };
 
 export const saveBotToDatabase = async (botData) => {
-  const { data, error } = await supabase
+  const { data: bot, error: botError } = await supabase
     .from('bots')
     .insert([botData])
-    .select();
+    .select()
+    .single();
 
-  if (error) {
-    console.error('Error saving bot to database:', error);
-    throw error;
+  if (botError) {
+    console.error('Error saving bot to database:', botError);
+    throw botError;
   }
 
-  console.log('Bot saved to database:', data);
-  return data[0];
+  const { model, temperature, max_tokens } = botData;
+  const { error: configError } = await supabase
+    .from('bot_configurations')
+    .insert([{ bot_id: bot.id, model, temperature, max_tokens }]);
+
+  if (configError) {
+    console.error('Error saving bot configuration:', configError);
+    throw configError;
+  }
+
+  const { prompts } = botData;
+  const promptsWithBotId = prompts.map((prompt, index) => ({
+    bot_id: bot.id,
+    prompt_text: prompt,
+    prompt_order: index + 1
+  }));
+
+  const { error: promptsError } = await supabase
+    .from('bot_prompts')
+    .insert(promptsWithBotId);
+
+  if (promptsError) {
+    console.error('Error saving bot prompts:', promptsError);
+    throw promptsError;
+  }
+
+  console.log('Bot saved to database:', bot);
+  return bot;
 };
 
 export const verifyBotData = async (botId) => {
-  const { data, error } = await supabase
+  const { data: bot, error: botError } = await supabase
     .from('bots')
     .select('*')
     .eq('id', botId)
     .single();
 
-  if (error) {
-    console.error('Error verifying bot data:', error);
+  if (botError) {
+    console.error('Error verifying bot data:', botError);
     return false;
   }
 
-  console.log('Bot data verified:', data);
-  return !!data;
+  const { data: config, error: configError } = await supabase
+    .from('bot_configurations')
+    .select('*')
+    .eq('bot_id', botId)
+    .single();
+
+  if (configError) {
+    console.error('Error verifying bot configuration:', configError);
+    return false;
+  }
+
+  const { data: prompts, error: promptsError } = await supabase
+    .from('bot_prompts')
+    .select('*')
+    .eq('bot_id', botId);
+
+  if (promptsError) {
+    console.error('Error verifying bot prompts:', promptsError);
+    return false;
+  }
+
+  console.log('Bot data verified:', { bot, config, prompts });
+  return true;
 };
 
 export const listAssistants = async () => {

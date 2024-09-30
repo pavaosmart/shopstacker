@@ -13,7 +13,7 @@ const ForgotPasswordForm = ({ onBackToLoginClick }) => {
     try {
       const { error } = await resetPassword(email);
       if (error) throw error;
-      toast.success('Password reset email sent. Please check your inbox.');
+      toast.success('Email de redefinição de senha enviado. Por favor, verifique sua caixa de entrada.');
     } catch (error) {
       toast.error(error.message);
     }
@@ -28,14 +28,14 @@ const ForgotPasswordForm = ({ onBackToLoginClick }) => {
         onChange={(e) => setEmail(e.target.value)}
         required
       />
-      <Button type="submit" className="w-full">Reset Password</Button>
+      <Button type="submit" className="w-full">Redefinir Senha</Button>
       <div className="text-center">
         <button
           type="button"
           onClick={onBackToLoginClick}
           className="text-blue-500 hover:underline"
         >
-          Back to Login
+          Voltar para o Login
         </button>
       </div>
     </form>

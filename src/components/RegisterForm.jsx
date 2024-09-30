@@ -13,13 +13,13 @@ const RegisterForm = ({ onLoginClick }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (password !== confirmPassword) {
-      toast.error('Passwords do not match');
+      toast.error('As senhas não coincidem');
       return;
     }
     try {
       const { error } = await register(email, password);
       if (error) throw error;
-      toast.success('Registration successful. Please check your email to confirm your account.');
+      toast.success('Registro bem-sucedido. Por favor, verifique seu email para confirmar sua conta.');
     } catch (error) {
       toast.error(error.message);
     }
@@ -36,27 +36,27 @@ const RegisterForm = ({ onLoginClick }) => {
       />
       <Input
         type="password"
-        placeholder="Password"
+        placeholder="Senha"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
         required
       />
       <Input
         type="password"
-        placeholder="Confirm Password"
+        placeholder="Confirmar Senha"
         value={confirmPassword}
         onChange={(e) => setConfirmPassword(e.target.value)}
         required
       />
-      <Button type="submit" className="w-full">Register</Button>
+      <Button type="submit" className="w-full">Registrar</Button>
       <div className="text-center">
-        <span>Already have an account? </span>
+        <span>Já tem uma conta? </span>
         <button
           type="button"
           onClick={onLoginClick}
           className="text-blue-500 hover:underline"
         >
-          Login
+          Faça login
         </button>
       </div>
     </form>

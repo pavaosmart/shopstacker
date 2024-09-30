@@ -15,12 +15,21 @@ const getApiKey = async () => {
   return data?.openai_api_key;
 };
 
+let openaiInstance = null;
+
+export const initializeOpenAI = async (apiKey) => {
+  openaiInstance = new OpenAI({ apiKey, dangerouslyAllowBrowser: true });
+};
+
 export const getOpenAIInstance = async () => {
-  const apiKey = await getApiKey();
-  if (!apiKey) {
-    throw new Error('OpenAI API key not found');
+  if (!openaiInstance) {
+    const apiKey = await getApiKey();
+    if (!apiKey) {
+      throw new Error('OpenAI API key not found');
+    }
+    await initializeOpenAI(apiKey);
   }
-  return new OpenAI({ apiKey, dangerouslyAllowBrowser: true });
+  return openaiInstance;
 };
 
 export const testConnection = async () => {

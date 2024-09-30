@@ -44,7 +44,7 @@ const ChatWithBot = () => {
     setIsTyping(true);
 
     try {
-      const openai = await getOpenAIInstance();
+      const openai = getOpenAIInstance();
       
       await new Promise(resolve => setTimeout(resolve, 1000));
 

@@ -7,6 +7,13 @@ export const initializeOpenAI = (apiKey) => {
   openai = new OpenAI({ apiKey });
 };
 
+export const getOpenAIInstance = () => {
+  if (!openai) {
+    throw new Error('OpenAI instance not initialized. Call initializeOpenAI first.');
+  }
+  return openai;
+};
+
 export const testConnection = async (apiKey) => {
   try {
     const tempOpenAI = new OpenAI({ apiKey });
@@ -23,7 +30,7 @@ export const testConnection = async (apiKey) => {
 
 export const listAssistants = async () => {
   try {
-    const response = await openai.beta.assistants.list({
+    const response = await getOpenAIInstance().beta.assistants.list({
       order: "desc",
       limit: 20,
     });
@@ -36,14 +43,13 @@ export const listAssistants = async () => {
 
 export const createAssistant = async (name, prompt, model, temperature, maxTokens) => {
   try {
-    const assistant = await openai.beta.assistants.create({
+    const assistant = await getOpenAIInstance().beta.assistants.create({
       name: name,
       instructions: prompt,
       model: model,
       tools: [{ type: "code_interpreter" }],
     });
 
-    // Save assistant details to Supabase
     const { data, error } = await supabase
       .from('bots')
       .insert({
@@ -66,13 +72,12 @@ export const createAssistant = async (name, prompt, model, temperature, maxToken
 
 export const updateAssistant = async (assistantId, name, prompt, model, temperature, maxTokens) => {
   try {
-    const assistant = await openai.beta.assistants.update(assistantId, {
+    const assistant = await getOpenAIInstance().beta.assistants.update(assistantId, {
       name: name,
       instructions: prompt,
       model: model,
     });
 
-    // Update assistant details in Supabase
     const { data, error } = await supabase
       .from('bots')
       .update({

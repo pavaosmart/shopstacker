@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { ChevronDown, User, Bell } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import UserMenu from './UserMenu';
@@ -14,7 +13,7 @@ const Header = () => {
 
   return (
     <header className="bg-white shadow-md">
-      <nav className="container mx-auto px-6 py-3 flex justify-between items-center">
+      <div className="px-4 py-3 flex justify-between items-center">
         <div className="flex items-center">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -35,7 +34,7 @@ const Header = () => {
           <NotificationsMenu />
           <UserMenu user={session?.user} />
         </div>
-      </nav>
+      </div>
     </header>
   );
 };

@@ -3,6 +3,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Select } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { useSupabaseAuth } from '../integrations/supabase/auth';
 import { supabase } from '../integrations/supabase/supabase';
@@ -12,8 +15,15 @@ const OpenAIIntegration = () => {
   const [openaiApiKey, setOpenaiApiKey] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [bots, setBots] = useState([]);
-  const [newBotName, setNewBotName] = useState('');
-  const [newBotDescription, setNewBotDescription] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [newBot, setNewBot] = useState({
+    name: '',
+    prompt: '',
+    model: 'gpt-3.5-turbo',
+    temperature: 0.7,
+    maxTokens: 150,
+    document: null
+  });
   const { session } = useSupabaseAuth();
 
   useEffect(() => {
@@ -76,16 +86,11 @@ const OpenAIIntegration = () => {
   };
 
   const handleCreateBot = async () => {
-    if (!newBotName.trim()) {
-      toast.error('Nome do bot é obrigatório');
-      return;
-    }
     setIsLoading(true);
     try {
-      const assistant = await createAssistant(newBotName, newBotDescription);
+      const assistant = await createAssistant(newBot.name, newBot.prompt);
       toast.success('Bot criado com sucesso!');
-      setNewBotName('');
-      setNewBotDescription('');
+      setIsModalOpen(false);
       fetchBots();
     } catch (error) {
       console.error('Erro ao criar bot:', error);
@@ -93,6 +98,14 @@ const OpenAIIntegration = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value, type } = e.target;
+    setNewBot(prev => ({
+      ...prev,
+      [name]: type === 'file' ? e.target.files[0] : value
+    }));
   };
 
   return (
@@ -120,21 +133,7 @@ const OpenAIIntegration = () => {
           <CardTitle>Create New Bot</CardTitle>
         </CardHeader>
         <CardContent>
-          <Input
-            value={newBotName}
-            onChange={(e) => setNewBotName(e.target.value)}
-            placeholder="Bot Name"
-            className="mb-2"
-          />
-          <Textarea
-            value={newBotDescription}
-            onChange={(e) => setNewBotDescription(e.target.value)}
-            placeholder="Bot Description"
-            className="mb-2"
-          />
-          <Button onClick={handleCreateBot} disabled={isLoading}>
-            {isLoading ? 'Creating...' : 'Create Bot'}
-          </Button>
+          <Button onClick={() => setIsModalOpen(true)}>Create New Bot</Button>
         </CardContent>
       </Card>
       <Card>
@@ -155,6 +154,48 @@ const OpenAIIntegration = () => {
           )}
         </CardContent>
       </Card>
+
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Create New Bot</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="name">Bot Name</Label>
+              <Input id="name" name="name" value={newBot.name} onChange={handleInputChange} />
+            </div>
+            <div>
+              <Label htmlFor="prompt">Prompt</Label>
+              <Textarea id="prompt" name="prompt" value={newBot.prompt} onChange={handleInputChange} />
+            </div>
+            <div>
+              <Label htmlFor="model">GPT Version</Label>
+              <Select id="model" name="model" value={newBot.model} onChange={handleInputChange}>
+                <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                <option value="gpt-4">GPT-4</option>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="temperature">Temperature</Label>
+              <Input type="number" id="temperature" name="temperature" value={newBot.temperature} onChange={handleInputChange} min="0" max="1" step="0.1" />
+            </div>
+            <div>
+              <Label htmlFor="maxTokens">Max Tokens</Label>
+              <Input type="number" id="maxTokens" name="maxTokens" value={newBot.maxTokens} onChange={handleInputChange} min="1" />
+            </div>
+            <div>
+              <Label htmlFor="document">Knowledge Base (PDF, DOCX, TXT)</Label>
+              <Input type="file" id="document" name="document" onChange={handleInputChange} accept=".pdf,.docx,.txt" />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button onClick={handleCreateBot} disabled={isLoading}>
+              {isLoading ? 'Creating...' : 'Create Bot'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

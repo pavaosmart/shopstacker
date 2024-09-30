@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSupabaseAuth } from '../integrations/supabase/auth';
 import { supabase } from '../integrations/supabase/supabase';
 import { Button } from "@/components/ui/button";
@@ -18,7 +18,18 @@ const CreateBot = () => {
   const [maxTokens, setMaxTokens] = useState(150);
   const [prompt, setPrompt] = useState('');
 
+  useEffect(() => {
+    if (!session) {
+      toast.error('Você precisa estar autenticado para criar um bot.');
+    }
+  }, [session]);
+
   const handleCreateBot = async () => {
+    if (!session) {
+      toast.error('Você precisa estar autenticado para criar um bot.');
+      return;
+    }
+
     try {
       // Inserir bot
       const { data: botData, error: botError } = await supabase
@@ -53,10 +64,13 @@ const CreateBot = () => {
       if (promptError) throw promptError;
 
       toast.success('Bot criado com sucesso');
-      // Resetar formulário ou redirecionar para lista de bots
+      // Resetar formulário
+      setBotName('');
+      setBotDescription('');
+      setPrompt('');
     } catch (error) {
       console.error('Erro ao criar bot:', error);
-      toast.error('Falha ao criar bot');
+      toast.error(`Falha ao criar bot: ${error.message}`);
     }
   };
 
@@ -68,6 +82,10 @@ const CreateBot = () => {
       toast.error(result.message);
     }
   };
+
+  if (!session) {
+    return <div>Você precisa estar autenticado para acessar esta página.</div>;
+  }
 
   return (
     <div>

@@ -10,7 +10,6 @@ const CreateBotModal = ({ isOpen, onClose, onCreateBot }) => {
   const [botDescription, setBotDescription] = useState('');
   const [model, setModel] = useState('gpt-3.5-turbo');
   const [temperature, setTemperature] = useState(0.7);
-  const [maxTokens, setMaxTokens] = useState(150);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -18,8 +17,7 @@ const CreateBotModal = ({ isOpen, onClose, onCreateBot }) => {
       name: botName,
       description: botDescription,
       model,
-      temperature,
-      max_tokens: maxTokens
+      temperature
     });
     resetForm();
   };
@@ -29,7 +27,6 @@ const CreateBotModal = ({ isOpen, onClose, onCreateBot }) => {
     setBotDescription('');
     setModel('gpt-3.5-turbo');
     setTemperature(0.7);
-    setMaxTokens(150);
   };
 
   return (
@@ -80,17 +77,6 @@ const CreateBotModal = ({ isOpen, onClose, onCreateBot }) => {
               step="0.1"
               value={temperature}
               onChange={(e) => setTemperature(parseFloat(e.target.value))}
-              className="mt-1"
-            />
-          </div>
-          <div>
-            <label htmlFor="max-tokens" className="block text-sm font-medium text-gray-700">Máximo de Tokens</label>
-            <Input
-              id="max-tokens"
-              type="number"
-              min="1"
-              value={maxTokens}
-              onChange={(e) => setMaxTokens(parseInt(e.target.value))}
               className="mt-1"
             />
           </div>

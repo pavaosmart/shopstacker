@@ -28,7 +28,7 @@ const CreateBot = () => {
     try {
       const { data, error } = await supabase
         .from('bots')
-        .select('*')
+        .select('id, name, description, model, temperature')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -44,8 +44,7 @@ const CreateBot = () => {
       const { data, error } = await supabase
         .from('bots')
         .insert([newBot])
-        .select()
-        .single();
+        .select();
 
       if (error) throw error;
 
@@ -89,7 +88,10 @@ const CreateBot = () => {
               <CardContent>
                 <p>{bot.description}</p>
                 <p className="text-sm text-gray-500 mt-2">
-                  Criado em: {new Date(bot.created_at).toLocaleDateString()}
+                  Modelo: {bot.model}
+                </p>
+                <p className="text-sm text-gray-500">
+                  Temperatura: {bot.temperature}
                 </p>
               </CardContent>
             </Card>

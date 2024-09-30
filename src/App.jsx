@@ -12,6 +12,7 @@ import Settings from './pages/Settings';
 import CreateBot from './pages/CreateBot';
 import { SupabaseAuthProvider } from './integrations/supabase/auth';
 import UIComponentsPanel from './components/UIComponentsPanel';
+import ProtectedRoute from './components/ProtectedRoute';
 
 const queryClient = new QueryClient();
 
@@ -24,12 +25,12 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/" element={<Layout />}>
               <Route index element={<Index />} />
-              <Route path="dashboard" element={<Dashboard />} />
-              <Route path="products" element={<Products />} />
-              <Route path="activity-logs" element={<ActivityLogs />} />
-              <Route path="users" element={<UsersAndPermissions />} />
-              <Route path="settings" element={<Settings />} />
-              <Route path="create-bot" element={<CreateBot />} />
+              <Route path="dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+              <Route path="products" element={<ProtectedRoute><Products /></ProtectedRoute>} />
+              <Route path="activity-logs" element={<ProtectedRoute><ActivityLogs /></ProtectedRoute>} />
+              <Route path="users" element={<ProtectedRoute><UsersAndPermissions /></ProtectedRoute>} />
+              <Route path="settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+              <Route path="create-bot" element={<ProtectedRoute><CreateBot /></ProtectedRoute>} />
             </Route>
           </Routes>
           <UIComponentsPanel />

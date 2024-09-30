@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useSupabaseAuth } from '../integrations/supabase/auth';
 import { supabase } from '../integrations/supabase/supabase';
 import { Button } from "@/components/ui/button";
@@ -11,6 +12,7 @@ import { testBotCreation } from '../utils/testBotCreation';
 
 const CreateBot = () => {
   const { session } = useSupabaseAuth();
+  const navigate = useNavigate();
   const [botName, setBotName] = useState('');
   const [botDescription, setBotDescription] = useState('');
   const [model, setModel] = useState('gpt-3.5-turbo');
@@ -21,12 +23,14 @@ const CreateBot = () => {
   useEffect(() => {
     if (!session) {
       toast.error('Você precisa estar autenticado para criar um bot.');
+      navigate('/login');
     }
-  }, [session]);
+  }, [session, navigate]);
 
   const handleCreateBot = async () => {
     if (!session) {
       toast.error('Você precisa estar autenticado para criar um bot.');
+      navigate('/login');
       return;
     }
 
@@ -84,7 +88,7 @@ const CreateBot = () => {
   };
 
   if (!session) {
-    return <div>Você precisa estar autenticado para acessar esta página.</div>;
+    return null; // Não renderiza nada se não houver sessão
   }
 
   return (

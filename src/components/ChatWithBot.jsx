@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSupabaseAuth } from '../integrations/supabase/auth';
-import { listAssistants, createAssistant, getOpenAIInstance } from '../utils/openai';
+import { listAssistants, getOpenAIInstance } from '../utils/openai';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -40,9 +40,9 @@ const ChatWithBot = () => {
     setIsLoading(true);
 
     try {
-      const openai = getOpenAIInstance();
+      const openai = await getOpenAIInstance();
       const response = await openai.chat.completions.create({
-        model: "gpt-3.5-turbo",
+        model: selectedAssistant.model || "gpt-3.5-turbo",
         messages: [
           { role: "system", content: `You are an AI assistant named ${selectedAssistant.name}.` },
           ...messages,
@@ -54,7 +54,7 @@ const ChatWithBot = () => {
       setMessages(prevMessages => [...prevMessages, botResponse]);
     } catch (error) {
       console.error('Erro ao enviar mensagem:', error);
-      toast.error('Falha ao enviar mensagem');
+      toast.error('Falha ao enviar mensagem: ' + error.message);
     } finally {
       setIsLoading(false);
     }

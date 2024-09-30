@@ -12,6 +12,7 @@ const ChatWithBot = () => {
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
   const { session } = useSupabaseAuth();
 
   useEffect(() => {
@@ -38,9 +39,14 @@ const ChatWithBot = () => {
     setMessages(prevMessages => [...prevMessages, newMessage]);
     setInputMessage('');
     setIsLoading(true);
+    setIsTyping(true);
 
     try {
       const openai = await getOpenAIInstance();
+      
+      // Simular um pequeno atraso
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
       const response = await openai.chat.completions.create({
         model: selectedAssistant.model || "gpt-3.5-turbo",
         messages: [
@@ -57,6 +63,7 @@ const ChatWithBot = () => {
       toast.error('Falha ao enviar mensagem: ' + error.message);
     } finally {
       setIsLoading(false);
+      setIsTyping(false);
     }
   };
 
@@ -83,6 +90,11 @@ const ChatWithBot = () => {
               {message.content}
             </div>
           ))}
+          {isTyping && (
+            <div className="p-2 rounded bg-gray-100">
+              <span className="animate-pulse">Digitando...</span>
+            </div>
+          )}
         </div>
         <div className="flex space-x-2">
           <Input

@@ -6,6 +6,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { ceoAssistantPrompt } from '../prompts/ceoAssistantPrompt';
+import { saveBotToDatabase } from '../utils/openai';
+import { toast } from 'sonner';
 
 const CreateBotModal = ({ isOpen, onClose, onCreateBot }) => {
   const [botName, setBotName] = useState('');
@@ -16,18 +18,27 @@ const CreateBotModal = ({ isOpen, onClose, onCreateBot }) => {
   const [prompts, setPrompts] = useState([ceoAssistantPrompt]);
   const [document, setDocument] = useState(null);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onCreateBot({
-      name: botName,
-      description: botDescription,
-      model,
-      temperature: parseFloat(temperature),
-      max_tokens: parseInt(maxTokens),
-      prompts: prompts.filter(prompt => prompt.trim() !== ''),
-      document
-    });
-    resetForm();
+    try {
+      const botData = {
+        name: botName,
+        description: botDescription,
+        model,
+        temperature: parseFloat(temperature),
+        max_tokens: parseInt(maxTokens),
+        prompts: prompts.filter(prompt => prompt.trim() !== ''),
+        document
+      };
+      
+      await saveBotToDatabase(botData);
+      toast.success('Bot criado com sucesso!');
+      onCreateBot(botData);
+      resetForm();
+    } catch (error) {
+      console.error('Erro ao criar bot:', error);
+      toast.error('Falha ao criar bot: ' + error.message);
+    }
   };
 
   const resetForm = () => {

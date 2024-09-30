@@ -68,7 +68,6 @@ export const saveBotToDatabase = async (botData) => {
       name: botData.name,
       description: botData.description,
       user_id: (await supabase.auth.getUser()).data.user.id,
-      openai_assistant_id: botData.openai_assistant_id
     }])
     .select()
     .single();
@@ -168,12 +167,22 @@ export const verifyBotData = async (botId) => {
 
 export const listAssistants = async () => {
   try {
-    const openai = await getOpenAIInstance();
-    const assistants = await openai.beta.assistants.list();
-    console.log('Assistants fetched successfully:', assistants.data);
-    return assistants.data;
+    const { data: bots, error } = await supabase
+      .from('bots')
+      .select(`
+        *,
+        bot_configurations (*)
+      `);
+
+    if (error) {
+      console.error('Error fetching bots:', error);
+      throw error;
+    }
+
+    console.log('Bots fetched successfully:', bots);
+    return bots;
   } catch (error) {
-    console.error('Error fetching assistants:', error);
+    console.error('Error fetching bots:', error);
     throw error;
   }
 };

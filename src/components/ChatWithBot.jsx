@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
-import { Robot } from 'lucide-react'; // Importando o ícone de robô
+import { Bot } from 'lucide-react'; // Changed from Robot to Bot
 
 const ChatWithBot = () => {
   const [assistants, setAssistants] = useState([]);
@@ -95,7 +95,7 @@ const ChatWithBot = () => {
                     <AvatarImage src={session?.user?.user_metadata?.avatar_url} />
                   ) : (
                     <AvatarFallback className="bg-blue-500 text-white">
-                      <Robot size={20} /> {/* Ícone de robô para o bot */}
+                      <Bot size={20} /> {/* Changed from Robot to Bot */}
                     </AvatarFallback>
                   )}
                   <AvatarFallback>{message.role === 'user' ? 'U' : 'B'}</AvatarFallback>

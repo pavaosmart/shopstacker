@@ -15,7 +15,7 @@ const RegisterForm = ({ onLoginClick }) => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const { register } = useSupabaseAuth();
+  const { register, loginWithGoogle, loginWithFacebook } = useSupabaseAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -37,6 +37,16 @@ const RegisterForm = ({ onLoginClick }) => {
       setShowPassword(!showPassword);
     } else {
       setShowConfirmPassword(!showConfirmPassword);
+    }
+  };
+
+  const handleSocialLogin = async (provider) => {
+    try {
+      const { error } = provider === 'google' ? await loginWithGoogle() : await loginWithFacebook();
+      if (error) throw error;
+      toast.success(`Login com ${provider} bem-sucedido`);
+    } catch (error) {
+      toast.error(`Erro no login com ${provider}: ${error.message}`);
     }
   };
 
@@ -98,10 +108,10 @@ const RegisterForm = ({ onLoginClick }) => {
       </div>
       <Button type="submit" className="w-full">Registrar</Button>
       <div className="flex flex-col space-y-2">
-        <Button type="button" variant="outline" className="w-full">
+        <Button type="button" variant="outline" className="w-full" onClick={() => handleSocialLogin('google')}>
           Registrar com Google
         </Button>
-        <Button type="button" variant="outline" className="w-full">
+        <Button type="button" variant="outline" className="w-full" onClick={() => handleSocialLogin('facebook')}>
           Registrar com Facebook
         </Button>
       </div>

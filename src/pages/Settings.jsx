@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSupabaseAuth } from '../integrations/supabase/auth';
 import { supabase } from '../integrations/supabase/supabase';
-import { initializeOpenAI } from '../utils/openai';
+import { initializeOpenAI, testConnection } from '../utils/openai';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
@@ -54,10 +54,11 @@ const Settings = () => {
       if (error) throw error;
 
       initializeOpenAI(openaiApiKey);
-      toast.success('Chave da API salva com sucesso');
+      await testConnection(); // Test the connection after saving
+      toast.success('Chave da API salva e testada com sucesso');
     } catch (error) {
-      console.error('Erro ao salvar chave da API:', error);
-      toast.error('Falha ao salvar chave da API');
+      console.error('Erro ao salvar ou testar chave da API:', error);
+      toast.error('Falha ao salvar ou testar chave da API');
     } finally {
       setIsLoading(false);
     }
@@ -89,7 +90,7 @@ const Settings = () => {
           />
         </div>
         <Button onClick={handleSaveApiKey} disabled={isLoading}>
-          {isLoading ? 'Salvando...' : 'Salvar Chave da API'}
+          {isLoading ? 'Salvando e Testando...' : 'Salvar e Testar Chave da API'}
         </Button>
 
         {isLoading && <LoadingIndicator steps={loadingSteps} />}

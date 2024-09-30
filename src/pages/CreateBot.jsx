@@ -6,9 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import Navigation from '../components/Navigation';
-import { testBotCreation } from '../utils/testBotCreation';
+import { testConnection, createAssistant, listAssistants } from '../utils/openai';
 import CreateBotModal from '../components/CreateBotModal';
-import { createOpenAIAssistant } from '../utils/openai';
 
 const CreateBot = () => {
   const { session } = useSupabaseAuth();
@@ -27,13 +26,8 @@ const CreateBot = () => {
 
   const fetchBots = async () => {
     try {
-      const { data, error } = await supabase
-        .from('bots')
-        .select('*')
-        .eq('user_id', session.user.id);
-
-      if (error) throw error;
-      setBots(data);
+      const assistants = await listAssistants();
+      setBots(assistants);
     } catch (error) {
       console.error('Erro ao buscar bots:', error);
       toast.error('Falha ao carregar os bots');
@@ -42,16 +36,14 @@ const CreateBot = () => {
 
   const handleCreateBot = async (newBot) => {
     try {
-      // Criar o assistente na OpenAI
-      const openAIAssistant = await createOpenAIAssistant(newBot.name, newBot.description);
+      const assistant = await createAssistant(newBot.name, newBot.description);
       
-      // Salvar o bot no Supabase com o ID do assistente da OpenAI
       const { data, error } = await supabase
         .from('bots')
         .insert([{ 
           ...newBot, 
           user_id: session.user.id,
-          openai_assistant_id: openAIAssistant.id
+          openai_assistant_id: assistant.id
         }])
         .select();
 
@@ -66,13 +58,12 @@ const CreateBot = () => {
     }
   };
 
-  const handleTestBotCreation = async () => {
-    const result = await testBotCreation();
-    if (result.success) {
-      toast.success(result.message);
-      fetchBots();
-    } else {
-      toast.error(result.message);
+  const handleTestConnection = async () => {
+    try {
+      await testConnection();
+      toast.success('Conexão com a OpenAI testada com sucesso');
+    } catch (error) {
+      toast.error(`Erro ao testar conexão: ${error.message}`);
     }
   };
 
@@ -96,12 +87,12 @@ const CreateBot = () => {
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-gray-600 mb-2">{bot.description}</p>
-                <p className="text-xs text-gray-500">OpenAI ID: {bot.openai_assistant_id}</p>
+                <p className="text-xs text-gray-500">OpenAI ID: {bot.id}</p>
               </CardContent>
             </Card>
           ))}
         </div>
-        <Button onClick={handleTestBotCreation} className="mt-4">Testar Criação de Bot</Button>
+        <Button onClick={handleTestConnection} className="mt-4">Testar Conexão com OpenAI</Button>
       </div>
       <CreateBotModal
         isOpen={isModalOpen}

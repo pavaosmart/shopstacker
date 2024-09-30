@@ -15,13 +15,13 @@ import ForgotPassword from './pages/ForgotPassword';
 import Settings from './pages/Settings';
 import Support from './pages/Support';
 import Help from './pages/Help';
-import API from './pages/API';
 import APIStore from './pages/APIStore';
 import OpenAIIntegration from './components/OpenAIIntegration';
 import Profile from './pages/Profile';
 import Documentation from './pages/Documentation';
 import UIComponentsPanel from './components/UIComponentsPanel';
 import ProtectedRoute from './components/ProtectedRoute';
+import MercadoAPI from './pages/MercadoAPI';
 
 const queryClient = new QueryClient();
 
@@ -44,7 +44,7 @@ function App() {
               <Route path="settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
               <Route path="support" element={<ProtectedRoute><Support /></ProtectedRoute>} />
               <Route path="help" element={<ProtectedRoute><Help /></ProtectedRoute>} />
-              <Route path="api" element={<ProtectedRoute><API /></ProtectedRoute>} />
+              <Route path="mercado-api" element={<ProtectedRoute><MercadoAPI /></ProtectedRoute>} />
               <Route path="api-store" element={<ProtectedRoute><APIStore /></ProtectedRoute>} />
               <Route path="api-integration/openai" element={<ProtectedRoute><OpenAIIntegration /></ProtectedRoute>} />
               <Route path="profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />

@@ -8,6 +8,8 @@ import Products from './pages/Products';
 import ActivityLogs from './pages/ActivityLogs';
 import UsersAndPermissions from './pages/UsersAndPermissions';
 import Login from './pages/Login';
+import Settings from './pages/Settings';
+import CreateBot from './pages/CreateBot';
 import { SupabaseAuthProvider } from './integrations/supabase/auth';
 import UIComponentsPanel from './components/UIComponentsPanel';
 
@@ -26,6 +28,8 @@ function App() {
               <Route path="products" element={<Products />} />
               <Route path="activity-logs" element={<ActivityLogs />} />
               <Route path="users" element={<UsersAndPermissions />} />
+              <Route path="settings" element={<Settings />} />
+              <Route path="create-bot" element={<CreateBot />} />
             </Route>
           </Routes>
           <UIComponentsPanel />

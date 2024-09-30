@@ -38,19 +38,6 @@ export const testConnection = async (apiKey) => {
   }
 };
 
-export const listAssistants = async () => {
-  try {
-    const response = await getOpenAIInstance().beta.assistants.list({
-      order: "desc",
-      limit: 20,
-    });
-    return response.data;
-  } catch (error) {
-    console.error('Error listing assistants:', error);
-    throw error;
-  }
-};
-
 export const createAssistant = async (name, prompt, model, temperature, maxTokens) => {
   try {
     const assistant = await getOpenAIInstance().beta.assistants.create({
@@ -76,34 +63,6 @@ export const createAssistant = async (name, prompt, model, temperature, maxToken
     return assistant;
   } catch (error) {
     console.error('Error creating assistant:', error);
-    throw error;
-  }
-};
-
-export const updateAssistant = async (assistantId, name, prompt, model, temperature, maxTokens) => {
-  try {
-    const assistant = await getOpenAIInstance().beta.assistants.update(assistantId, {
-      name: name,
-      instructions: prompt,
-      model: model,
-    });
-
-    const { data, error } = await supabase
-      .from('bots')
-      .update({
-        name: name,
-        model: model,
-        temperature: temperature,
-        max_tokens: maxTokens,
-        prompt: prompt,
-      })
-      .eq('openai_assistant_id', assistantId);
-
-    if (error) throw error;
-
-    return assistant;
-  } catch (error) {
-    console.error('Error updating assistant:', error);
     throw error;
   }
 };

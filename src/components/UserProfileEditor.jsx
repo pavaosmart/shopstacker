@@ -28,39 +28,14 @@ const UserProfileEditor = () => {
         .eq('id', session.user.id)
         .single();
 
-      if (error) {
-        if (error.code === 'PGRST116') {
-          // Profile not found, create a new one
-          await createProfile();
-        } else {
-          throw error;
-        }
-      } else {
-        setFullName(profile.full_name || '');
-        setAvatarUrl(profile.avatar_url || '');
-      }
-      
+      if (error) throw error;
+
+      setFullName(profile.full_name || '');
+      setAvatarUrl(profile.avatar_url || '');
       setEmail(session.user.email || '');
     } catch (error) {
       console.error('Error fetching profile:', error);
       toast.error('Failed to load profile');
-    }
-  };
-
-  const createProfile = async () => {
-    try {
-      const { error } = await supabase.from('profiles').insert({
-        id: session.user.id,
-        full_name: session.user.user_metadata.full_name || '',
-        avatar_url: null,
-      });
-
-      if (error) throw error;
-
-      await fetchUserProfile(); // Fetch the newly created profile
-    } catch (error) {
-      console.error('Error creating profile:', error);
-      toast.error('Failed to create profile');
     }
   };
 
@@ -86,34 +61,12 @@ const UserProfileEditor = () => {
     }
   };
 
-  const createBucketIfNotExists = async () => {
-    try {
-      const { data, error } = await supabase.storage.getBucket('avatars');
-      if (error && error.message.includes('not found')) {
-        const { data, error: createError } = await supabase.storage.createBucket('avatars', {
-          public: true
-        });
-        if (createError) {
-          throw createError;
-        }
-        console.log('Bucket "avatars" created successfully');
-      } else if (error) {
-        throw error;
-      }
-    } catch (error) {
-      console.error('Error checking/creating bucket:', error);
-      throw error;
-    }
-  };
-
   const handleAvatarUpload = async (event) => {
     try {
       setIsLoading(true);
       if (!event.target.files || event.target.files.length === 0) {
         throw new Error('You need to select an image to upload.');
       }
-
-      await createBucketIfNotExists();
 
       const file = event.target.files[0];
       const fileExt = file.name.split('.').pop();

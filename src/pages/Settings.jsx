@@ -1,14 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { useSupabaseAuth } from '../integrations/supabase/auth';
 import { supabase } from '../integrations/supabase/supabase';
-import { initializeOpenAI } from '../utils/openai';
+import { initializeOpenAI, getOpenAIInstance } from '../utils/openai';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import Navigation from '../components/Navigation';
+import LoadingIndicator from '../components/LoadingIndicator';
 
 const Settings = () => {
   const [openaiApiKey, setOpenaiApiKey] = useState('');
+  const [projectName, setProjectName] = useState('');
+  const [bots, setBots] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadingSteps, setLoadingSteps] = useState([]);
   const { session } = useSupabaseAuth();
 
   useEffect(() => {
@@ -28,6 +33,9 @@ const Settings = () => {
       if (error) throw error;
       if (data) {
         setOpenaiApiKey(data.openai_api_key || '');
+        if (data.openai_api_key) {
+          await validateAndFetchProjectInfo(data.openai_api_key);
+        }
       }
     } catch (error) {
       console.error('Erro ao buscar a chave da API:', error);
@@ -35,8 +43,55 @@ const Settings = () => {
     }
   };
 
-  const handleSaveApiKey = async () => {
+  const validateAndFetchProjectInfo = async (apiKey) => {
+    setIsLoading(true);
+    setLoadingSteps([]);
     try {
+      addLoadingStep('Inicializando OpenAI...');
+      initializeOpenAI(apiKey);
+      const openai = getOpenAIInstance();
+
+      addLoadingStep('Verificando autenticação...');
+      const response = await openai.models.list();
+      
+      addLoadingStep('Buscando informações do projeto...');
+      // Note: OpenAI API doesn't provide a direct method to get project name.
+      // We're using a placeholder here. In a real scenario, you might need to
+      // store this information separately or use a different API call.
+      setProjectName('Seu Projeto OpenAI');
+
+      addLoadingStep('Carregando bots existentes...');
+      await fetchBots();
+
+      toast.success('Chave da API validada com sucesso');
+    } catch (error) {
+      console.error('Erro ao validar a chave da API:', error);
+      toast.error('Falha na autenticação com a OpenAI');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const fetchBots = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('bots')
+        .select('*')
+        .eq('user_id', session.user.id);
+
+      if (error) throw error;
+      setBots(data || []);
+    } catch (error) {
+      console.error('Erro ao buscar bots:', error);
+      toast.error('Falha ao carregar bots existentes');
+    }
+  };
+
+  const handleSaveApiKey = async () => {
+    setIsLoading(true);
+    setLoadingSteps([]);
+    try {
+      addLoadingStep('Salvando chave da API...');
       const { data, error } = await supabase
         .from('user_settings')
         .upsert({ user_id: session.user.id, openai_api_key: openaiApiKey })
@@ -45,13 +100,20 @@ const Settings = () => {
 
       if (error) throw error;
 
-      initializeOpenAI(openaiApiKey);
-      toast.success('Chave da API salva com sucesso');
-      console.log('Chave da API salva:', data);
+      addLoadingStep('Validando chave da API...');
+      await validateAndFetchProjectInfo(openaiApiKey);
+
+      toast.success('Chave da API salva e validada com sucesso');
     } catch (error) {
       console.error('Erro ao salvar a chave da API:', error);
-      toast.error('Falha ao salvar a chave da API');
+      toast.error('Falha ao salvar ou validar a chave da API');
+    } finally {
+      setIsLoading(false);
     }
+  };
+
+  const addLoadingStep = (step) => {
+    setLoadingSteps(prev => [...prev, step]);
   };
 
   return (
@@ -71,7 +133,28 @@ const Settings = () => {
             className="mt-1"
           />
         </div>
-        <Button onClick={handleSaveApiKey}>Salvar Chave da API</Button>
+        <Button onClick={handleSaveApiKey} disabled={isLoading}>
+          {isLoading ? 'Salvando...' : 'Salvar Chave da API'}
+        </Button>
+
+        {isLoading && <LoadingIndicator steps={loadingSteps} />}
+
+        {projectName && (
+          <div className="mt-4">
+            <h2 className="text-xl font-semibold">Projeto OpenAI: {projectName}</h2>
+          </div>
+        )}
+
+        {bots.length > 0 && (
+          <div className="mt-4">
+            <h2 className="text-xl font-semibold">Bots Existentes:</h2>
+            <ul className="list-disc pl-5 mt-2">
+              {bots.map(bot => (
+                <li key={bot.id}>{bot.name}</li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
     </div>
   );

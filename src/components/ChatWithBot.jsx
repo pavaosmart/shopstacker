@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSupabaseAuth } from '../integrations/supabase/auth';
-import { listAssistants, createAssistant } from '../utils/openai';
+import { listAssistants, createAssistant, getOpenAIInstance } from '../utils/openai';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,6 +11,7 @@ const ChatWithBot = () => {
   const [selectedAssistant, setSelectedAssistant] = useState(null);
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const { session } = useSupabaseAuth();
 
   useEffect(() => {
@@ -34,17 +35,28 @@ const ChatWithBot = () => {
     if (!inputMessage.trim() || !selectedAssistant) return;
 
     const newMessage = { role: 'user', content: inputMessage };
-    setMessages([...messages, newMessage]);
+    setMessages(prevMessages => [...prevMessages, newMessage]);
     setInputMessage('');
+    setIsLoading(true);
 
     try {
-      // Aqui você deve implementar a lógica para enviar a mensagem para a API da OpenAI
-      // e receber a resposta do assistente. Por enquanto, vamos simular uma resposta.
-      const botResponse = { role: 'assistant', content: `Resposta simulada para: ${inputMessage}` };
+      const openai = getOpenAIInstance();
+      const response = await openai.chat.completions.create({
+        model: "gpt-3.5-turbo",
+        messages: [
+          { role: "system", content: `You are an AI assistant named ${selectedAssistant.name}.` },
+          ...messages,
+          newMessage
+        ],
+      });
+
+      const botResponse = { role: 'assistant', content: response.choices[0].message.content };
       setMessages(prevMessages => [...prevMessages, botResponse]);
     } catch (error) {
       console.error('Erro ao enviar mensagem:', error);
       toast.error('Falha ao enviar mensagem');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -80,7 +92,9 @@ const ChatWithBot = () => {
             placeholder="Digite sua mensagem..."
             className="flex-grow"
           />
-          <Button onClick={handleSendMessage}>Enviar</Button>
+          <Button onClick={handleSendMessage} disabled={isLoading}>
+            {isLoading ? 'Enviando...' : 'Enviar'}
+          </Button>
         </div>
       </CardContent>
     </Card>

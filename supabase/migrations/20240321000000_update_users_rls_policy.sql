@@ -1,5 +1,5 @@
 -- Drop existing policies on the users table
-DROP POLICY IF EXISTS "Users can view their own data" ON users;
+DROP POLICY IF EXISTS "Authenticated users can view all users' data" ON users;
 DROP POLICY IF EXISTS "Users can update their own data" ON users;
 
 -- Create a new policy that allows authenticated users to view all users' data

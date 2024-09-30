@@ -10,7 +10,14 @@ export const useUsers = () => useQuery({
         .from('users')
         .select('id, email, full_name');
       
-      if (error) throw error;
+      if (error) {
+        if (error.code === '42501') {
+          console.error('Permission denied: Unable to access users table');
+          toast.error('You do not have permission to view user data');
+          return [];
+        }
+        throw error;
+      }
       return data || [];
     } catch (error) {
       console.error('Error fetching users:', error);
@@ -32,7 +39,7 @@ export const useCurrentUser = () => useQuery({
         .from('users')
         .select('id, email, full_name')
         .eq('id', user.id)
-        .maybeSingle(); // Use maybeSingle() instead of single()
+        .maybeSingle();
 
       if (error) {
         console.error("Error fetching user data:", error);

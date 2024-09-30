@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Configuration, OpenAIApi } from "openai";
+import OpenAI from "openai";
 
 const OPENAI_API_URL = 'https://api.openai.com/v1';
 
@@ -69,8 +69,8 @@ export const initializeOpenAI = (apiKey) => {
 };
 
 export const getOpenAIInstance = () => {
-  const configuration = new Configuration({
+  return new OpenAI({
     apiKey: getApiKey(),
+    dangerouslyAllowBrowser: true
   });
-  return new OpenAIApi(configuration);
 };

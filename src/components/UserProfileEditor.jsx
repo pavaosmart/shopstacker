@@ -48,6 +48,7 @@ const UserProfileEditor = () => {
 
       if (error) {
         if (error.code === 'PGRST116') {
+          // Profile not found, create a new one
           await createNewProfile();
           return;
         }
@@ -149,15 +150,6 @@ const UserProfileEditor = () => {
       const fileExt = file.name.split('.').pop();
       const fileName = `${Math.random()}.${fileExt}`;
       const filePath = `${session.user.id}/${fileName}`;
-
-      // Ensure the 'avatars' bucket exists
-      const { data: buckets, error: bucketsError } = await supabase.storage.listBuckets();
-      if (bucketsError) throw bucketsError;
-
-      if (!buckets.some(bucket => bucket.name === 'avatars')) {
-        const { error: createBucketError } = await supabase.storage.createBucket('avatars', { public: true });
-        if (createBucketError) throw createBucketError;
-      }
 
       let { error: uploadError } = await supabase.storage
         .from('avatars')

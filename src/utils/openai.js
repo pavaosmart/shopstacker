@@ -1,6 +1,9 @@
 import OpenAI from "openai";
 import { supabase } from '../integrations/supabase/supabase';
 
+import OpenAI from "openai";
+import { supabase } from '../integrations/supabase/supabase';
+
 const getApiKey = async () => {
   const { data, error } = await supabase
     .from('user_settings')
@@ -61,10 +64,16 @@ export const createAssistant = async (name, instructions) => {
   }
 };
 
+
 export const saveBotToDatabase = async (botData) => {
   const { data: bot, error: botError } = await supabase
     .from('bots')
-    .insert([botData])
+    .insert([{
+      name: botData.name,
+      description: botData.description,
+      user_id: (await supabase.auth.getUser()).data.user.id,
+      openai_assistant_id: botData.openai_assistant_id
+    }])
     .select()
     .single();
 
@@ -73,10 +82,31 @@ export const saveBotToDatabase = async (botData) => {
     throw botError;
   }
 
-  const { model, temperature, max_tokens } = botData;
+  const { model, temperature, max_tokens, document } = botData;
+  let document_path = null;
+
+  if (document) {
+    const { data, error } = await supabase.storage
+      .from('bot-documents')
+      .upload(`${bot.id}/${document.name}`, document);
+
+    if (error) {
+      console.error('Error uploading document:', error);
+      throw error;
+    }
+
+    document_path = data.path;
+  }
+
   const { error: configError } = await supabase
     .from('bot_configurations')
-    .insert([{ bot_id: bot.id, model, temperature, max_tokens }]);
+    .insert([{ 
+      bot_id: bot.id, 
+      model, 
+      temperature, 
+      max_tokens,
+      document_path
+    }]);
 
   if (configError) {
     console.error('Error saving bot configuration:', configError);
@@ -102,6 +132,7 @@ export const saveBotToDatabase = async (botData) => {
   console.log('Bot saved to database:', bot);
   return bot;
 };
+
 
 export const verifyBotData = async (botId) => {
   const { data: bot, error: botError } = await supabase

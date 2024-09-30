@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Select } from "@/components/ui/select";
 import { ceoAssistantPrompt } from '../prompts/ceoAssistantPrompt';
 
 const CreateBotModal = ({ isOpen, onClose, onCreateBot }) => {
@@ -13,6 +14,7 @@ const CreateBotModal = ({ isOpen, onClose, onCreateBot }) => {
   const [temperature, setTemperature] = useState(0.7);
   const [maxTokens, setMaxTokens] = useState(150);
   const [prompts, setPrompts] = useState([ceoAssistantPrompt]);
+  const [document, setDocument] = useState(null);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -22,7 +24,8 @@ const CreateBotModal = ({ isOpen, onClose, onCreateBot }) => {
       model,
       temperature: parseFloat(temperature),
       max_tokens: parseInt(maxTokens),
-      prompts: prompts.filter(prompt => prompt.trim() !== '')
+      prompts: prompts.filter(prompt => prompt.trim() !== ''),
+      document
     });
     resetForm();
   };
@@ -34,12 +37,19 @@ const CreateBotModal = ({ isOpen, onClose, onCreateBot }) => {
     setTemperature(0.7);
     setMaxTokens(150);
     setPrompts([ceoAssistantPrompt]);
+    setDocument(null);
   };
 
   const handlePromptChange = (index, value) => {
     const newPrompts = [...prompts];
     newPrompts[index] = value;
     setPrompts(newPrompts);
+  };
+
+  const handleFileChange = (e) => {
+    if (e.target.files) {
+      setDocument(e.target.files[0]);
+    }
   };
 
   return (
@@ -68,11 +78,15 @@ const CreateBotModal = ({ isOpen, onClose, onCreateBot }) => {
           </div>
           <div>
             <Label htmlFor="bot-model">Modelo</Label>
-            <Input
+            <Select
               id="bot-model"
               value={model}
-              onChange={(e) => setModel(e.target.value)}
-            />
+              onValueChange={setModel}
+            >
+              <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+              <option value="gpt-4">GPT-4</option>
+              <option value="gpt-4-32k">GPT-4 32k</option>
+            </Select>
           </div>
           <div>
             <Label htmlFor="bot-temperature">Temperatura</Label>
@@ -93,6 +107,15 @@ const CreateBotModal = ({ isOpen, onClose, onCreateBot }) => {
               type="number"
               value={maxTokens}
               onChange={(e) => setMaxTokens(e.target.value)}
+            />
+          </div>
+          <div>
+            <Label htmlFor="bot-document">Base de Conhecimento (Documento)</Label>
+            <Input
+              id="bot-document"
+              type="file"
+              onChange={handleFileChange}
+              accept=".pdf,.doc,.docx,.txt"
             />
           </div>
           <div>

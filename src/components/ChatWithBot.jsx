@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
-import { Bot } from 'lucide-react'; // Changed from Robot to Bot
+import { Bot } from 'lucide-react';
 
 const ChatWithBot = () => {
   const [assistants, setAssistants] = useState([]);
@@ -46,7 +46,6 @@ const ChatWithBot = () => {
     try {
       const openai = await getOpenAIInstance();
       
-      // Simular um pequeno atraso
       await new Promise(resolve => setTimeout(resolve, 1000));
 
       const response = await openai.chat.completions.create({
@@ -89,26 +88,26 @@ const ChatWithBot = () => {
         <div className="space-y-4 mb-4 h-80 overflow-y-auto p-4 bg-gray-50 rounded-lg">
           {messages.map((message, index) => (
             <div key={index} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-              <div className={`flex items-start max-w-[70%] ${message.role === 'user' ? 'flex-row-reverse' : ''}`}>
-                <Avatar className="w-8 h-8 mr-2">
-                  {message.role === 'user' ? (
-                    <AvatarImage src={session?.user?.user_metadata?.avatar_url} />
-                  ) : (
-                    <AvatarFallback className="bg-blue-500 text-white">
-                      <Bot size={20} /> {/* Changed from Robot to Bot */}
-                    </AvatarFallback>
-                  )}
-                  <AvatarFallback>{message.role === 'user' ? 'U' : 'B'}</AvatarFallback>
-                </Avatar>
-                <div>
-                  <p className={`text-xs mb-1 ${message.role === 'user' ? 'text-right' : 'text-left'}`}>{message.sender}</p>
-                  <div className={`p-3 rounded-lg ${
-                    message.role === 'user' 
-                      ? 'bg-blue-500 text-white rounded-br-none' 
-                      : 'bg-gray-200 text-gray-800 rounded-bl-none'
-                  }`}>
-                    {message.content}
-                  </div>
+              <div className={`flex flex-col items-${message.role === 'user' ? 'end' : 'start'} max-w-[70%]`}>
+                <div className="flex items-center mb-1">
+                  <Avatar className="w-6 h-6 mr-2">
+                    {message.role === 'user' ? (
+                      <AvatarImage src={session?.user?.user_metadata?.avatar_url} />
+                    ) : (
+                      <AvatarFallback className="bg-blue-500 text-white">
+                        <Bot size={16} />
+                      </AvatarFallback>
+                    )}
+                    <AvatarFallback>{message.role === 'user' ? 'U' : 'B'}</AvatarFallback>
+                  </Avatar>
+                  <span className="text-xs font-semibold">{message.sender}</span>
+                </div>
+                <div className={`p-3 rounded-lg ${
+                  message.role === 'user' 
+                    ? 'bg-blue-500 text-white rounded-br-none' 
+                    : 'bg-gray-200 text-gray-800 rounded-bl-none'
+                }`}>
+                  {message.content}
                 </div>
               </div>
             </div>

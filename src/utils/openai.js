@@ -1,30 +1,29 @@
 import OpenAI from 'openai';
 
-let openaiInstance = null;
+let openai;
 
 export const initializeOpenAI = (apiKey) => {
-  if (apiKey) {
-    openaiInstance = new OpenAI({ apiKey });
-    console.log('OpenAI inicializado com sucesso');
-  } else {
-    console.error('Chave da API OpenAI não fornecida');
-  }
+  openai = new OpenAI({ apiKey });
 };
 
 export const getOpenAIInstance = () => {
-  if (!openaiInstance) {
+  if (!openai) {
     throw new Error('OpenAI não foi inicializado. Chame initializeOpenAI primeiro.');
   }
-  return openaiInstance;
+  return openai;
 };
 
-export const fetchSpecificAssistant = async (assistantId) => {
+export const createOpenAIAssistant = async (name, description) => {
+  const openai = getOpenAIInstance();
   try {
-    const openai = getOpenAIInstance();
-    const assistant = await openai.beta.assistants.retrieve(assistantId);
+    const assistant = await openai.beta.assistants.create({
+      name: name,
+      instructions: description,
+      model: "gpt-3.5-turbo",
+    });
     return assistant;
   } catch (error) {
-    console.error('Erro ao buscar o assistente:', error);
+    console.error('Erro ao criar assistente na OpenAI:', error);
     throw error;
   }
 };

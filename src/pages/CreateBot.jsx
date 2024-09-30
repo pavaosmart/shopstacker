@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import Navigation from '../components/Navigation';
 import { testBotCreation } from '../utils/testBotCreation';
 import CreateBotModal from '../components/CreateBotModal';
-import { fetchSpecificAssistant } from '../utils/openai';
+import { fetchSpecificAssistant, createOpenAIAssistant } from '../utils/openai';
 
 const CreateBot = () => {
   const { session } = useSupabaseAuth();
@@ -56,14 +56,22 @@ const CreateBot = () => {
 
   const handleCreateBot = async (newBot) => {
     try {
+      // Criar o assistente na OpenAI
+      const openAIAssistant = await createOpenAIAssistant(newBot.name, newBot.description);
+      
+      // Salvar o bot no Supabase com o ID do assistente da OpenAI
       const { data, error } = await supabase
         .from('bots')
-        .insert([{ ...newBot, user_id: session.user.id }])
+        .insert([{ 
+          ...newBot, 
+          user_id: session.user.id,
+          openai_assistant_id: openAIAssistant.id
+        }])
         .select();
 
       if (error) throw error;
 
-      toast.success('Bot criado com sucesso');
+      toast.success('Bot criado com sucesso na OpenAI e no Supabase');
       setIsModalOpen(false);
       fetchBots();
     } catch (error) {
@@ -114,6 +122,7 @@ const CreateBot = () => {
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-gray-600 mb-2">{bot.description}</p>
+                <p className="text-xs text-gray-500">OpenAI ID: {bot.openai_assistant_id}</p>
               </CardContent>
             </Card>
           ))}

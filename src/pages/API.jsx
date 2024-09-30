@@ -5,14 +5,14 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { useSupabaseAuth } from '../integrations/supabase/auth';
 import { supabase } from '../integrations/supabase/supabase';
-import { initializeOpenAI, testConnection, listAssistants } from '../utils/openai';
-import CreateBotModal from '../components/CreateBotModal';
+import { initializeOpenAI, testConnection, listAssistants, createAssistant } from '../utils/openai';
 
 const API = () => {
   const [openaiApiKey, setOpenaiApiKey] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [bots, setBots] = useState([]);
+  const [newBotName, setNewBotName] = useState('');
+  const [newBotDescription, setNewBotDescription] = useState('');
   const { session } = useSupabaseAuth();
 
   useEffect(() => {
@@ -65,6 +65,7 @@ const API = () => {
       initializeOpenAI(openaiApiKey);
       await testConnection();
       toast.success('Chave da API salva e testada com sucesso');
+      fetchBots();
     } catch (error) {
       console.error('Erro ao salvar ou testar chave da API:', error);
       toast.error('Falha ao salvar ou testar chave da API');
@@ -73,12 +74,24 @@ const API = () => {
     }
   };
 
-  const handleCreateBot = async (botData) => {
-    // Implementação da criação do bot
-    console.log('Criando bot:', botData);
-    setIsModalOpen(false);
-    toast.success('Bot criado com sucesso!');
-    fetchBots(); // Atualiza a lista de bots após a criação
+  const handleCreateBot = async () => {
+    if (!newBotName.trim()) {
+      toast.error('Nome do bot é obrigatório');
+      return;
+    }
+    setIsLoading(true);
+    try {
+      const assistant = await createAssistant(newBotName, newBotDescription);
+      toast.success('Bot criado com sucesso!');
+      setNewBotName('');
+      setNewBotDescription('');
+      fetchBots();
+    } catch (error) {
+      console.error('Erro ao criar bot:', error);
+      toast.error('Falha ao criar bot');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -87,21 +100,59 @@ const API = () => {
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {/* OpenAI Card */}
-        <Card>
+        <Card className="col-span-full">
           <CardHeader>
             <CardTitle>OpenAI</CardTitle>
           </CardHeader>
           <CardContent>
-            <Input
-              type="password"
-              value={openaiApiKey}
-              onChange={(e) => setOpenaiApiKey(e.target.value)}
-              placeholder="Chave da API OpenAI"
-              className="mb-2"
-            />
-            <Button onClick={handleSaveApiKey} disabled={isLoading}>
-              {isLoading ? 'Salvando...' : 'Salvar e Testar Chave'}
-            </Button>
+            <div className="space-y-4">
+              <div>
+                <Input
+                  type="password"
+                  value={openaiApiKey}
+                  onChange={(e) => setOpenaiApiKey(e.target.value)}
+                  placeholder="Chave da API OpenAI"
+                  className="mb-2"
+                />
+                <Button onClick={handleSaveApiKey} disabled={isLoading}>
+                  {isLoading ? 'Salvando...' : 'Salvar e Testar Chave'}
+                </Button>
+              </div>
+              
+              <div>
+                <h3 className="text-lg font-semibold mb-2">Criar Novo Bot</h3>
+                <Input
+                  value={newBotName}
+                  onChange={(e) => setNewBotName(e.target.value)}
+                  placeholder="Nome do Bot"
+                  className="mb-2"
+                />
+                <Input
+                  value={newBotDescription}
+                  onChange={(e) => setNewBotDescription(e.target.value)}
+                  placeholder="Descrição do Bot"
+                  className="mb-2"
+                />
+                <Button onClick={handleCreateBot} disabled={isLoading}>
+                  {isLoading ? 'Criando...' : 'Criar Bot'}
+                </Button>
+              </div>
+              
+              <div>
+                <h3 className="text-lg font-semibold mb-2">Bots Existentes</h3>
+                {bots.length > 0 ? (
+                  <ul className="space-y-2">
+                    {bots.map((bot) => (
+                      <li key={bot.id} className="bg-gray-100 p-2 rounded">
+                        <strong>{bot.name}</strong>: {bot.description}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p>Nenhum bot criado ainda.</p>
+                )}
+              </div>
+            </div>
           </CardContent>
         </Card>
 
@@ -145,28 +196,6 @@ const API = () => {
           </CardContent>
         </Card>
       </div>
-
-      <h2 className="text-xl font-semibold mt-8 mb-4">Bots OpenAI</h2>
-      <Button onClick={() => setIsModalOpen(true)} className="mb-4">Criar Novo Bot</Button>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {bots.map((bot) => (
-          <Card key={bot.id}>
-            <CardHeader>
-              <CardTitle>{bot.name}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p>{bot.description}</p>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      <CreateBotModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onCreateBot={handleCreateBot}
-      />
     </div>
   );
 };

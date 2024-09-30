@@ -38,15 +38,21 @@ const UserProfileEditor = () => {
   };
 
   const createBucketIfNotExists = async () => {
-    const { data, error } = await supabase.storage.getBucket('avatars');
-    if (error && error.message.includes('not found')) {
-      const { data, error: createError } = await supabase.storage.createBucket('avatars', {
-        public: true
-      });
-      if (createError) {
-        throw createError;
+    try {
+      const { data, error } = await supabase.storage.getBucket('avatars');
+      if (error && error.message.includes('not found')) {
+        const { data, error: createError } = await supabase.storage.createBucket('avatars', {
+          public: true
+        });
+        if (createError) {
+          throw createError;
+        }
+        console.log('Bucket "avatars" created successfully');
+      } else if (error) {
+        throw error;
       }
-    } else if (error) {
+    } catch (error) {
+      console.error('Error checking/creating bucket:', error);
       throw error;
     }
   };

@@ -16,6 +16,7 @@ import Settings from './pages/Settings';
 import Support from './pages/Support';
 import Help from './pages/Help';
 import API from './pages/API';
+import APIStore from './pages/APIStore';
 import Profile from './pages/Profile';
 import Documentation from './pages/Documentation';
 import UIComponentsPanel from './components/UIComponentsPanel';
@@ -43,6 +44,7 @@ function App() {
               <Route path="support" element={<ProtectedRoute><Support /></ProtectedRoute>} />
               <Route path="help" element={<ProtectedRoute><Help /></ProtectedRoute>} />
               <Route path="api" element={<ProtectedRoute><API /></ProtectedRoute>} />
+              <Route path="api-store" element={<ProtectedRoute><APIStore /></ProtectedRoute>} />
               <Route path="profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
               <Route path="documentation" element={<ProtectedRoute><Documentation /></ProtectedRoute>} />
             </Route>

@@ -10,7 +10,9 @@ import {
   Users, 
   Settings, 
   PlusCircle, 
-  LogOut
+  LogOut,
+  MessageSquare,
+  Cpu
 } from 'lucide-react';
 
 const Sidebar = () => {
@@ -52,15 +54,21 @@ const Sidebar = () => {
             </Link>
           </li>
           <li>
-            <Link to="/settings" className="flex items-center space-x-2 p-2 hover:bg-gray-700 rounded">
-              <Settings size={20} />
-              <span>Configurações</span>
+            <Link to="/support" className="flex items-center space-x-2 p-2 hover:bg-gray-700 rounded">
+              <MessageSquare size={20} />
+              <span>Suporte</span>
             </Link>
           </li>
           <li>
-            <Link to="/create-bot" className="flex items-center space-x-2 p-2 hover:bg-gray-700 rounded">
-              <PlusCircle size={20} />
-              <span>Criar Bot</span>
+            <Link to="/api-settings" className="flex items-center space-x-2 p-2 hover:bg-gray-700 rounded">
+              <Cpu size={20} />
+              <span>Configurações de API</span>
+            </Link>
+          </li>
+          <li>
+            <Link to="/settings" className="flex items-center space-x-2 p-2 hover:bg-gray-700 rounded">
+              <Settings size={20} />
+              <span>Configurações</span>
             </Link>
           </li>
         </ul>

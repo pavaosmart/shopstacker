@@ -9,7 +9,8 @@ import ActivityLogs from './pages/ActivityLogs';
 import UsersAndPermissions from './pages/UsersAndPermissions';
 import Login from './pages/Login';
 import Settings from './pages/Settings';
-import CreateBot from './pages/CreateBot';
+import Support from './pages/Support';
+import ApiSettings from './pages/ApiSettings';
 import { SupabaseAuthProvider } from './integrations/supabase/auth';
 import UIComponentsPanel from './components/UIComponentsPanel';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -30,7 +31,8 @@ function App() {
               <Route path="activity-logs" element={<ProtectedRoute><ActivityLogs /></ProtectedRoute>} />
               <Route path="users" element={<ProtectedRoute><UsersAndPermissions /></ProtectedRoute>} />
               <Route path="settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
-              <Route path="create-bot" element={<ProtectedRoute><CreateBot /></ProtectedRoute>} />
+              <Route path="support" element={<ProtectedRoute><Support /></ProtectedRoute>} />
+              <Route path="api-settings" element={<ProtectedRoute><ApiSettings /></ProtectedRoute>} />
             </Route>
           </Routes>
           <UIComponentsPanel />

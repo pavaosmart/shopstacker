@@ -84,6 +84,32 @@ export const SupabaseAuthProvider = ({ children }) => {
     }
   };
 
+  const loginWithGoogle = async () => {
+    try {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+      });
+      if (error) throw error;
+      return { data, error: null };
+    } catch (error) {
+      console.error('Google login error:', error);
+      return { data: null, error };
+    }
+  };
+
+  const loginWithFacebook = async () => {
+    try {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'facebook',
+      });
+      if (error) throw error;
+      return { data, error: null };
+    } catch (error) {
+      console.error('Facebook login error:', error);
+      return { data: null, error };
+    }
+  };
+
   const value = {
     session,
     loading,
@@ -91,6 +117,8 @@ export const SupabaseAuthProvider = ({ children }) => {
     register,
     logout,
     resetPassword,
+    loginWithGoogle,
+    loginWithFacebook,
   };
 
   return (

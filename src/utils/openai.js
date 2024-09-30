@@ -4,6 +4,10 @@ import { supabase } from '../integrations/supabase/supabase';
 let openai;
 
 export const initializeOpenAI = (apiKey) => {
+  if (!apiKey) {
+    console.error('API key is missing. OpenAI instance not initialized.');
+    return;
+  }
   openai = new OpenAI({ apiKey });
 };
 

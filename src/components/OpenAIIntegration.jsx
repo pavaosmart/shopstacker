@@ -42,14 +42,16 @@ const OpenAIIntegration = () => {
         .from('user_settings')
         .select('openai_api_key')
         .eq('user_id', session.user.id)
-        .single();
+        .limit(1);
 
       if (error) throw error;
       
-      if (data?.openai_api_key) {
-        setOpenaiApiKey(data.openai_api_key);
-        initializeOpenAI(data.openai_api_key);
-        await checkConnection(data.openai_api_key);
+      if (data && data.length > 0) {
+        setOpenaiApiKey(data[0].openai_api_key || '');
+        if (data[0].openai_api_key) {
+          initializeOpenAI(data[0].openai_api_key);
+          await checkConnection(data[0].openai_api_key);
+        }
       }
     } catch (error) {
       console.error('Erro ao buscar chave da API:', error);

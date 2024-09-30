@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useSupabaseAuth } from '../integrations/supabase/auth';
 import { Button } from "@/components/ui/button";
 import { 
@@ -21,6 +21,7 @@ import {
 const Sidebar = () => {
   const { logout } = useSupabaseAuth();
   const [isExpanded, setIsExpanded] = useState(false);
+  const location = useLocation();
 
   const toggleSidebar = () => setIsExpanded(!isExpanded);
 
@@ -48,7 +49,11 @@ const Sidebar = () => {
         <ul className="space-y-2">
           {sidebarItems.map((item, index) => (
             <li key={index}>
-              <Link to={item.to} className={`flex items-center ${isExpanded ? 'space-x-2' : 'justify-center'} p-2 hover:bg-gray-700 rounded`}>
+              <Link 
+                to={item.to} 
+                className={`flex items-center ${isExpanded ? 'space-x-2' : 'justify-center'} p-2 rounded
+                  ${location.pathname === item.to ? 'bg-gray-700 text-white' : 'hover:bg-gray-700'}`}
+              >
                 {item.icon}
                 {isExpanded && <span>{item.label}</span>}
               </Link>

@@ -1,9 +1,6 @@
 import OpenAI from "openai";
 import { supabase } from '../integrations/supabase/supabase';
 
-import OpenAI from "openai";
-import { supabase } from '../integrations/supabase/supabase';
-
 const getApiKey = async () => {
   const { data, error } = await supabase
     .from('user_settings')
@@ -63,7 +60,6 @@ export const createAssistant = async (name, instructions) => {
     throw error;
   }
 };
-
 
 export const saveBotToDatabase = async (botData) => {
   const { data: bot, error: botError } = await supabase
@@ -132,7 +128,6 @@ export const saveBotToDatabase = async (botData) => {
   console.log('Bot saved to database:', bot);
   return bot;
 };
-
 
 export const verifyBotData = async (botId) => {
   const { data: bot, error: botError } = await supabase

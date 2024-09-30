@@ -1,20 +1,10 @@
 import { useState, useEffect, createContext, useContext } from 'react';
 import { supabase } from './supabase.js';
 import { useQueryClient } from '@tanstack/react-query';
-import { Auth } from '@supabase/auth-ui-react';
-import { ThemeSupa } from '@supabase/auth-ui-shared';
 
 const SupabaseAuthContext = createContext();
 
 export const SupabaseAuthProvider = ({ children }) => {
-  return (
-    <SupabaseAuthProviderInner>
-      {children}
-    </SupabaseAuthProviderInner>
-  );
-}
-
-export const SupabaseAuthProviderInner = ({ children }) => {
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
   const queryClient = useQueryClient();
@@ -52,6 +42,17 @@ export const SupabaseAuthProviderInner = ({ children }) => {
     }
   };
 
+  const register = async (email, password) => {
+    try {
+      const { data, error } = await supabase.auth.signUp({ email, password });
+      if (error) throw error;
+      return { data, error: null };
+    } catch (error) {
+      console.error('Registration error:', error);
+      return { data: null, error };
+    }
+  };
+
   const logout = async () => {
     try {
       const { error } = await supabase.auth.signOut();
@@ -63,8 +64,28 @@ export const SupabaseAuthProviderInner = ({ children }) => {
     }
   };
 
+  const resetPassword = async (email) => {
+    try {
+      const { data, error } = await supabase.auth.resetPasswordForEmail(email);
+      if (error) throw error;
+      return { data, error: null };
+    } catch (error) {
+      console.error('Reset password error:', error);
+      return { data: null, error };
+    }
+  };
+
+  const value = {
+    session,
+    loading,
+    login,
+    register,
+    logout,
+    resetPassword,
+  };
+
   return (
-    <SupabaseAuthContext.Provider value={{ session, loading, login, logout }}>
+    <SupabaseAuthContext.Provider value={value}>
       {children}
     </SupabaseAuthContext.Provider>
   );
@@ -77,12 +98,3 @@ export const useSupabaseAuth = () => {
   }
   return context;
 };
-
-export const SupabaseAuthUI = () => (
-  <Auth
-    supabaseClient={supabase}
-    appearance={{ theme: ThemeSupa }}
-    theme="default"
-    providers={[]}
-  />
-);

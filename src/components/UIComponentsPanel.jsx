@@ -4,8 +4,7 @@ import ComponentesUI from '../pages/ComponentesUI';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import ConfirmationDialog from './ConfirmationDialog';
-import LoginModal from './LoginModal';
-import RegisterModal from './RegisterModal';
+import AuthPanel from './AuthPanel';
 import { useSupabaseAuth } from '../integrations/supabase/auth';
 
 const UIComponentsPanel = () => {
@@ -16,13 +15,10 @@ const UIComponentsPanel = () => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedComponent, setSelectedComponent] = useState('');
-  const [activeTab, setActiveTab] = useState('login');
   const panelRef = useRef(null);
   const resizeHandleRef = useRef(null);
   const dropdownRef = useRef(null);
-  const auth = useSupabaseAuth();
-  const session = auth?.session;
-  const logout = auth?.logout;
+  const { session, logout } = useSupabaseAuth();
 
   const categories = [
     'Sidebars', 'Top Bars (Navigation Bars)', 'Buttons', 'Cards',
@@ -80,7 +76,6 @@ const UIComponentsPanel = () => {
   const handleLogout = async () => {
     if (logout) {
       await logout();
-      setActiveTab('login');
     }
   };
 
@@ -92,18 +87,6 @@ const UIComponentsPanel = () => {
   const handleConfirmImplementation = () => {
     console.log(`Implementing ${selectedComponent} on the current page`);
     setIsDialogOpen(false);
-  };
-
-  const handleSwitchToRegister = () => {
-    setActiveTab('register');
-  };
-
-  const handleSwitchToLogin = () => {
-    setActiveTab('login');
-  };
-
-  const handleLoginSuccess = () => {
-    setActiveTab('main');
   };
 
   return (
@@ -157,18 +140,7 @@ const UIComponentsPanel = () => {
               </div>
             </div>
             {!session ? (
-              <div className="mb-4">
-                {activeTab === 'login' ? (
-                  <LoginModal
-                    onSwitchToRegister={handleSwitchToRegister}
-                    onLoginSuccess={handleLoginSuccess}
-                  />
-                ) : (
-                  <RegisterModal
-                    onSwitchToLogin={handleSwitchToLogin}
-                  />
-                )}
-              </div>
+              <AuthPanel />
             ) : (
               <div className="mb-4">
                 <h4 className="text-sm font-medium mb-2">Select a category</h4>

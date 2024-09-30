@@ -26,8 +26,8 @@ export const useActivityLogs = ({ page = 1, actionFilter = '', userFilter = '' }
       if (error) throw new Error(error.message);
 
       return {
-        data: logs || [], // Ensure we always return an array
-        count,
+        data: logs || [], // Garantir que sempre retornamos um array
+        count: count || 0,
       };
     },
   });

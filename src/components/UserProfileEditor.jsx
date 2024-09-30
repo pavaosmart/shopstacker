@@ -27,6 +27,15 @@ const UserProfileEditor = () => {
     accountNumber: '',
     routingNumber: '',
   });
+  const [addressInfo, setAddressInfo] = useState({
+    cep: '',
+    street: '',
+    number: '',
+    complement: '',
+    neighborhood: '',
+    city: '',
+    state: '',
+  });
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -62,6 +71,15 @@ const UserProfileEditor = () => {
           accountNumber: profile.account_number || '',
           routingNumber: profile.routing_number || '',
         });
+        setAddressInfo({
+          cep: profile.cep || '',
+          street: profile.street || '',
+          number: profile.number || '',
+          complement: profile.complement || '',
+          neighborhood: profile.neighborhood || '',
+          city: profile.city || '',
+          state: profile.state || '',
+        });
       } else {
         // If no profile exists, we'll create one with default values
         const defaultProfile = {
@@ -75,6 +93,13 @@ const UserProfileEditor = () => {
           bank_name: '',
           account_number: '',
           routing_number: '',
+          cep: '',
+          street: '',
+          number: '',
+          complement: '',
+          neighborhood: '',
+          city: '',
+          state: '',
         };
         const { error: insertError } = await supabase
           .from('profiles')
@@ -99,6 +124,15 @@ const UserProfileEditor = () => {
           accountNumber: '',
           routingNumber: '',
         });
+        setAddressInfo({
+          cep: '',
+          street: '',
+          number: '',
+          complement: '',
+          neighborhood: '',
+          city: '',
+          state: '',
+        });
       }
     } catch (error) {
       console.error('Error fetching profile:', error);
@@ -120,6 +154,13 @@ const UserProfileEditor = () => {
         bank_name: bankInfo.bankName,
         account_number: bankInfo.accountNumber,
         routing_number: bankInfo.routingNumber,
+        cep: addressInfo.cep,
+        street: addressInfo.street,
+        number: addressInfo.number,
+        complement: addressInfo.complement,
+        neighborhood: addressInfo.neighborhood,
+        city: addressInfo.city,
+        state: addressInfo.state,
         updated_at: new Date().toISOString(),
       };
 
@@ -166,6 +207,35 @@ const UserProfileEditor = () => {
     }
   };
 
+  const fetchAddressFromCEP = async (cep) => {
+    try {
+      const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+      const data = await response.json();
+      if (!data.erro) {
+        setAddressInfo(prev => ({
+          ...prev,
+          street: data.logradouro,
+          neighborhood: data.bairro,
+          city: data.localidade,
+          state: data.uf,
+        }));
+      } else {
+        toast.error('CEP não encontrado');
+      }
+    } catch (error) {
+      console.error('Error fetching address:', error);
+      toast.error('Erro ao buscar endereço');
+    }
+  };
+
+  const handleCEPChange = (e) => {
+    const cep = e.target.value.replace(/\D/g, '');
+    setAddressInfo(prev => ({ ...prev, cep }));
+    if (cep.length === 8) {
+      fetchAddressFromCEP(cep);
+    }
+  };
+
   return (
     <Card className="w-full max-w-4xl mx-auto mt-8">
       <CardHeader>
@@ -177,6 +247,7 @@ const UserProfileEditor = () => {
             <TabsTrigger value="personal">Personal</TabsTrigger>
             <TabsTrigger value="company">Company</TabsTrigger>
             <TabsTrigger value="bank">Bank</TabsTrigger>
+            <TabsTrigger value="address">Address</TabsTrigger>
           </TabsList>
           <TabsContent value="personal">
             <div className="space-y-4">
@@ -251,6 +322,52 @@ const UserProfileEditor = () => {
                 placeholder="Routing Number"
                 value={bankInfo.routingNumber}
                 onChange={(e) => setBankInfo(prev => ({ ...prev, routingNumber: e.target.value }))}
+                disabled={isLoading}
+              />
+            </div>
+          </TabsContent>
+          <TabsContent value="address">
+            <div className="space-y-4">
+              <Input
+                placeholder="CEP"
+                value={addressInfo.cep}
+                onChange={handleCEPChange}
+                disabled={isLoading}
+              />
+              <Input
+                placeholder="Street"
+                value={addressInfo.street}
+                onChange={(e) => setAddressInfo(prev => ({ ...prev, street: e.target.value }))}
+                disabled={isLoading}
+              />
+              <Input
+                placeholder="Number"
+                value={addressInfo.number}
+                onChange={(e) => setAddressInfo(prev => ({ ...prev, number: e.target.value }))}
+                disabled={isLoading}
+              />
+              <Input
+                placeholder="Complement"
+                value={addressInfo.complement}
+                onChange={(e) => setAddressInfo(prev => ({ ...prev, complement: e.target.value }))}
+                disabled={isLoading}
+              />
+              <Input
+                placeholder="Neighborhood"
+                value={addressInfo.neighborhood}
+                onChange={(e) => setAddressInfo(prev => ({ ...prev, neighborhood: e.target.value }))}
+                disabled={isLoading}
+              />
+              <Input
+                placeholder="City"
+                value={addressInfo.city}
+                onChange={(e) => setAddressInfo(prev => ({ ...prev, city: e.target.value }))}
+                disabled={isLoading}
+              />
+              <Input
+                placeholder="State"
+                value={addressInfo.state}
+                onChange={(e) => setAddressInfo(prev => ({ ...prev, state: e.target.value }))}
                 disabled={isLoading}
               />
             </div>

@@ -7,9 +7,10 @@ export const initializeOpenAI = (apiKey) => {
   openai = new OpenAI({ apiKey });
 };
 
-export const testConnection = async () => {
+export const testConnection = async (apiKey) => {
   try {
-    const response = await openai.chat.completions.create({
+    const tempOpenAI = new OpenAI({ apiKey });
+    const response = await tempOpenAI.chat.completions.create({
       model: "gpt-3.5-turbo",
       messages: [{ role: "user", content: "Hello, are you there?" }],
     });

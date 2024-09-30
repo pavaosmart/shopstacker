@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select } from "@/components/ui/select";
 import { toast } from "sonner";
 import Navigation from '../components/Navigation';
+import { testBotCreation } from '../utils/testBotCreation';
 
 const CreateBot = () => {
   const { session } = useSupabaseAuth();
@@ -56,6 +57,15 @@ const CreateBot = () => {
     } catch (error) {
       console.error('Error creating bot:', error);
       toast.error('Failed to create bot');
+    }
+  };
+
+  const handleTestBotCreation = async () => {
+    const result = await testBotCreation();
+    if (result.success) {
+      toast.success(result.message);
+    } else {
+      toast.error(result.message);
     }
   };
 
@@ -129,6 +139,7 @@ const CreateBot = () => {
             />
           </div>
           <Button onClick={handleCreateBot}>Create Bot</Button>
+          <Button onClick={handleTestBotCreation} className="ml-4">Test Bot Creation</Button>
         </div>
       </div>
     </div>

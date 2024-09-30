@@ -20,7 +20,9 @@ const UIComponentsPanel = () => {
   const panelRef = useRef(null);
   const resizeHandleRef = useRef(null);
   const dropdownRef = useRef(null);
-  const { session, logout } = useSupabaseAuth();
+  const auth = useSupabaseAuth();
+  const session = auth?.session;
+  const logout = auth?.logout;
 
   const categories = [
     'Sidebars', 'Top Bars (Navigation Bars)', 'Buttons', 'Cards',
@@ -76,8 +78,10 @@ const UIComponentsPanel = () => {
   };
 
   const handleLogout = async () => {
-    await logout();
-    setActiveTab('login');
+    if (logout) {
+      await logout();
+      setActiveTab('login');
+    }
   };
 
   const handleComponentClick = (componentName) => {
@@ -99,8 +103,7 @@ const UIComponentsPanel = () => {
   };
 
   const handleLoginSuccess = () => {
-    // This function will be called after successful login
-    setActiveTab('main'); // Switch to the main panel content
+    setActiveTab('main');
   };
 
   return (

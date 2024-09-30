@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { useSupabaseAuth } from '../integrations/supabase/auth';
 import { Button } from "@/components/ui/button";
 import { 
-  Home, 
   LayoutDashboard, 
   Package, 
   Activity, 
@@ -27,12 +26,6 @@ const Sidebar = () => {
         <ul className="space-y-2">
           <li>
             <Link to="/" className="flex items-center space-x-2 p-2 hover:bg-gray-700 rounded">
-              <Home size={20} />
-              <span>Home</span>
-            </Link>
-          </li>
-          <li>
-            <Link to="/dashboard" className="flex items-center space-x-2 p-2 hover:bg-gray-700 rounded">
               <LayoutDashboard size={20} />
               <span>Dashboard</span>
             </Link>

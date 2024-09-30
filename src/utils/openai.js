@@ -6,9 +6,15 @@ let openai;
 export const initializeOpenAI = (apiKey) => {
   if (!apiKey) {
     console.error('API key is missing. OpenAI instance not initialized.');
-    return;
+    return false;
   }
-  openai = new OpenAI({ apiKey });
+  try {
+    openai = new OpenAI({ apiKey });
+    return true;
+  } catch (error) {
+    console.error('Error initializing OpenAI:', error);
+    return false;
+  }
 };
 
 export const getOpenAIInstance = () => {

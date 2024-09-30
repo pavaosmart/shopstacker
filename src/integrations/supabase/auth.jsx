@@ -33,7 +33,12 @@ export const SupabaseAuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) throw error;
+      if (error) {
+        if (error.message === 'Invalid login credentials') {
+          throw new Error('Email ou senha incorretos. Por favor, tente novamente.');
+        }
+        throw error;
+      }
       setSession(data.session);
       return { data, error: null };
     } catch (error) {

@@ -9,15 +9,18 @@ const LoginForm = ({ onRegisterClick, onForgotPasswordClick }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const { login, loginWithGoogle, loginWithFacebook } = useSupabaseAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setErrorMessage('');
     try {
       const { error } = await login(email, password);
       if (error) throw error;
       toast.success('Login successful');
     } catch (error) {
+      setErrorMessage(error.message);
       toast.error(error.message);
     }
   };
@@ -61,6 +64,7 @@ const LoginForm = ({ onRegisterClick, onForgotPasswordClick }) => {
           {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
         </button>
       </div>
+      {errorMessage && <p className="text-red-500 text-sm">{errorMessage}</p>}
       <Button type="submit" className="w-full">Login</Button>
       <div className="flex flex-col space-y-2">
         <button

@@ -50,7 +50,7 @@ const CreateBot = () => {
 
       toast.success('Bot criado com sucesso');
       setIsModalOpen(false);
-      fetchBots(); // Atualiza a lista de bots
+      fetchBots();
     } catch (error) {
       console.error('Erro ao criar bot:', error);
       toast.error(`Falha ao criar bot: ${error.message}`);
@@ -61,7 +61,7 @@ const CreateBot = () => {
     const result = await testBotCreation();
     if (result.success) {
       toast.success(result.message);
-      fetchBots(); // Atualiza a lista de bots após o teste
+      fetchBots();
     } else {
       toast.error(result.message);
     }
@@ -81,16 +81,16 @@ const CreateBot = () => {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {bots.map((bot) => (
-            <Card key={bot.id}>
+            <Card key={bot.id} className="hover:shadow-lg transition-shadow duration-300">
               <CardHeader>
                 <CardTitle>{bot.name}</CardTitle>
               </CardHeader>
               <CardContent>
-                <p>{bot.description}</p>
-                <p className="text-sm text-gray-500 mt-2">
+                <p className="text-sm text-gray-600 mb-2">{bot.description}</p>
+                <p className="text-xs text-gray-500">
                   Modelo: {bot.model}
                 </p>
-                <p className="text-sm text-gray-500">
+                <p className="text-xs text-gray-500">
                   Temperatura: {bot.temperature}
                 </p>
               </CardContent>

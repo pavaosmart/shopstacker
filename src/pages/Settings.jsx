@@ -28,18 +28,19 @@ const Settings = () => {
       const { data, error } = await supabase
         .from('user_settings')
         .select('openai_api_key')
-        .eq('user_id', session.user.id)
-        .single();
+        .eq('user_id', session.user.id);
 
       if (error) {
         console.error('Erro ao buscar chave da API:', error);
         throw error;
       }
-      if (data) {
-        setOpenaiApiKey(data.openai_api_key || '');
-        if (data.openai_api_key) {
-          await validateAndFetchProjectInfo(data.openai_api_key);
+      if (data && data.length > 0) {
+        setOpenaiApiKey(data[0].openai_api_key || '');
+        if (data[0].openai_api_key) {
+          await validateAndFetchProjectInfo(data[0].openai_api_key);
         }
+      } else {
+        console.log('Nenhuma configuração encontrada para o usuário');
       }
     } catch (error) {
       console.error('Erro ao buscar chave da API:', error);
@@ -96,8 +97,7 @@ const Settings = () => {
       const { data, error } = await supabase
         .from('user_settings')
         .upsert({ user_id: session.user.id, openai_api_key: openaiApiKey })
-        .select()
-        .single();
+        .select();
 
       if (error) throw error;
 

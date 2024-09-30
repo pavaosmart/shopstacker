@@ -37,12 +37,28 @@ const UserProfileEditor = () => {
     }
   };
 
+  const createBucketIfNotExists = async () => {
+    const { data, error } = await supabase.storage.getBucket('avatars');
+    if (error && error.message.includes('not found')) {
+      const { data, error: createError } = await supabase.storage.createBucket('avatars', {
+        public: true
+      });
+      if (createError) {
+        throw createError;
+      }
+    } else if (error) {
+      throw error;
+    }
+  };
+
   const handleAvatarUpload = async (event) => {
     try {
       setIsLoading(true);
       if (!event.target.files || event.target.files.length === 0) {
         throw new Error('Você precisa selecionar uma imagem para upload.');
       }
+
+      await createBucketIfNotExists();
 
       const file = event.target.files[0];
       const fileExt = file.name.split('.').pop();

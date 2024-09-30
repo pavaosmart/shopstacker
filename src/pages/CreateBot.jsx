@@ -8,12 +8,14 @@ import { toast } from "sonner";
 import Navigation from '../components/Navigation';
 import { testBotCreation } from '../utils/testBotCreation';
 import CreateBotModal from '../components/CreateBotModal';
+import { fetchSpecificAssistant } from '../utils/openai';
 
 const CreateBot = () => {
   const { session } = useSupabaseAuth();
   const navigate = useNavigate();
   const [bots, setBots] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [specificAssistant, setSpecificAssistant] = useState(null);
 
   useEffect(() => {
     if (!session) {
@@ -21,6 +23,7 @@ const CreateBot = () => {
       navigate('/login');
     } else {
       fetchBots();
+      fetchAssistant();
     }
   }, [session, navigate]);
 
@@ -36,6 +39,17 @@ const CreateBot = () => {
     } catch (error) {
       console.error('Erro ao buscar bots:', error);
       toast.error('Falha ao carregar os bots');
+    }
+  };
+
+  const fetchAssistant = async () => {
+    try {
+      const assistant = await fetchSpecificAssistant('asst_0JcXnIMLesTv5DWsllx6BTSf');
+      setSpecificAssistant(assistant);
+      toast.success('Assistente específico carregado com sucesso');
+    } catch (error) {
+      console.error('Erro ao buscar assistente específico:', error);
+      toast.error('Falha ao carregar o assistente específico');
     }
   };
 
@@ -79,6 +93,18 @@ const CreateBot = () => {
           <h1 className="text-2xl font-bold">Seus Bots</h1>
           <Button onClick={() => setIsModalOpen(true)}>Criar Novo Bot</Button>
         </div>
+        {specificAssistant && (
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle>Assistente Específico</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p>Nome: {specificAssistant.name}</p>
+              <p>ID: {specificAssistant.id}</p>
+              <p>Modelo: {specificAssistant.model}</p>
+            </CardContent>
+          </Card>
+        )}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {bots.map((bot) => (
             <Card key={bot.id} className="hover:shadow-lg transition-shadow duration-300">

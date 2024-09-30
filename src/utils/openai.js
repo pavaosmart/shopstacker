@@ -17,3 +17,14 @@ export const getOpenAIInstance = () => {
   }
   return openaiInstance;
 };
+
+export const fetchSpecificAssistant = async (assistantId) => {
+  try {
+    const openai = getOpenAIInstance();
+    const assistant = await openai.beta.assistants.retrieve(assistantId);
+    return assistant;
+  } catch (error) {
+    console.error('Erro ao buscar o assistente:', error);
+    throw error;
+  }
+};

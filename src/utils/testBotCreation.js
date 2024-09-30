@@ -3,21 +3,23 @@ import { getOpenAIInstance } from './openai';
 
 export const testBotCreation = async () => {
   try {
-    // 1. Create a test bot in Supabase
+    console.log('Iniciando teste de criação de bot...');
+
+    // 1. Criar um bot de teste no Supabase
     const { data: botData, error: botError } = await supabase
       .from('bots')
       .insert({
-        name: 'Test Bot',
-        description: 'A bot created for testing purposes',
+        name: 'Bot de Teste',
+        description: 'Um bot criado para fins de teste',
       })
       .select()
       .single();
 
-    if (botError) throw new Error(`Error creating bot: ${botError.message}`);
+    if (botError) throw new Error(`Erro ao criar bot: ${botError.message}`);
 
-    console.log('Bot created:', botData);
+    console.log('Bot criado:', botData);
 
-    // 2. Add bot configuration
+    // 2. Adicionar configuração do bot
     const { error: configError } = await supabase
       .from('bot_configurations')
       .insert({
@@ -27,36 +29,36 @@ export const testBotCreation = async () => {
         max_tokens: 150
       });
 
-    if (configError) throw new Error(`Error creating bot configuration: ${configError.message}`);
+    if (configError) throw new Error(`Erro ao criar configuração do bot: ${configError.message}`);
 
-    console.log('Bot configuration added');
+    console.log('Configuração do bot adicionada');
 
-    // 3. Add a test prompt
+    // 3. Adicionar um prompt de teste
     const { error: promptError } = await supabase
       .from('bot_prompts')
       .insert({
         bot_id: botData.id,
-        prompt_text: 'You are a helpful assistant.',
+        prompt_text: 'Você é um assistente prestativo.',
         prompt_order: 1
       });
 
-    if (promptError) throw new Error(`Error creating bot prompt: ${promptError.message}`);
+    if (promptError) throw new Error(`Erro ao criar prompt do bot: ${promptError.message}`);
 
-    console.log('Bot prompt added');
+    console.log('Prompt do bot adicionado');
 
-    // 4. Test OpenAI API
+    // 4. Testar API da OpenAI
     const openai = getOpenAIInstance();
     const completion = await openai.chat.completions.create({
-      messages: [{ role: "system", content: "You are a helpful assistant." },
-                 { role: "user", content: "Hello, how are you?" }],
+      messages: [{ role: "system", content: "Você é um assistente prestativo." },
+                 { role: "user", content: "Olá, como você está?" }],
       model: "gpt-3.5-turbo",
     });
 
-    console.log('OpenAI API response:', completion.choices[0].message);
+    console.log('Resposta da API OpenAI:', completion.choices[0].message);
 
-    return { success: true, message: 'Bot created and tested successfully' };
+    return { success: true, message: 'Bot criado e testado com sucesso' };
   } catch (error) {
-    console.error('Error in testBotCreation:', error);
+    console.error('Erro no testBotCreation:', error);
     return { success: false, message: error.message };
   }
 };

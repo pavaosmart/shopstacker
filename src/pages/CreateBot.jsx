@@ -20,7 +20,7 @@ const CreateBot = () => {
 
   const handleCreateBot = async () => {
     try {
-      // Insert bot
+      // Inserir bot
       const { data: botData, error: botError } = await supabase
         .from('bots')
         .insert({ user_id: session.user.id, name: botName, description: botDescription })
@@ -29,7 +29,7 @@ const CreateBot = () => {
 
       if (botError) throw botError;
 
-      // Insert bot configuration
+      // Inserir configuração do bot
       const { error: configError } = await supabase
         .from('bot_configurations')
         .insert({
@@ -41,7 +41,7 @@ const CreateBot = () => {
 
       if (configError) throw configError;
 
-      // Insert bot prompt
+      // Inserir prompt do bot
       const { error: promptError } = await supabase
         .from('bot_prompts')
         .insert({
@@ -52,11 +52,11 @@ const CreateBot = () => {
 
       if (promptError) throw promptError;
 
-      toast.success('Bot created successfully');
-      // Reset form or redirect to bot list
+      toast.success('Bot criado com sucesso');
+      // Resetar formulário ou redirecionar para lista de bots
     } catch (error) {
-      console.error('Error creating bot:', error);
-      toast.error('Failed to create bot');
+      console.error('Erro ao criar bot:', error);
+      toast.error('Falha ao criar bot');
     }
   };
 
@@ -73,10 +73,10 @@ const CreateBot = () => {
     <div>
       <Navigation />
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-2xl font-bold mb-4">Create New Bot</h1>
+        <h1 className="text-2xl font-bold mb-4">Criar Novo Bot</h1>
         <div className="space-y-4">
           <div>
-            <label htmlFor="bot-name" className="block text-sm font-medium text-gray-700">Bot Name</label>
+            <label htmlFor="bot-name" className="block text-sm font-medium text-gray-700">Nome do Bot</label>
             <Input
               id="bot-name"
               value={botName}
@@ -85,7 +85,7 @@ const CreateBot = () => {
             />
           </div>
           <div>
-            <label htmlFor="bot-description" className="block text-sm font-medium text-gray-700">Description</label>
+            <label htmlFor="bot-description" className="block text-sm font-medium text-gray-700">Descrição</label>
             <Textarea
               id="bot-description"
               value={botDescription}
@@ -94,7 +94,7 @@ const CreateBot = () => {
             />
           </div>
           <div>
-            <label htmlFor="model" className="block text-sm font-medium text-gray-700">Model</label>
+            <label htmlFor="model" className="block text-sm font-medium text-gray-700">Modelo</label>
             <Select
               id="model"
               value={model}
@@ -106,7 +106,7 @@ const CreateBot = () => {
             </Select>
           </div>
           <div>
-            <label htmlFor="temperature" className="block text-sm font-medium text-gray-700">Temperature</label>
+            <label htmlFor="temperature" className="block text-sm font-medium text-gray-700">Temperatura</label>
             <Input
               id="temperature"
               type="number"
@@ -119,7 +119,7 @@ const CreateBot = () => {
             />
           </div>
           <div>
-            <label htmlFor="max-tokens" className="block text-sm font-medium text-gray-700">Max Tokens</label>
+            <label htmlFor="max-tokens" className="block text-sm font-medium text-gray-700">Máximo de Tokens</label>
             <Input
               id="max-tokens"
               type="number"
@@ -130,7 +130,7 @@ const CreateBot = () => {
             />
           </div>
           <div>
-            <label htmlFor="prompt" className="block text-sm font-medium text-gray-700">Initial Prompt</label>
+            <label htmlFor="prompt" className="block text-sm font-medium text-gray-700">Prompt Inicial</label>
             <Textarea
               id="prompt"
               value={prompt}
@@ -138,8 +138,8 @@ const CreateBot = () => {
               className="mt-1"
             />
           </div>
-          <Button onClick={handleCreateBot}>Create Bot</Button>
-          <Button onClick={handleTestBotCreation} className="ml-4">Test Bot Creation</Button>
+          <Button onClick={handleCreateBot}>Criar Bot</Button>
+          <Button onClick={handleTestBotCreation} className="ml-4">Testar Criação de Bot</Button>
         </div>
       </div>
     </div>

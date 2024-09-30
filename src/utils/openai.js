@@ -8,7 +8,7 @@ export const initializeOpenAI = (apiKey) => {
 
 export const getOpenAIInstance = () => {
   if (!openaiInstance) {
-    throw new Error('OpenAI has not been initialized. Call initializeOpenAI first.');
+    throw new Error('OpenAI não foi inicializado. Chame initializeOpenAI primeiro.');
   }
   return openaiInstance;
 };

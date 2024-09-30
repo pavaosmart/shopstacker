@@ -41,7 +41,7 @@ const UserProfileEditor = () => {
         .from('profiles')
         .select('*')
         .eq('id', session.user.id)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
 
@@ -61,6 +61,43 @@ const UserProfileEditor = () => {
           bankName: profile.bank_name || '',
           accountNumber: profile.account_number || '',
           routingNumber: profile.routing_number || '',
+        });
+      } else {
+        // If no profile exists, we'll create one with default values
+        const defaultProfile = {
+          id: session.user.id,
+          full_name: '',
+          phone: '',
+          avatar_url: '',
+          company_name: '',
+          position: '',
+          industry: '',
+          bank_name: '',
+          account_number: '',
+          routing_number: '',
+        };
+        const { error: insertError } = await supabase
+          .from('profiles')
+          .insert(defaultProfile);
+        
+        if (insertError) throw insertError;
+        
+        // Set state with default values
+        setPersonalInfo({
+          fullName: '',
+          email: session.user.email || '',
+          phone: '',
+          avatarUrl: '',
+        });
+        setCompanyInfo({
+          companyName: '',
+          position: '',
+          industry: '',
+        });
+        setBankInfo({
+          bankName: '',
+          accountNumber: '',
+          routingNumber: '',
         });
       }
     } catch (error) {

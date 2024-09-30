@@ -5,10 +5,13 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Activity } from 'lucide-react';
 
 const ActivityLogs = () => {
-  const { data: logs, isLoading, error } = useActivityLogs();
+  const { data: logsData, isLoading, error } = useActivityLogs();
 
   if (isLoading) return <div>Carregando logs de atividade...</div>;
   if (error) return <div>Erro ao carregar logs de atividade: {error.message}</div>;
+
+  // Ensure logs is an array
+  const logs = Array.isArray(logsData) ? logsData : [];
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -30,12 +33,12 @@ const ActivityLogs = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {logs && logs.map((log) => (
+              {logs.map((log) => (
                 <TableRow key={log.id}>
                   <TableCell>{new Date(log.created_at).toLocaleString()}</TableCell>
-                  <TableCell>{log.user_email}</TableCell>
+                  <TableCell>{log.user_id}</TableCell>
                   <TableCell>{log.action}</TableCell>
-                  <TableCell>{log.details}</TableCell>
+                  <TableCell>{log.description}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

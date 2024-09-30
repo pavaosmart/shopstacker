@@ -42,6 +42,30 @@ const APIStore = () => {
       description: "Automate email marketing campaigns.",
       category: "Marketing",
       price: "Free up to 2,000 contacts, then from $9.99/month"
+    },
+    {
+      name: "Mercado Livre",
+      description: "Integrate with Latin America's leading e-commerce platform.",
+      category: "E-commerce",
+      price: "Free API access, transaction fees apply"
+    },
+    {
+      name: "Shopee",
+      description: "Connect with one of Southeast Asia's largest online shopping platforms.",
+      category: "E-commerce",
+      price: "Free API access, commission on sales"
+    },
+    {
+      name: "Amazon Marketplace Web Service",
+      description: "Access Amazon's vast e-commerce ecosystem and services.",
+      category: "E-commerce",
+      price: "Varies based on services used"
+    },
+    {
+      name: "Shopify",
+      description: "Build and integrate with online stores powered by Shopify.",
+      category: "E-commerce",
+      price: "From $9/month for Shopify app developers"
     }
   ];
 

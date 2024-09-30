@@ -18,33 +18,39 @@ const Settings = () => {
   }, [session]);
 
   const fetchApiKey = async () => {
-    const { data, error } = await supabase
-      .from('user_settings')
-      .select('openai_api_key')
-      .eq('user_id', session.user.id)
-      .single();
+    try {
+      const { data, error } = await supabase
+        .from('user_settings')
+        .select('openai_api_key')
+        .eq('user_id', session.user.id)
+        .single();
 
-    if (error) {
-      console.error('Error fetching API key:', error);
-    } else if (data) {
-      setOpenaiApiKey(data.openai_api_key || '');
+      if (error) throw error;
+      if (data) {
+        setOpenaiApiKey(data.openai_api_key || '');
+      }
+    } catch (error) {
+      console.error('Erro ao buscar a chave da API:', error);
+      toast.error('Falha ao carregar a chave da API');
     }
   };
 
   const handleSaveApiKey = async () => {
     try {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('user_settings')
         .upsert({ user_id: session.user.id, openai_api_key: openaiApiKey })
+        .select()
         .single();
 
       if (error) throw error;
 
       initializeOpenAI(openaiApiKey);
-      toast.success('API key saved successfully');
+      toast.success('Chave da API salva com sucesso');
+      console.log('Chave da API salva:', data);
     } catch (error) {
-      console.error('Error saving API key:', error);
-      toast.error('Failed to save API key');
+      console.error('Erro ao salvar a chave da API:', error);
+      toast.error('Falha ao salvar a chave da API');
     }
   };
 
@@ -52,10 +58,10 @@ const Settings = () => {
     <div>
       <Navigation />
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-2xl font-bold mb-4">Settings</h1>
+        <h1 className="text-2xl font-bold mb-4">Configurações</h1>
         <div className="mb-4">
           <label htmlFor="openai-api-key" className="block text-sm font-medium text-gray-700">
-            OpenAI API Key
+            Chave da API OpenAI
           </label>
           <Input
             id="openai-api-key"
@@ -65,7 +71,7 @@ const Settings = () => {
             className="mt-1"
           />
         </div>
-        <Button onClick={handleSaveApiKey}>Save API Key</Button>
+        <Button onClick={handleSaveApiKey}>Salvar Chave da API</Button>
       </div>
     </div>
   );

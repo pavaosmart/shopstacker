@@ -3,7 +3,12 @@ import OpenAI from 'openai';
 let openaiInstance = null;
 
 export const initializeOpenAI = (apiKey) => {
-  openaiInstance = new OpenAI({ apiKey });
+  if (apiKey) {
+    openaiInstance = new OpenAI({ apiKey });
+    console.log('OpenAI inicializado com sucesso');
+  } else {
+    console.error('Chave da API OpenAI não fornecida');
+  }
 };
 
 export const getOpenAIInstance = () => {

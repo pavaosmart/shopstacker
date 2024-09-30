@@ -84,15 +84,23 @@ const ChatWithBot = () => {
             ))}
           </select>
         </div>
-        <div className="space-y-4 mb-4 h-80 overflow-y-auto">
+        <div className="space-y-4 mb-4 h-80 overflow-y-auto p-4 bg-gray-50 rounded-lg">
           {messages.map((message, index) => (
-            <div key={index} className={`p-2 rounded ${message.role === 'user' ? 'bg-blue-100 text-right' : 'bg-gray-100'}`}>
-              {message.content}
+            <div key={index} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+              <div className={`max-w-[70%] p-3 rounded-lg ${
+                message.role === 'user' 
+                  ? 'bg-blue-500 text-white rounded-br-none' 
+                  : 'bg-gray-200 text-gray-800 rounded-bl-none'
+              }`}>
+                {message.content}
+              </div>
             </div>
           ))}
           {isTyping && (
-            <div className="p-2 rounded bg-gray-100">
-              <span className="animate-pulse">Digitando...</span>
+            <div className="flex justify-start">
+              <div className="bg-gray-200 text-gray-800 p-3 rounded-lg rounded-bl-none max-w-[70%]">
+                <span className="animate-pulse">Digitando...</span>
+              </div>
             </div>
           )}
         </div>

@@ -9,6 +9,8 @@ import ActivityLogs from './pages/ActivityLogs';
 import UsersAndPermissions from './pages/UsersAndPermissions';
 import Notifications from './pages/Notifications';
 import Login from './pages/Login';
+import Register from './pages/Register';
+import ForgotPassword from './pages/ForgotPassword';
 import Settings from './pages/Settings';
 import Support from './pages/Support';
 import Help from './pages/Help';
@@ -28,6 +30,8 @@ function App() {
         <Router>
           <Routes>
             <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/" element={<Layout />}>
               <Route index element={<ProtectedRoute><Index /></ProtectedRoute>} />
               <Route path="products" element={<ProtectedRoute><Products /></ProtectedRoute>} />

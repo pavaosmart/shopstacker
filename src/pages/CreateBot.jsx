@@ -31,7 +31,7 @@ const CreateBot = () => {
     try {
       const { data, error } = await supabase
         .from('bots')
-        .select('id, name, description, temperature')
+        .select('id, name, description')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -113,9 +113,6 @@ const CreateBot = () => {
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-gray-600 mb-2">{bot.description}</p>
-                <p className="text-xs text-gray-500">
-                  Temperatura: {bot.temperature}
-                </p>
               </CardContent>
             </Card>
           ))}

@@ -41,21 +41,16 @@ const UserProfileEditor = () => {
 
   const fetchUserProfile = async () => {
     try {
-      const { data: profile, error } = await supabase
+      setIsLoading(true);
+      const { data, error } = await supabase
         .from('profiles')
         .select('*')
-        .eq('id', session.user.id)
-        .single();
+        .eq('id', session.user.id);
 
-      if (error) {
-        if (error.code === 'PGRST116') {
-          await createNewProfile();
-          return;
-        }
-        throw error;
-      }
+      if (error) throw error;
 
-      if (profile) {
+      if (data && data.length > 0) {
+        const profile = data[0];
         setProfileData({
           fullName: profile.full_name || '',
           email: session.user.email || '',
@@ -76,10 +71,14 @@ const UserProfileEditor = () => {
           state: profile.state || '',
         });
         setPreviewUrl(profile.avatar_url || '');
+      } else {
+        await createNewProfile();
       }
     } catch (error) {
       console.error('Error fetching profile:', error);
       toast.error('Failed to load profile');
+    } finally {
+      setIsLoading(false);
     }
   };
 

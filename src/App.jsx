@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { SupabaseAuthProvider } from './integrations/supabase/auth';
 import Layout from './components/Layout';
 import Index from './pages/Index';
 import Products from './pages/Products';
@@ -17,7 +18,6 @@ import Help from './pages/Help';
 import API from './pages/API';
 import Profile from './pages/Profile';
 import Documentation from './pages/Documentation';
-import { SupabaseAuthProvider } from './integrations/supabase/auth';
 import UIComponentsPanel from './components/UIComponentsPanel';
 import ProtectedRoute from './components/ProtectedRoute';
 

@@ -15,7 +15,8 @@ import {
   Bell,
   HelpCircle,
   ChevronRight,
-  ChevronLeft
+  ChevronLeft,
+  Store
 } from 'lucide-react';
 
 const Sidebar = () => {
@@ -35,6 +36,7 @@ const Sidebar = () => {
     { icon: <MessageSquare size={20} />, label: 'Suporte', to: '/support' },
     { icon: <HelpCircle size={20} />, label: 'Ajuda', to: '/help' },
     { icon: <Cpu size={20} />, label: 'API', to: '/api' },
+    { icon: <Store size={20} />, label: 'Mercado APIs', to: '/api-store' },
   ];
 
   return (

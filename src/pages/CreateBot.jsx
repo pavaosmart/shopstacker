@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import Navigation from '../components/Navigation';
 import { testConnection, createAssistant, listAssistants } from '../utils/openai';
 import CreateBotModal from '../components/CreateBotModal';
+import { testBotCreation } from '../utils/testBotCreation';
 
 const CreateBot = () => {
   const { session } = useSupabaseAuth();
@@ -26,8 +27,12 @@ const CreateBot = () => {
 
   const fetchBots = async () => {
     try {
-      const assistants = await listAssistants();
-      setBots(assistants);
+      const { data, error } = await supabase
+        .from('bots')
+        .select('*, bot_configurations(*), bot_prompts(*)');
+      
+      if (error) throw error;
+      setBots(data);
     } catch (error) {
       console.error('Erro ao buscar bots:', error);
       toast.error('Falha ao carregar os bots');
@@ -45,9 +50,31 @@ const CreateBot = () => {
           user_id: session.user.id,
           openai_assistant_id: assistant.id
         }])
-        .select();
+        .select()
+        .single();
 
       if (error) throw error;
+
+      // Salvar configuração do bot
+      await supabase
+        .from('bot_configurations')
+        .insert({
+          bot_id: data.id,
+          model: newBot.model || 'gpt-3.5-turbo',
+          temperature: newBot.temperature || 0.7,
+          max_tokens: newBot.max_tokens || 150
+        });
+
+      // Salvar prompts do bot
+      if (newBot.prompts && newBot.prompts.length > 0) {
+        await supabase
+          .from('bot_prompts')
+          .insert(newBot.prompts.map((prompt, index) => ({
+            bot_id: data.id,
+            prompt_text: prompt,
+            prompt_order: index + 1
+          })));
+      }
 
       toast.success('Bot criado com sucesso na OpenAI e no Supabase');
       setIsModalOpen(false);
@@ -64,6 +91,15 @@ const CreateBot = () => {
       toast.success('Conexão com a OpenAI testada com sucesso');
     } catch (error) {
       toast.error(`Erro ao testar conexão: ${error.message}`);
+    }
+  };
+
+  const handleTestBotCreation = async () => {
+    const result = await testBotCreation();
+    if (result.success) {
+      toast.success(result.message);
+    } else {
+      toast.error(result.message);
     }
   };
 
@@ -87,12 +123,17 @@ const CreateBot = () => {
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-gray-600 mb-2">{bot.description}</p>
-                <p className="text-xs text-gray-500">OpenAI ID: {bot.id}</p>
+                <p className="text-xs text-gray-500">OpenAI ID: {bot.openai_assistant_id}</p>
+                <p className="text-xs text-gray-500">Model: {bot.bot_configurations?.[0]?.model}</p>
+                <p className="text-xs text-gray-500">Prompts: {bot.bot_prompts?.length || 0}</p>
               </CardContent>
             </Card>
           ))}
         </div>
-        <Button onClick={handleTestConnection} className="mt-4">Testar Conexão com OpenAI</Button>
+        <div className="mt-4 space-x-2">
+          <Button onClick={handleTestConnection}>Testar Conexão com OpenAI</Button>
+          <Button onClick={handleTestBotCreation}>Testar Criação de Bot</Button>
+        </div>
       </div>
       <CreateBotModal
         isOpen={isModalOpen}

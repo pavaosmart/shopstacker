@@ -32,6 +32,7 @@ const CreateBot = () => {
       const { data, error } = await supabase
         .from('bots')
         .select('id, name, description')
+        .eq('user_id', session.user.id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -57,7 +58,7 @@ const CreateBot = () => {
     try {
       const { data, error } = await supabase
         .from('bots')
-        .insert([newBot])
+        .insert([{ ...newBot, user_id: session.user.id }])
         .select();
 
       if (error) throw error;

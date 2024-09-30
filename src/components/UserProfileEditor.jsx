@@ -31,6 +31,7 @@ const UserProfileEditor = () => {
     state: '',
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState('');
 
   useEffect(() => {
     if (session?.user) {
@@ -48,7 +49,6 @@ const UserProfileEditor = () => {
 
       if (error) {
         if (error.code === 'PGRST116') {
-          // Profile not found, create a new one
           await createNewProfile();
           return;
         }
@@ -75,6 +75,7 @@ const UserProfileEditor = () => {
           city: profile.city || '',
           state: profile.state || '',
         });
+        setPreviewUrl(profile.avatar_url || '');
       }
     } catch (error) {
       console.error('Error fetching profile:', error);
@@ -142,11 +143,15 @@ const UserProfileEditor = () => {
   const handleAvatarUpload = async (event) => {
     try {
       setIsLoading(true);
-      if (!event.target.files || event.target.files.length === 0) {
+      const file = event.target.files[0];
+      if (!file) {
         throw new Error('You need to select an image to upload.');
       }
 
-      const file = event.target.files[0];
+      // Create a preview URL
+      const objectUrl = URL.createObjectURL(file);
+      setPreviewUrl(objectUrl);
+
       const fileExt = file.name.split('.').pop();
       const fileName = `${Math.random()}.${fileExt}`;
       const filePath = `${session.user.id}/${fileName}`;
@@ -214,18 +219,22 @@ const UserProfileEditor = () => {
           </TabsList>
           <TabsContent value="personal">
             <div className="space-y-4">
-              <div className="flex justify-center">
-                <Avatar className="w-24 h-24">
-                  <AvatarImage src={profileData.avatarUrl} />
+              <div className="flex flex-col items-center space-y-4">
+                <Avatar className="w-32 h-32">
+                  <AvatarImage src={previewUrl || profileData.avatarUrl} />
                   <AvatarFallback>{profileData.fullName.charAt(0)}</AvatarFallback>
                 </Avatar>
+                <label className="cursor-pointer bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+                  Upload New Avatar
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleAvatarUpload}
+                    disabled={isLoading}
+                    className="hidden"
+                  />
+                </label>
               </div>
-              <Input
-                type="file"
-                accept="image/*"
-                onChange={handleAvatarUpload}
-                disabled={isLoading}
-              />
               <Input
                 name="fullName"
                 placeholder="Full Name"

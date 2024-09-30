@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { useSupabaseAuth } from '../integrations/supabase/auth';
 import { supabase } from '../integrations/supabase/supabase';
 import { initializeOpenAI, testConnection, listAssistants, createAssistant } from '../utils/openai';
+import { format } from 'date-fns';
 
 const OpenAIIntegration = () => {
   const [openaiApiKey, setOpenaiApiKey] = useState('');
@@ -88,7 +89,7 @@ const OpenAIIntegration = () => {
   const handleCreateBot = async () => {
     setIsLoading(true);
     try {
-      const assistant = await createAssistant(newBot.name, newBot.prompt);
+      const assistant = await createAssistant(newBot.name, newBot.prompt, newBot.model, newBot.temperature, newBot.maxTokens);
       toast.success('Bot criado com sucesso!');
       setIsModalOpen(false);
       fetchBots();
@@ -106,6 +107,23 @@ const OpenAIIntegration = () => {
       ...prev,
       [name]: type === 'file' ? e.target.files[0] : value
     }));
+  };
+
+  const handleEditBot = (bot) => {
+    // Implement edit functionality
+    console.log('Editing bot:', bot);
+    // You would typically open a modal or navigate to an edit page here
+  };
+
+  const handleCloneBot = async (bot) => {
+    try {
+      const clonedAssistant = await createAssistant(`${bot.name} (Clone)`, bot.prompt, bot.model, bot.temperature, bot.max_tokens);
+      toast.success('Bot clonado com sucesso!');
+      fetchBots();
+    } catch (error) {
+      console.error('Erro ao clonar bot:', error);
+      toast.error('Falha ao clonar bot');
+    }
   };
 
   return (
@@ -141,17 +159,27 @@ const OpenAIIntegration = () => {
           <CardTitle>Existing Bots</CardTitle>
         </CardHeader>
         <CardContent>
-          {bots.length > 0 ? (
-            <ul className="space-y-2">
-              {bots.map((bot) => (
-                <li key={bot.id} className="bg-gray-100 p-2 rounded">
-                  <strong>{bot.name}</strong>: {bot.description}
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p>No bots created yet.</p>
-          )}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {bots.map((bot) => (
+              <Card key={bot.id} className="bg-white shadow-md rounded-lg overflow-hidden">
+                <CardHeader>
+                  <CardTitle>{bot.name}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-gray-600 mb-2">GPT Version: {bot.model}</p>
+                  <p className="text-sm text-gray-600 mb-4">Created: {format(new Date(bot.created_at), 'dd/MM/yyyy HH:mm')}</p>
+                  <div className="flex justify-between">
+                    <Button variant="outline" size="sm" onClick={() => handleEditBot(bot)}>
+                      Edit
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => handleCloneBot(bot)}>
+                      Clone
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </CardContent>
       </Card>
 

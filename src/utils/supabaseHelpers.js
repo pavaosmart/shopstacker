@@ -4,7 +4,7 @@ export const fetchBots = async () => {
   try {
     const { data, error } = await supabase
       .from('bots')
-      .select('*');
+      .select('id, name, description, user_id, openai_assistant_id');
     
     if (error) throw error;
     return data;

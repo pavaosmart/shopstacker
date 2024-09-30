@@ -10,7 +10,6 @@ import {
   Settings, 
   LogOut,
   MessageSquare,
-  Cpu,
   ShoppingCart,
   Bell,
   HelpCircle,
@@ -35,7 +34,6 @@ const Sidebar = () => {
     { icon: <Bell size={20} />, label: 'Notificações', to: '/notifications' },
     { icon: <MessageSquare size={20} />, label: 'Suporte', to: '/support' },
     { icon: <HelpCircle size={20} />, label: 'Ajuda', to: '/help' },
-    { icon: <Cpu size={20} />, label: 'API', to: '/api' },
     { icon: <Store size={20} />, label: 'Mercado APIs', to: '/api-store' },
   ];
 

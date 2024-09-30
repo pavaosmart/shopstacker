@@ -2,8 +2,11 @@ import React, { useState } from 'react';
 import { useCurrentUser, useUpdateUser, useDeleteUser, useAddUser, useUsers } from '../integrations/supabase/hooks/useUsers';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import Navigation from '../components/Navigation';
+import { Users, UserPlus, Edit, Trash2 } from 'lucide-react';
 
 const UsersAndPermissions = () => {
   const [isEditing, setIsEditing] = useState(false);
@@ -51,73 +54,103 @@ const UsersAndPermissions = () => {
   if (currentUserError || usersError) return <div>Erro ao carregar dados: {currentUserError?.message || usersError?.message}</div>;
 
   return (
-    <div>
-      <Navigation />
-      <div className="p-8">
-        <h1 className="text-2xl font-bold mb-4">Perfil do Usuário</h1>
-
-        {currentUser && (
-          <div className="mb-8">
-            {isEditing ? (
-              <div>
-                <Input
-                  placeholder="Nome Completo"
-                  value={editedUser?.full_name || ''}
-                  onChange={(e) => setEditedUser({ ...editedUser, full_name: e.target.value })}
-                  className="mb-2"
-                />
+    <div className="container mx-auto px-4 py-8">
+      <Card className="mb-8">
+        <CardHeader>
+          <CardTitle className="text-2xl font-bold flex items-center">
+            <Users className="mr-2" />
+            Usuários e Permissões
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button className="mb-4">
+                <UserPlus className="mr-2 h-4 w-4" />
+                Adicionar Novo Usuário
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Adicionar Novo Usuário</DialogTitle>
+              </DialogHeader>
+              <form onSubmit={handleAddUser} className="space-y-4">
                 <Input
                   type="email"
                   placeholder="Email"
-                  value={editedUser?.email || ''}
-                  onChange={(e) => setEditedUser({ ...editedUser, email: e.target.value })}
+                  value={newUser.email}
+                  onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
                   className="mb-2"
+                  required
                 />
-                <Button onClick={handleUpdateUser}>Salvar Alterações</Button>
-                <Button onClick={() => setIsEditing(false)} variant="outline" className="ml-2">Cancelar</Button>
-              </div>
-            ) : (
-              <div>
-                <p><strong>Nome:</strong> {currentUser.full_name || 'Não definido'}</p>
-                <p><strong>Email:</strong> {currentUser.email}</p>
-                <Button onClick={() => {
-                  setEditedUser(currentUser);
-                  setIsEditing(true);
-                }} className="mt-2">Editar Perfil</Button>
-              </div>
-            )}
-          </div>
-        )}
+                <Input
+                  placeholder="Nome Completo"
+                  value={newUser.full_name}
+                  onChange={(e) => setNewUser({ ...newUser, full_name: e.target.value })}
+                  className="mb-2"
+                  required
+                />
+                <Button type="submit">Adicionar Usuário</Button>
+              </form>
+            </DialogContent>
+          </Dialog>
 
-        <h2 className="text-xl font-bold mb-4">Adicionar Novo Usuário</h2>
-        <form onSubmit={handleAddUser} className="mb-8">
-          <Input
-            type="email"
-            placeholder="Email"
-            value={newUser.email}
-            onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
-            className="mb-2"
-            required
-          />
-          <Input
-            placeholder="Nome Completo"
-            value={newUser.full_name}
-            onChange={(e) => setNewUser({ ...newUser, full_name: e.target.value })}
-            className="mb-2"
-            required
-          />
-          <Button type="submit">Adicionar Usuário</Button>
-        </form>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Nome</TableHead>
+                <TableHead>Email</TableHead>
+                <TableHead>Ações</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {users && users.map((user) => (
+                <TableRow key={user.id}>
+                  <TableCell>{user.full_name || 'Não definido'}</TableCell>
+                  <TableCell>{user.email}</TableCell>
+                  <TableCell>
+                    <Button variant="outline" size="icon" className="mr-2" onClick={() => {
+                      setEditedUser(user);
+                      setIsEditing(true);
+                    }}>
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    <Button variant="destructive" size="icon" onClick={() => handleDeleteUser(user.id)}>
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
 
-        <h2 className="text-xl font-bold mb-4">Lista de Usuários</h2>
-        {users && users.map((user) => (
-          <div key={user.id} className="mb-4 p-4 border rounded">
-            <p><strong>Nome:</strong> {user.full_name || 'Não definido'}</p>
-            <p><strong>Email:</strong> {user.email}</p>
-            <Button onClick={() => handleDeleteUser(user.id)} className="mt-2" variant="destructive">Excluir Usuário</Button>
-          </div>
-        ))}
-      </div>
+      {isEditing && (
+        <Dialog open={isEditing} onOpenChange={() => setIsEditing(false)}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Editar Usuário</DialogTitle>
+            </DialogHeader>
+            <form onSubmit={(e) => { e.preventDefault(); handleUpdateUser(); }} className="space-y-4">
+              <Input
+                placeholder="Nome Completo"
+                value={editedUser?.full_name || ''}
+                onChange={(e) => setEditedUser({ ...editedUser, full_name: e.target.value })}
+                className="mb-2"
+              />
+              <Input
+                type="email"
+                placeholder="Email"
+                value={editedUser?.email || ''}
+                onChange={(e) => setEditedUser({ ...editedUser, email: e.target.value })}
+                className="mb-2"
+              />
+              <Button type="submit">Salvar Alterações</Button>
+            </form>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 };

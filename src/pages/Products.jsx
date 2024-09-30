@@ -7,7 +7,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { Package, Edit, Trash2 } from 'lucide-react';
-import Navigation from '../components/Navigation';
 
 const Products = () => {
   const [newProduct, setNewProduct] = useState({ name: '', price: '', stock_quantity: '' });
@@ -62,80 +61,77 @@ const Products = () => {
   if (error) return <div>Erro ao carregar produtos: {error.message}</div>;
 
   return (
-    <div>
-      <Navigation />
-      <div className="container mx-auto px-4 py-8">
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle className="text-2xl font-bold flex items-center">
-              <Package className="mr-2" />
-              Produtos
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button className="mb-4">Adicionar Novo Produto</Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Adicionar Novo Produto</DialogTitle>
-                </DialogHeader>
-                <form onSubmit={handleAddProduct} className="space-y-4">
-                  <Input
-                    placeholder="Nome do Produto"
-                    value={newProduct.name}
-                    onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
-                    required
-                  />
-                  <Input
-                    type="number"
-                    placeholder="Preço"
-                    value={newProduct.price}
-                    onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
-                    required
-                  />
-                  <Input
-                    type="number"
-                    placeholder="Quantidade em Estoque"
-                    value={newProduct.stock_quantity}
-                    onChange={(e) => setNewProduct({ ...newProduct, stock_quantity: e.target.value })}
-                    required
-                  />
-                  <Button type="submit">Adicionar Produto</Button>
-                </form>
-              </DialogContent>
-            </Dialog>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Nome</TableHead>
-                  <TableHead>Preço</TableHead>
-                  <TableHead>Estoque</TableHead>
-                  <TableHead>Ações</TableHead>
+    <div className="container mx-auto px-4 py-8">
+      <Card className="mb-8">
+        <CardHeader>
+          <CardTitle className="text-2xl font-bold flex items-center">
+            <Package className="mr-2" />
+            Produtos
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button className="mb-4">Adicionar Novo Produto</Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Adicionar Novo Produto</DialogTitle>
+              </DialogHeader>
+              <form onSubmit={handleAddProduct} className="space-y-4">
+                <Input
+                  placeholder="Nome do Produto"
+                  value={newProduct.name}
+                  onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
+                  required
+                />
+                <Input
+                  type="number"
+                  placeholder="Preço"
+                  value={newProduct.price}
+                  onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
+                  required
+                />
+                <Input
+                  type="number"
+                  placeholder="Quantidade em Estoque"
+                  value={newProduct.stock_quantity}
+                  onChange={(e) => setNewProduct({ ...newProduct, stock_quantity: e.target.value })}
+                  required
+                />
+                <Button type="submit">Adicionar Produto</Button>
+              </form>
+            </DialogContent>
+          </Dialog>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Nome</TableHead>
+                <TableHead>Preço</TableHead>
+                <TableHead>Estoque</TableHead>
+                <TableHead>Ações</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {products && products.map((product) => (
+                <TableRow key={product.id}>
+                  <TableCell>{product.name}</TableCell>
+                  <TableCell>R$ {product.price.toFixed(2)}</TableCell>
+                  <TableCell>{product.stock_quantity}</TableCell>
+                  <TableCell>
+                    <Button variant="outline" size="icon" className="mr-2" onClick={() => setEditingProduct(product)}>
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    <Button variant="destructive" size="icon" onClick={() => handleDeleteProduct(product.id)}>
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </TableCell>
                 </TableRow>
-              </TableHeader>
-              <TableBody>
-                {products && products.map((product) => (
-                  <TableRow key={product.id}>
-                    <TableCell>{product.name}</TableCell>
-                    <TableCell>R$ {product.price.toFixed(2)}</TableCell>
-                    <TableCell>{product.stock_quantity}</TableCell>
-                    <TableCell>
-                      <Button variant="outline" size="icon" className="mr-2" onClick={() => setEditingProduct(product)}>
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button variant="destructive" size="icon" onClick={() => handleDeleteProduct(product.id)}>
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
-      </div>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
       {editingProduct && (
         <Dialog open={!!editingProduct} onOpenChange={() => setEditingProduct(null)}>
           <DialogContent>

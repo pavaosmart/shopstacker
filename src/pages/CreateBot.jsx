@@ -7,7 +7,6 @@ import { toast } from "sonner";
 import Navigation from '../components/Navigation';
 import { testConnection, createAssistant, saveBotToDatabase, verifyBotData } from '../utils/openai';
 import CreateBotModal from '../components/CreateBotModal';
-import { supabase } from '../integrations/supabase/supabase';
 
 const CreateBot = () => {
   const { session } = useSupabaseAuth();
@@ -40,7 +39,7 @@ const CreateBot = () => {
 
   const handleCreateBot = async (newBot) => {
     try {
-      const assistant = await createAssistant(newBot.name, newBot.description, newBot.model, newBot.temperature, newBot.max_tokens);
+      const assistant = await createAssistant(newBot.name, newBot.description);
       
       const botData = {
         name: newBot.name,

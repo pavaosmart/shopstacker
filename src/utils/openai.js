@@ -1,65 +1,59 @@
-import OpenAI from 'openai';
+import OpenAI from "openai";
 import { supabase } from '../integrations/supabase/supabase';
 
-let openai;
-
-export const initializeOpenAI = (apiKey) => {
-  if (!apiKey) {
-    console.error('API key is missing. OpenAI instance not initialized.');
-    return false;
+const getApiKey = async () => {
+  const { data, error } = await supabase
+    .from('user_settings')
+    .select('openai_api_key')
+    .single();
+  
+  if (error) {
+    console.error('Error fetching OpenAI API key:', error);
+    return null;
   }
+  
+  return data?.openai_api_key;
+};
+
+let openaiInstance = null;
+
+export const initializeOpenAI = async (apiKey) => {
+  openaiInstance = new OpenAI({ apiKey, dangerouslyAllowBrowser: true });
+};
+
+export const getOpenAIInstance = async () => {
+  if (!openaiInstance) {
+    const apiKey = await getApiKey();
+    if (!apiKey) {
+      throw new Error('OpenAI API key not found');
+    }
+    await initializeOpenAI(apiKey);
+  }
+  return openaiInstance;
+};
+
+export const testConnection = async () => {
   try {
-    openai = new OpenAI({ apiKey });
+    const openai = await getOpenAIInstance();
+    const response = await openai.models.list();
+    console.log('OpenAI connection successful:', response.data);
     return true;
   } catch (error) {
-    console.error('Error initializing OpenAI:', error);
+    console.error('OpenAI connection failed:', error);
     return false;
   }
 };
 
-export const getOpenAIInstance = () => {
-  if (!openai) {
-    throw new Error('OpenAI instance not initialized. Call initializeOpenAI first.');
-  }
-  return openai;
-};
-
-export const testConnection = async (apiKey) => {
+export const createAssistant = async (name, instructions) => {
   try {
-    const tempOpenAI = new OpenAI({ apiKey });
-    const response = await tempOpenAI.chat.completions.create({
-      model: "gpt-3.5-turbo",
-      messages: [{ role: "user", content: "Hello, are you there?" }],
-    });
-    return response.choices[0].message.content.trim() !== '';
-  } catch (error) {
-    console.error('Error testing OpenAI connection:', error);
-    return false;
-  }
-};
-
-export const createAssistant = async (name, prompt, model, temperature, maxTokens) => {
-  try {
-    const assistant = await getOpenAIInstance().beta.assistants.create({
-      name: name,
-      instructions: prompt,
-      model: model,
+    const openai = await getOpenAIInstance();
+    const assistant = await openai.beta.assistants.create({
+      name,
+      instructions,
+      model: 'gpt-3.5-turbo',
       tools: [{ type: "code_interpreter" }],
     });
-
-    const { data, error } = await supabase
-      .from('bots')
-      .insert({
-        name: name,
-        openai_assistant_id: assistant.id,
-        model: model,
-        temperature: temperature,
-        max_tokens: maxTokens,
-        prompt: prompt,
-      });
-
-    if (error) throw error;
-
+    console.log('Assistant created successfully:', assistant);
     return assistant;
   } catch (error) {
     console.error('Error creating assistant:', error);
@@ -68,32 +62,127 @@ export const createAssistant = async (name, prompt, model, temperature, maxToken
 };
 
 export const saveBotToDatabase = async (botData) => {
-  try {
-    const { data, error } = await supabase
-      .from('bots')
-      .insert(botData)
-      .select();
+  const { data: bot, error: botError } = await supabase
+    .from('bots')
+    .insert([{
+      name: botData.name,
+      description: botData.description,
+      user_id: (await supabase.auth.getUser()).data.user.id,
+    }])
+    .select()
+    .single();
 
-    if (error) throw error;
-    return data[0];
-  } catch (error) {
-    console.error('Error saving bot to database:', error);
-    throw error;
+  if (botError) {
+    console.error('Error saving bot to database:', botError);
+    throw botError;
   }
+
+  const { model, temperature, max_tokens, document } = botData;
+  let document_path = null;
+
+  if (document) {
+    const { data, error } = await supabase.storage
+      .from('bot-documents')
+      .upload(`${bot.id}/${document.name}`, document);
+
+    if (error) {
+      console.error('Error uploading document:', error);
+      throw error;
+    }
+
+    document_path = data.path;
+  }
+
+  const { error: configError } = await supabase
+    .from('bot_configurations')
+    .insert([{ 
+      bot_id: bot.id, 
+      model, 
+      temperature, 
+      max_tokens,
+      document_path
+    }]);
+
+  if (configError) {
+    console.error('Error saving bot configuration:', configError);
+    throw configError;
+  }
+
+  const { prompts } = botData;
+  const promptsWithBotId = prompts.map((prompt, index) => ({
+    bot_id: bot.id,
+    prompt_text: prompt,
+    prompt_order: index + 1
+  }));
+
+  const { error: promptsError } = await supabase
+    .from('bot_prompts')
+    .insert(promptsWithBotId);
+
+  if (promptsError) {
+    console.error('Error saving bot prompts:', promptsError);
+    throw promptsError;
+  }
+
+  console.log('Bot saved to database:', bot);
+  return bot;
 };
 
 export const verifyBotData = async (botId) => {
-  try {
-    const { data, error } = await supabase
-      .from('bots')
-      .select('*')
-      .eq('id', botId)
-      .single();
+  const { data: bot, error: botError } = await supabase
+    .from('bots')
+    .select('*')
+    .eq('id', botId)
+    .single();
 
-    if (error) throw error;
-    return data !== null;
-  } catch (error) {
-    console.error('Error verifying bot data:', error);
+  if (botError) {
+    console.error('Error verifying bot data:', botError);
     return false;
+  }
+
+  const { data: config, error: configError } = await supabase
+    .from('bot_configurations')
+    .select('*')
+    .eq('bot_id', botId)
+    .single();
+
+  if (configError) {
+    console.error('Error verifying bot configuration:', configError);
+    return false;
+  }
+
+  const { data: prompts, error: promptsError } = await supabase
+    .from('bot_prompts')
+    .select('*')
+    .eq('bot_id', botId);
+
+  if (promptsError) {
+    console.error('Error verifying bot prompts:', promptsError);
+    return false;
+  }
+
+  console.log('Bot data verified:', { bot, config, prompts });
+  return true;
+};
+
+export const listAssistants = async () => {
+  try {
+    const { data: bots, error } = await supabase
+      .from('bots')
+      .select(`
+        *,
+        bot_configurations (*)
+      `);
+
+    if (error) {
+      console.error('Error fetching bots:', error);
+      throw error;
+    }
+
+    console.log('Bots fetched successfully:', bots);
+    return bots;
+  } catch (error) {
+    console.error('Error fetching bots:', error);
+    throw error;
   }
 };

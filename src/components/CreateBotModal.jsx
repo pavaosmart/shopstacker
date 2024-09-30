@@ -5,6 +5,9 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
+import { ceoAssistantPrompt } from '../prompts/ceoAssistantPrompt';
+import { saveBotToDatabase } from '../utils/openai';
+import { toast } from 'sonner';
 
 const CreateBotModal = ({ isOpen, onClose, onCreateBot }) => {
   const [botName, setBotName] = useState('');
@@ -12,17 +15,30 @@ const CreateBotModal = ({ isOpen, onClose, onCreateBot }) => {
   const [model, setModel] = useState('gpt-3.5-turbo');
   const [temperature, setTemperature] = useState(0.7);
   const [maxTokens, setMaxTokens] = useState(150);
+  const [prompts, setPrompts] = useState([ceoAssistantPrompt]);
+  const [document, setDocument] = useState(null);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onCreateBot({
-      name: botName,
-      description: botDescription,
-      model,
-      temperature: parseFloat(temperature),
-      max_tokens: parseInt(maxTokens),
-    });
-    resetForm();
+    try {
+      const botData = {
+        name: botName,
+        description: botDescription,
+        model,
+        temperature: parseFloat(temperature),
+        max_tokens: parseInt(maxTokens),
+        prompts: prompts.filter(prompt => prompt.trim() !== ''),
+        document
+      };
+      
+      await saveBotToDatabase(botData);
+      toast.success('Bot criado com sucesso!');
+      onCreateBot(botData);
+      resetForm();
+    } catch (error) {
+      console.error('Erro ao criar bot:', error);
+      toast.error('Falha ao criar bot: ' + error.message);
+    }
   };
 
   const resetForm = () => {
@@ -31,6 +47,20 @@ const CreateBotModal = ({ isOpen, onClose, onCreateBot }) => {
     setModel('gpt-3.5-turbo');
     setTemperature(0.7);
     setMaxTokens(150);
+    setPrompts([ceoAssistantPrompt]);
+    setDocument(null);
+  };
+
+  const handlePromptChange = (index, value) => {
+    const newPrompts = [...prompts];
+    newPrompts[index] = value;
+    setPrompts(newPrompts);
+  };
+
+  const handleFileChange = (e) => {
+    if (e.target.files) {
+      setDocument(e.target.files[0]);
+    }
   };
 
   return (
@@ -66,6 +96,7 @@ const CreateBotModal = ({ isOpen, onClose, onCreateBot }) => {
             >
               <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
               <option value="gpt-4">GPT-4</option>
+              <option value="gpt-4-32k">GPT-4 32k</option>
             </Select>
           </div>
           <div>
@@ -88,6 +119,27 @@ const CreateBotModal = ({ isOpen, onClose, onCreateBot }) => {
               value={maxTokens}
               onChange={(e) => setMaxTokens(e.target.value)}
             />
+          </div>
+          <div>
+            <Label htmlFor="bot-document">Base de Conhecimento (Documento)</Label>
+            <Input
+              id="bot-document"
+              type="file"
+              onChange={handleFileChange}
+              accept=".pdf,.doc,.docx,.txt"
+            />
+          </div>
+          <div>
+            <Label>Prompts</Label>
+            {prompts.map((prompt, index) => (
+              <Textarea
+                key={index}
+                value={prompt}
+                onChange={(e) => handlePromptChange(index, e.target.value)}
+                placeholder={`Prompt ${index + 1}`}
+                className="mt-2"
+              />
+            ))}
           </div>
           <DialogFooter>
             <Button type="submit">Criar Bot</Button>

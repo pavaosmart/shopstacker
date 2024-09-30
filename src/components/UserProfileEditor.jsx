@@ -46,7 +46,14 @@ const UserProfileEditor = () => {
         .eq('id', session.user.id)
         .single();
 
-      if (error) throw error;
+      if (error) {
+        if (error.code === 'PGRST116') {
+          // Profile doesn't exist, create a new one
+          await createNewProfile();
+          return;
+        }
+        throw error;
+      }
 
       if (profile) {
         setProfileData({
@@ -72,6 +79,22 @@ const UserProfileEditor = () => {
     } catch (error) {
       console.error('Error fetching profile:', error);
       toast.error('Failed to load profile');
+    }
+  };
+
+  const createNewProfile = async () => {
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .insert({ id: session.user.id, full_name: session.user.email.split('@')[0] });
+
+      if (error) throw error;
+
+      toast.success('New profile created');
+      fetchUserProfile();
+    } catch (error) {
+      console.error('Error creating new profile:', error);
+      toast.error('Failed to create new profile');
     }
   };
 
@@ -128,6 +151,15 @@ const UserProfileEditor = () => {
       const fileName = `${Math.random()}.${fileExt}`;
       const filePath = `${session.user.id}/${fileName}`;
 
+      // Ensure the 'avatars' bucket exists
+      const { data: buckets, error: bucketsError } = await supabase.storage.listBuckets();
+      if (bucketsError) throw bucketsError;
+
+      if (!buckets.some(bucket => bucket.name === 'avatars')) {
+        const { error: createBucketError } = await supabase.storage.createBucket('avatars', { public: true });
+        if (createBucketError) throw createBucketError;
+      }
+
       let { error: uploadError } = await supabase.storage
         .from('avatars')
         .upload(filePath, file);
@@ -138,7 +170,7 @@ const UserProfileEditor = () => {
 
       const { data } = supabase.storage.from('avatars').getPublicUrl(filePath);
 
-      setPersonalInfo(prev => ({ ...prev, avatarUrl: data.publicUrl }));
+      setProfileData(prev => ({ ...prev, avatarUrl: data.publicUrl }));
       toast.success('Avatar updated successfully');
     } catch (error) {
       toast.error('Error uploading avatar: ' + error.message);
@@ -152,7 +184,7 @@ const UserProfileEditor = () => {
       const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
       const data = await response.json();
       if (!data.erro) {
-        setAddressInfo(prev => ({
+        setProfileData(prev => ({
           ...prev,
           street: data.logradouro,
           neighborhood: data.bairro,

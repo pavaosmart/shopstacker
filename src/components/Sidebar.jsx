@@ -12,7 +12,10 @@ import {
   PlusCircle, 
   LogOut,
   MessageSquare,
-  Cpu
+  Cpu,
+  ShoppingCart,
+  Bell,
+  HelpCircle
 } from 'lucide-react';
 
 const Sidebar = () => {
@@ -42,6 +45,12 @@ const Sidebar = () => {
             </Link>
           </li>
           <li>
+            <Link to="/orders" className="flex items-center space-x-2 p-2 hover:bg-gray-700 rounded">
+              <ShoppingCart size={20} />
+              <span>Pedidos</span>
+            </Link>
+          </li>
+          <li>
             <Link to="/activity-logs" className="flex items-center space-x-2 p-2 hover:bg-gray-700 rounded">
               <Activity size={20} />
               <span>Atividade</span>
@@ -54,9 +63,21 @@ const Sidebar = () => {
             </Link>
           </li>
           <li>
+            <Link to="/notifications" className="flex items-center space-x-2 p-2 hover:bg-gray-700 rounded">
+              <Bell size={20} />
+              <span>Notificações</span>
+            </Link>
+          </li>
+          <li>
             <Link to="/support" className="flex items-center space-x-2 p-2 hover:bg-gray-700 rounded">
               <MessageSquare size={20} />
               <span>Suporte</span>
+            </Link>
+          </li>
+          <li>
+            <Link to="/help" className="flex items-center space-x-2 p-2 hover:bg-gray-700 rounded">
+              <HelpCircle size={20} />
+              <span>Ajuda</span>
             </Link>
           </li>
           <li>

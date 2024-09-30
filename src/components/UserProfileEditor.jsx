@@ -3,15 +3,30 @@ import { useSupabaseAuth } from '../integrations/supabase/auth';
 import { supabase } from '../integrations/supabase/supabase';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
 
 const UserProfileEditor = () => {
   const { session } = useSupabaseAuth();
-  const [fullName, setFullName] = useState('');
-  const [email, setEmail] = useState('');
-  const [avatarUrl, setAvatarUrl] = useState('');
+  const [activeTab, setActiveTab] = useState("personal");
+  const [personalInfo, setPersonalInfo] = useState({
+    fullName: '',
+    email: '',
+    phone: '',
+    avatarUrl: '',
+  });
+  const [companyInfo, setCompanyInfo] = useState({
+    companyName: '',
+    position: '',
+    industry: '',
+  });
+  const [bankInfo, setBankInfo] = useState({
+    bankName: '',
+    accountNumber: '',
+    routingNumber: '',
+  });
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -28,15 +43,26 @@ const UserProfileEditor = () => {
         .eq('id', session.user.id)
         .single();
 
-      if (error && error.code !== 'PGRST116') {
-        throw error;
-      }
+      if (error) throw error;
 
       if (profile) {
-        setFullName(profile.full_name || '');
-        setAvatarUrl(profile.avatar_url || '');
+        setPersonalInfo({
+          fullName: profile.full_name || '',
+          email: session.user.email || '',
+          phone: profile.phone || '',
+          avatarUrl: profile.avatar_url || '',
+        });
+        setCompanyInfo({
+          companyName: profile.company_name || '',
+          position: profile.position || '',
+          industry: profile.industry || '',
+        });
+        setBankInfo({
+          bankName: profile.bank_name || '',
+          accountNumber: profile.account_number || '',
+          routingNumber: profile.routing_number || '',
+        });
       }
-      setEmail(session.user.email || '');
     } catch (error) {
       console.error('Error fetching profile:', error);
       toast.error('Failed to load profile');
@@ -48,8 +74,15 @@ const UserProfileEditor = () => {
     try {
       const updates = {
         id: session.user.id,
-        full_name: fullName,
-        avatar_url: avatarUrl,
+        full_name: personalInfo.fullName,
+        phone: personalInfo.phone,
+        avatar_url: personalInfo.avatarUrl,
+        company_name: companyInfo.companyName,
+        position: companyInfo.position,
+        industry: companyInfo.industry,
+        bank_name: bankInfo.bankName,
+        account_number: bankInfo.accountNumber,
+        routing_number: bankInfo.routingNumber,
         updated_at: new Date().toISOString(),
       };
 
@@ -59,7 +92,7 @@ const UserProfileEditor = () => {
       toast.success('Profile updated successfully');
     } catch (error) {
       console.error('Error updating profile:', error);
-      toast.error('Failed to update profile: ' + error.message);
+      toast.error('Failed to update profile');
     } finally {
       setIsLoading(false);
     }
@@ -87,8 +120,7 @@ const UserProfileEditor = () => {
 
       const { data } = supabase.storage.from('avatars').getPublicUrl(filePath);
 
-      setAvatarUrl(data.publicUrl);
-      await handleUpdateProfile(); // Update the profile with the new avatar URL
+      setPersonalInfo(prev => ({ ...prev, avatarUrl: data.publicUrl }));
       toast.success('Avatar updated successfully');
     } catch (error) {
       toast.error('Error uploading avatar: ' + error.message);
@@ -98,39 +130,98 @@ const UserProfileEditor = () => {
   };
 
   return (
-    <Card className="w-full max-w-md mx-auto mt-8">
+    <Card className="w-full max-w-4xl mx-auto mt-8">
       <CardHeader>
         <CardTitle>Edit Profile</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
-          <div className="flex justify-center">
-            <Avatar className="w-24 h-24">
-              <AvatarImage src={avatarUrl} />
-              <AvatarFallback>{fullName.charAt(0)}</AvatarFallback>
-            </Avatar>
-          </div>
-          <Input
-            type="file"
-            accept="image/*"
-            onChange={handleAvatarUpload}
-            disabled={isLoading}
-          />
-          <Input
-            placeholder="Full Name"
-            value={fullName}
-            onChange={(e) => setFullName(e.target.value)}
-            disabled={isLoading}
-          />
-          <Input
-            placeholder="Email"
-            value={email}
-            disabled={true}
-          />
-          <Button onClick={handleUpdateProfile} disabled={isLoading}>
-            {isLoading ? 'Updating...' : 'Update Profile'}
-          </Button>
-        </div>
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList>
+            <TabsTrigger value="personal">Personal</TabsTrigger>
+            <TabsTrigger value="company">Company</TabsTrigger>
+            <TabsTrigger value="bank">Bank</TabsTrigger>
+          </TabsList>
+          <TabsContent value="personal">
+            <div className="space-y-4">
+              <div className="flex justify-center">
+                <Avatar className="w-24 h-24">
+                  <AvatarImage src={personalInfo.avatarUrl} />
+                  <AvatarFallback>{personalInfo.fullName.charAt(0)}</AvatarFallback>
+                </Avatar>
+              </div>
+              <Input
+                type="file"
+                accept="image/*"
+                onChange={handleAvatarUpload}
+                disabled={isLoading}
+              />
+              <Input
+                placeholder="Full Name"
+                value={personalInfo.fullName}
+                onChange={(e) => setPersonalInfo(prev => ({ ...prev, fullName: e.target.value }))}
+                disabled={isLoading}
+              />
+              <Input
+                placeholder="Email"
+                value={personalInfo.email}
+                disabled={true}
+              />
+              <Input
+                placeholder="Phone"
+                value={personalInfo.phone}
+                onChange={(e) => setPersonalInfo(prev => ({ ...prev, phone: e.target.value }))}
+                disabled={isLoading}
+              />
+            </div>
+          </TabsContent>
+          <TabsContent value="company">
+            <div className="space-y-4">
+              <Input
+                placeholder="Company Name"
+                value={companyInfo.companyName}
+                onChange={(e) => setCompanyInfo(prev => ({ ...prev, companyName: e.target.value }))}
+                disabled={isLoading}
+              />
+              <Input
+                placeholder="Position"
+                value={companyInfo.position}
+                onChange={(e) => setCompanyInfo(prev => ({ ...prev, position: e.target.value }))}
+                disabled={isLoading}
+              />
+              <Input
+                placeholder="Industry"
+                value={companyInfo.industry}
+                onChange={(e) => setCompanyInfo(prev => ({ ...prev, industry: e.target.value }))}
+                disabled={isLoading}
+              />
+            </div>
+          </TabsContent>
+          <TabsContent value="bank">
+            <div className="space-y-4">
+              <Input
+                placeholder="Bank Name"
+                value={bankInfo.bankName}
+                onChange={(e) => setBankInfo(prev => ({ ...prev, bankName: e.target.value }))}
+                disabled={isLoading}
+              />
+              <Input
+                placeholder="Account Number"
+                value={bankInfo.accountNumber}
+                onChange={(e) => setBankInfo(prev => ({ ...prev, accountNumber: e.target.value }))}
+                disabled={isLoading}
+              />
+              <Input
+                placeholder="Routing Number"
+                value={bankInfo.routingNumber}
+                onChange={(e) => setBankInfo(prev => ({ ...prev, routingNumber: e.target.value }))}
+                disabled={isLoading}
+              />
+            </div>
+          </TabsContent>
+        </Tabs>
+        <Button onClick={handleUpdateProfile} disabled={isLoading} className="mt-4">
+          {isLoading ? 'Updating...' : 'Update Profile'}
+        </Button>
       </CardContent>
     </Card>
   );

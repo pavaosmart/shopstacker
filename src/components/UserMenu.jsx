@@ -30,7 +30,7 @@ const UserMenu = ({ user }) => {
         <DropdownMenuGroup>
           <DropdownMenuItem>
             <User className="mr-2 h-4 w-4" />
-            <span>Perfil</span>
+            <Link to="/profile">Perfil</Link>
           </DropdownMenuItem>
           <DropdownMenuItem>
             <Bell className="mr-2 h-4 w-4" />

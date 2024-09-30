@@ -48,7 +48,6 @@ const UserProfileEditor = () => {
 
       if (error) {
         if (error.code === 'PGRST116') {
-          // Profile doesn't exist, create a new one
           await createNewProfile();
           return;
         }

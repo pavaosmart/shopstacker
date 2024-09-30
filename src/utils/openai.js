@@ -46,6 +46,7 @@ export const testConnection = async () => {
 
 export const createAssistant = async (name, instructions) => {
   try {
+    console.log('Creating assistant with name:', name, 'and instructions:', instructions);
     const openai = await getOpenAIInstance();
     const assistant = await openai.beta.assistants.create({
       name,
@@ -57,6 +58,9 @@ export const createAssistant = async (name, instructions) => {
     return assistant;
   } catch (error) {
     console.error('Error creating assistant:', error);
+    if (error.response) {
+      console.error('OpenAI API response:', error.response.data);
+    }
     throw error;
   }
 };
@@ -68,6 +72,7 @@ export const saveBotToDatabase = async (botData) => {
       name: botData.name,
       description: botData.description,
       user_id: (await supabase.auth.getUser()).data.user.id,
+      openai_assistant_id: botData.openai_assistant_id,
     }])
     .select()
     .single();

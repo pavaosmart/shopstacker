@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import Navigation from '../components/Navigation';
 import { testConnection, createAssistant, saveBotToDatabase, verifyBotData } from '../utils/openai';
 import CreateBotModal from '../components/CreateBotModal';
+import { supabase } from '../integrations/supabase/supabase';
 
 const CreateBot = () => {
   const { session } = useSupabaseAuth();
@@ -39,16 +40,25 @@ const CreateBot = () => {
 
   const handleCreateBot = async (newBot) => {
     try {
+      console.log('Iniciando criação do bot:', newBot);
       const assistant = await createAssistant(newBot.name, newBot.description);
+      console.log('Assistente criado:', assistant);
       
       const botData = {
         name: newBot.name,
         description: newBot.description,
         user_id: session.user.id,
-        openai_assistant_id: assistant.id
+        openai_assistant_id: assistant.id,
+        model: newBot.model,
+        temperature: newBot.temperature,
+        max_tokens: newBot.maxTokens,
+        prompts: [newBot.prompt],
+        document: newBot.document
       };
 
+      console.log('Salvando bot no banco de dados:', botData);
       const savedBot = await saveBotToDatabase(botData);
+      console.log('Bot salvo no banco de dados:', savedBot);
 
       const isVerified = await verifyBotData(savedBot.id);
       if (!isVerified) {

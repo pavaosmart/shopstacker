@@ -27,3 +27,14 @@ export const createOpenAIAssistant = async (name, description) => {
     throw error;
   }
 };
+
+export const fetchSpecificAssistant = async (assistantId) => {
+  const openai = getOpenAIInstance();
+  try {
+    const assistant = await openai.beta.assistants.retrieve(assistantId);
+    return assistant;
+  } catch (error) {
+    console.error('Erro ao buscar assistente específico:', error);
+    throw error;
+  }
+};

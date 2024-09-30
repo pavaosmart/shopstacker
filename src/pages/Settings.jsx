@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSupabaseAuth } from '../integrations/supabase/auth';
 import { supabase } from '../integrations/supabase/supabase';
-import { initializeOpenAI, getOpenAIInstance } from '../utils/openai';
+import { initializeOpenAI } from '../utils/openai';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
@@ -10,8 +10,6 @@ import LoadingIndicator from '../components/LoadingIndicator';
 
 const Settings = () => {
   const [openaiApiKey, setOpenaiApiKey] = useState('');
-  const [projectName, setProjectName] = useState('');
-  const [bots, setBots] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [loadingSteps, setLoadingSteps] = useState([]);
   const { session } = useSupabaseAuth();
@@ -28,64 +26,18 @@ const Settings = () => {
       const { data, error } = await supabase
         .from('user_settings')
         .select('openai_api_key')
-        .eq('user_id', session.user.id);
+        .eq('user_id', session.user.id)
+        .single();
 
-      if (error) {
-        console.error('Erro ao buscar chave da API:', error);
-        throw error;
-      }
-      if (data && data.length > 0) {
-        setOpenaiApiKey(data[0].openai_api_key || '');
-        if (data[0].openai_api_key) {
-          await validateAndFetchProjectInfo(data[0].openai_api_key);
-        }
-      } else {
-        console.log('Nenhuma configuração encontrada para o usuário');
+      if (error) throw error;
+      
+      if (data?.openai_api_key) {
+        setOpenaiApiKey(data.openai_api_key);
+        initializeOpenAI(data.openai_api_key);
       }
     } catch (error) {
       console.error('Erro ao buscar chave da API:', error);
       toast.error('Falha ao carregar a chave da API');
-    }
-  };
-
-  const validateAndFetchProjectInfo = async (apiKey) => {
-    setIsLoading(true);
-    setLoadingSteps([]);
-    try {
-      addLoadingStep('Inicializando OpenAI...');
-      initializeOpenAI(apiKey);
-      const openai = getOpenAIInstance();
-
-      addLoadingStep('Verificando autenticação...');
-      const response = await openai.models.list();
-      
-      addLoadingStep('Buscando informações do projeto...');
-      setProjectName('Seu Projeto OpenAI');
-
-      addLoadingStep('Carregando bots existentes...');
-      await fetchBots();
-
-      toast.success('Chave da API validada com sucesso');
-    } catch (error) {
-      console.error('Erro ao validar chave da API:', error);
-      toast.error('Falha ao autenticar com OpenAI');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const fetchBots = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('bots')
-        .select('*')
-        .eq('user_id', session.user.id);
-
-      if (error) throw error;
-      setBots(data || []);
-    } catch (error) {
-      console.error('Erro ao buscar bots:', error);
-      toast.error('Falha ao carregar bots existentes');
     }
   };
 
@@ -94,20 +46,18 @@ const Settings = () => {
     setLoadingSteps([]);
     try {
       addLoadingStep('Salvando chave da API...');
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('user_settings')
         .upsert({ user_id: session.user.id, openai_api_key: openaiApiKey })
         .select();
 
       if (error) throw error;
 
-      addLoadingStep('Validando chave da API...');
-      await validateAndFetchProjectInfo(openaiApiKey);
-
-      toast.success('Chave da API salva e validada com sucesso');
+      initializeOpenAI(openaiApiKey);
+      toast.success('Chave da API salva com sucesso');
     } catch (error) {
       console.error('Erro ao salvar chave da API:', error);
-      toast.error('Falha ao salvar ou validar chave da API');
+      toast.error('Falha ao salvar chave da API');
     } finally {
       setIsLoading(false);
     }
@@ -116,6 +66,10 @@ const Settings = () => {
   const addLoadingStep = (step) => {
     setLoadingSteps(prev => [...prev, step]);
   };
+
+  if (!session) {
+    return null;
+  }
 
   return (
     <div>
@@ -139,23 +93,6 @@ const Settings = () => {
         </Button>
 
         {isLoading && <LoadingIndicator steps={loadingSteps} />}
-
-        {projectName && (
-          <div className="mt-4">
-            <h2 className="text-xl font-semibold">Projeto OpenAI: {projectName}</h2>
-          </div>
-        )}
-
-        {bots.length > 0 && (
-          <div className="mt-4">
-            <h2 className="text-xl font-semibold">Bots Existentes:</h2>
-            <ul className="list-disc pl-5 mt-2">
-              {bots.map(bot => (
-                <li key={bot.id}>{bot.name}</li>
-              ))}
-            </ul>
-          </div>
-        )}
       </div>
     </div>
   );

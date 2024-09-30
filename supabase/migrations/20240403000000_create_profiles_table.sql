@@ -1,4 +1,4 @@
--- Create profiles table
+-- Create profiles table if it doesn't exist
 CREATE TABLE IF NOT EXISTS public.profiles (
   id UUID REFERENCES auth.users ON DELETE CASCADE PRIMARY KEY,
   full_name TEXT,

@@ -28,10 +28,14 @@ const UserProfileEditor = () => {
         .eq('id', session.user.id)
         .single();
 
-      if (error) throw error;
+      if (error && error.code !== 'PGRST116') {
+        throw error;
+      }
 
-      setFullName(profile.full_name || '');
-      setAvatarUrl(profile.avatar_url || '');
+      if (profile) {
+        setFullName(profile.full_name || '');
+        setAvatarUrl(profile.avatar_url || '');
+      }
       setEmail(session.user.email || '');
     } catch (error) {
       console.error('Error fetching profile:', error);

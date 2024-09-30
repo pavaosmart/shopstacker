@@ -85,12 +85,6 @@ const Sidebar = () => {
               <span>API</span>
             </Link>
           </li>
-          <li>
-            <Link to="/settings" className="flex items-center space-x-2 p-2 hover:bg-gray-700 rounded">
-              <Settings size={20} />
-              <span>Configurações</span>
-            </Link>
-          </li>
         </ul>
       </nav>
       <div className="mt-auto pt-4">

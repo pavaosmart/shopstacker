@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Select } from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
@@ -120,7 +120,7 @@ const OpenAIIntegration = () => {
             type="password"
             value={openaiApiKey}
             onChange={(e) => setOpenaiApiKey(e.target.value)}
-            placeholder="OpenAI API Key"
+            placeholder="Enter your OpenAI API Key"
             className="mb-2"
           />
           <Button onClick={handleSaveApiKey} disabled={isLoading}>
@@ -163,26 +163,61 @@ const OpenAIIntegration = () => {
           <div className="space-y-4">
             <div>
               <Label htmlFor="name">Bot Name</Label>
-              <Input id="name" name="name" value={newBot.name} onChange={handleInputChange} />
+              <Input 
+                id="name" 
+                name="name" 
+                value={newBot.name} 
+                onChange={handleInputChange}
+                placeholder="e.g., Customer Support Assistant"
+              />
             </div>
             <div>
               <Label htmlFor="prompt">Prompt</Label>
-              <Textarea id="prompt" name="prompt" value={newBot.prompt} onChange={handleInputChange} />
+              <Textarea 
+                id="prompt" 
+                name="prompt" 
+                value={newBot.prompt} 
+                onChange={handleInputChange}
+                placeholder="You are a helpful assistant..."
+              />
             </div>
             <div>
               <Label htmlFor="model">GPT Version</Label>
-              <Select id="model" name="model" value={newBot.model} onChange={handleInputChange}>
-                <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
-                <option value="gpt-4">GPT-4</option>
+              <Select name="model" value={newBot.model} onValueChange={(value) => setNewBot(prev => ({ ...prev, model: value }))}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select GPT model" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="gpt-3.5-turbo">GPT-3.5 Turbo</SelectItem>
+                  <SelectItem value="gpt-4">GPT-4</SelectItem>
+                </SelectContent>
               </Select>
             </div>
             <div>
               <Label htmlFor="temperature">Temperature</Label>
-              <Input type="number" id="temperature" name="temperature" value={newBot.temperature} onChange={handleInputChange} min="0" max="1" step="0.1" />
+              <Input 
+                type="number" 
+                id="temperature" 
+                name="temperature" 
+                value={newBot.temperature} 
+                onChange={handleInputChange} 
+                min="0" 
+                max="1" 
+                step="0.1"
+                placeholder="0.7"
+              />
             </div>
             <div>
               <Label htmlFor="maxTokens">Max Tokens</Label>
-              <Input type="number" id="maxTokens" name="maxTokens" value={newBot.maxTokens} onChange={handleInputChange} min="1" />
+              <Input 
+                type="number" 
+                id="maxTokens" 
+                name="maxTokens" 
+                value={newBot.maxTokens} 
+                onChange={handleInputChange} 
+                min="1"
+                placeholder="150"
+              />
             </div>
             <div>
               <Label htmlFor="document">Knowledge Base (PDF, DOCX, TXT)</Label>

@@ -3,75 +3,55 @@ import { useNavigate } from 'react-router-dom';
 import { useSupabaseAuth } from '../integrations/supabase/auth';
 import { supabase } from '../integrations/supabase/supabase';
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Select } from "@/components/ui/select";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import Navigation from '../components/Navigation';
 import { testBotCreation } from '../utils/testBotCreation';
+import CreateBotModal from '../components/CreateBotModal';
 
 const CreateBot = () => {
   const { session } = useSupabaseAuth();
   const navigate = useNavigate();
-  const [botName, setBotName] = useState('');
-  const [botDescription, setBotDescription] = useState('');
-  const [model, setModel] = useState('gpt-3.5-turbo');
-  const [temperature, setTemperature] = useState(0.7);
-  const [maxTokens, setMaxTokens] = useState(150);
-  const [prompt, setPrompt] = useState('');
+  const [bots, setBots] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     if (!session) {
-      toast.error('Você precisa estar autenticado para criar um bot.');
+      toast.error('Você precisa estar autenticado para ver os bots.');
       navigate('/login');
+    } else {
+      fetchBots();
     }
   }, [session, navigate]);
 
-  const handleCreateBot = async () => {
-    if (!session) {
-      toast.error('Você precisa estar autenticado para criar um bot.');
-      navigate('/login');
-      return;
-    }
-
+  const fetchBots = async () => {
     try {
-      // Inserir bot
-      const { data: botData, error: botError } = await supabase
+      const { data, error } = await supabase
         .from('bots')
-        .insert({ user_id: session.user.id, name: botName, description: botDescription })
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setBots(data);
+    } catch (error) {
+      console.error('Erro ao buscar bots:', error);
+      toast.error('Falha ao carregar os bots');
+    }
+  };
+
+  const handleCreateBot = async (newBot) => {
+    try {
+      const { data, error } = await supabase
+        .from('bots')
+        .insert([newBot])
         .select()
         .single();
 
-      if (botError) throw botError;
-
-      // Inserir configuração do bot
-      const { error: configError } = await supabase
-        .from('bot_configurations')
-        .insert({
-          bot_id: botData.id,
-          model,
-          temperature,
-          max_tokens: maxTokens
-        });
-
-      if (configError) throw configError;
-
-      // Inserir prompt do bot
-      const { error: promptError } = await supabase
-        .from('bot_prompts')
-        .insert({
-          bot_id: botData.id,
-          prompt_text: prompt,
-          prompt_order: 1
-        });
-
-      if (promptError) throw promptError;
+      if (error) throw error;
 
       toast.success('Bot criado com sucesso');
-      // Resetar formulário
-      setBotName('');
-      setBotDescription('');
-      setPrompt('');
+      setIsModalOpen(false);
+      fetchBots(); // Atualiza a lista de bots
     } catch (error) {
       console.error('Erro ao criar bot:', error);
       toast.error(`Falha ao criar bot: ${error.message}`);
@@ -82,88 +62,46 @@ const CreateBot = () => {
     const result = await testBotCreation();
     if (result.success) {
       toast.success(result.message);
+      fetchBots(); // Atualiza a lista de bots após o teste
     } else {
       toast.error(result.message);
     }
   };
 
   if (!session) {
-    return null; // Não renderiza nada se não houver sessão
+    return null;
   }
 
   return (
     <div>
       <Navigation />
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-2xl font-bold mb-4">Criar Novo Bot</h1>
-        <div className="space-y-4">
-          <div>
-            <label htmlFor="bot-name" className="block text-sm font-medium text-gray-700">Nome do Bot</label>
-            <Input
-              id="bot-name"
-              value={botName}
-              onChange={(e) => setBotName(e.target.value)}
-              className="mt-1"
-            />
-          </div>
-          <div>
-            <label htmlFor="bot-description" className="block text-sm font-medium text-gray-700">Descrição</label>
-            <Textarea
-              id="bot-description"
-              value={botDescription}
-              onChange={(e) => setBotDescription(e.target.value)}
-              className="mt-1"
-            />
-          </div>
-          <div>
-            <label htmlFor="model" className="block text-sm font-medium text-gray-700">Modelo</label>
-            <Select
-              id="model"
-              value={model}
-              onValueChange={setModel}
-              className="mt-1"
-            >
-              <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
-              <option value="gpt-4">GPT-4</option>
-            </Select>
-          </div>
-          <div>
-            <label htmlFor="temperature" className="block text-sm font-medium text-gray-700">Temperatura</label>
-            <Input
-              id="temperature"
-              type="number"
-              min="0"
-              max="1"
-              step="0.1"
-              value={temperature}
-              onChange={(e) => setTemperature(parseFloat(e.target.value))}
-              className="mt-1"
-            />
-          </div>
-          <div>
-            <label htmlFor="max-tokens" className="block text-sm font-medium text-gray-700">Máximo de Tokens</label>
-            <Input
-              id="max-tokens"
-              type="number"
-              min="1"
-              value={maxTokens}
-              onChange={(e) => setMaxTokens(parseInt(e.target.value))}
-              className="mt-1"
-            />
-          </div>
-          <div>
-            <label htmlFor="prompt" className="block text-sm font-medium text-gray-700">Prompt Inicial</label>
-            <Textarea
-              id="prompt"
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-              className="mt-1"
-            />
-          </div>
-          <Button onClick={handleCreateBot}>Criar Bot</Button>
-          <Button onClick={handleTestBotCreation} className="ml-4">Testar Criação de Bot</Button>
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold">Seus Bots</h1>
+          <Button onClick={() => setIsModalOpen(true)}>Criar Novo Bot</Button>
         </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {bots.map((bot) => (
+            <Card key={bot.id}>
+              <CardHeader>
+                <CardTitle>{bot.name}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p>{bot.description}</p>
+                <p className="text-sm text-gray-500 mt-2">
+                  Criado em: {new Date(bot.created_at).toLocaleDateString()}
+                </p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+        <Button onClick={handleTestBotCreation} className="mt-4">Testar Criação de Bot</Button>
       </div>
+      <CreateBotModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onCreateBot={handleCreateBot}
+      />
     </div>
   );
 };

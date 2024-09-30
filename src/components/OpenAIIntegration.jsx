@@ -40,33 +40,19 @@ const OpenAIIntegration = () => {
         .from('user_settings')
         .select('openai_api_key')
         .eq('user_id', session.user.id)
-        .limit(1)
-        .single();
+        .limit(1);
 
-      if (error) {
-        if (error.code === 'PGRST116') {
-          console.warn('Multiple API keys found. Using the first one.');
-          const { data: multipleData, error: multipleError } = await supabase
-            .from('user_settings')
-            .select('openai_api_key')
-            .eq('user_id', session.user.id)
-            .limit(1);
-          
-          if (multipleError) throw multipleError;
-          if (multipleData && multipleData.length > 0) {
-            setOpenaiApiKey(multipleData[0].openai_api_key);
-            initializeOpenAI(multipleData[0].openai_api_key);
-          }
-        } else {
-          throw error;
-        }
-      } else if (data?.openai_api_key) {
-        setOpenaiApiKey(data.openai_api_key);
-        initializeOpenAI(data.openai_api_key);
+      if (error) throw error;
+
+      if (data && data.length > 0) {
+        setOpenaiApiKey(data[0].openai_api_key);
+        initializeOpenAI(data[0].openai_api_key);
+      } else {
+        console.log('No API key found for the user');
       }
     } catch (error) {
-      console.error('Erro ao buscar chave da API:', error);
-      toast.error('Falha ao carregar a chave da API');
+      console.error('Error fetching API key:', error);
+      toast.error('Failed to load API key');
     }
   };
 

@@ -1,101 +1,80 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Plus, Trash2 } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-const NotificationCreator = ({ isOpen, onClose, onSubmit, editingNotification }) => {
+const NotificationCreator = ({ isOpen, onClose, onSubmit }) => {
   const [notification, setNotification] = useState({
-    version: 'beta',
-    updateItems: [{ title: '', description: '' }],
+    title: '',
+    content: '',
+    type: 'message',
   });
-
-  useEffect(() => {
-    if (editingNotification) {
-      setNotification(editingNotification);
-    } else {
-      setNotification({
-        version: 'beta',
-        updateItems: [{ title: '', description: '' }],
-      });
-    }
-  }, [editingNotification]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setNotification(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleUpdateItemChange = (index, field, value) => {
-    const newUpdateItems = [...notification.updateItems];
-    newUpdateItems[index][field] = value;
-    setNotification(prev => ({ ...prev, updateItems: newUpdateItems }));
-  };
-
-  const addUpdateItem = () => {
-    setNotification(prev => ({
-      ...prev,
-      updateItems: [...prev.updateItems, { title: '', description: '' }],
-    }));
-  };
-
-  const removeUpdateItem = (index) => {
-    setNotification(prev => ({
-      ...prev,
-      updateItems: prev.updateItems.filter((_, i) => i !== index),
-    }));
+  const handleTypeChange = (value) => {
+    setNotification(prev => ({ ...prev, type: value }));
   };
 
   const handleSubmit = () => {
     onSubmit(notification);
-    onClose();
+    setNotification({ title: '', content: '', type: 'message' });
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>{editingNotification ? 'Editar' : 'Criar'} Notificação de Atualização do Sistema</DialogTitle>
+          <DialogTitle>Create New Notification</DialogTitle>
         </DialogHeader>
-        <div className="space-y-4">
-          <div>
-            <Label htmlFor="version">Versão</Label>
+        <div className="grid gap-4 py-4">
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="title" className="text-right">
+              Title
+            </Label>
             <Input
-              id="version"
-              name="version"
-              value={notification.version}
+              id="title"
+              name="title"
+              value={notification.title}
               onChange={handleChange}
-              required
+              className="col-span-3"
             />
           </div>
-          <div className="space-y-2">
-            <Label>Itens da Atualização</Label>
-            {notification.updateItems.map((item, index) => (
-              <div key={index} className="flex space-x-2">
-                <Input
-                  placeholder="Título"
-                  value={item.title}
-                  onChange={(e) => handleUpdateItemChange(index, 'title', e.target.value)}
-                />
-                <Input
-                  placeholder="Descrição"
-                  value={item.description}
-                  onChange={(e) => handleUpdateItemChange(index, 'description', e.target.value)}
-                />
-                <Button type="button" variant="outline" size="icon" onClick={() => removeUpdateItem(index)}>
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </div>
-            ))}
-            <Button type="button" onClick={addUpdateItem} className="w-full">
-              <Plus className="mr-2 h-4 w-4" /> Adicionar Item
-            </Button>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="content" className="text-right">
+              Content
+            </Label>
+            <Input
+              id="content"
+              name="content"
+              value={notification.content}
+              onChange={handleChange}
+              className="col-span-3"
+            />
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="type" className="text-right">
+              Type
+            </Label>
+            <Select onValueChange={handleTypeChange} value={notification.type}>
+              <SelectTrigger className="col-span-3">
+                <SelectValue placeholder="Select type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="message">Message</SelectItem>
+                <SelectItem value="system-update">System Update</SelectItem>
+                <SelectItem value="reminder">Reminder</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
-        <DialogFooter className="mt-4">
-          <Button type="button" variant="outline" onClick={onClose}>Cancelar</Button>
-          <Button type="button" onClick={handleSubmit}>{editingNotification ? 'Atualizar' : 'Criar'}</Button>
+        <DialogFooter>
+          <Button type="submit" onClick={handleSubmit}>Create</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

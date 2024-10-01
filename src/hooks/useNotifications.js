@@ -5,15 +5,17 @@ export const useNotifications = () => {
   const queryClient = useQueryClient();
 
   const fetchNotifications = async () => {
-    const { data, error } = await supabase
-      .from('notifications')
-      .select('*')
-      .order('created_at', { ascending: false });
-    if (error) {
+    try {
+      const { data, error } = await supabase
+        .from('notifications')
+        .select('*')
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      return data;
+    } catch (error) {
       console.error('Error fetching notifications:', error);
       return [];
     }
-    return data;
   };
 
   const { data: notifications = [], error: fetchError } = useQuery({

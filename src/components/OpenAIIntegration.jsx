@@ -67,8 +67,13 @@ const OpenAIIntegration = () => {
 
   const fetchBots = async () => {
     try {
-      const botsList = await listAssistants();
-      setBots(botsList);
+      const { data, error } = await supabase
+        .from('bots')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setBots(data);
     } catch (error) {
       console.error('Erro ao buscar bots:', error);
       toast.error('Falha ao carregar lista de bots');
@@ -103,6 +108,22 @@ const OpenAIIntegration = () => {
       const assistant = await createAssistant(newBot.name, newBot.instructions, newBot.model, {
         temperature: newBot.temperature,
       });
+      
+      const { data, error } = await supabase
+        .from('bots')
+        .insert({
+          name: newBot.name,
+          description: newBot.instructions,
+          openai_assistant_id: assistant.id,
+          user_id: session.user.id,
+          model: newBot.model,
+          temperature: newBot.temperature,
+          max_tokens: newBot.max_tokens
+        })
+        .select();
+
+      if (error) throw error;
+
       toast.success('Bot criado com sucesso!');
       setIsModalOpen(false);
       fetchBots();
@@ -118,7 +139,7 @@ const OpenAIIntegration = () => {
     setEditingBot(bot);
     setNewBot({
       name: bot.name,
-      instructions: bot.instructions,
+      instructions: bot.description,
       model: bot.model,
       temperature: bot.temperature || 1,
       max_tokens: bot.max_tokens || 150,
@@ -130,12 +151,27 @@ const OpenAIIntegration = () => {
   const handleUpdateBot = async () => {
     setIsLoading(true);
     try {
-      const updatedAssistant = await updateAssistant(editingBot.id, {
+      const updatedAssistant = await updateAssistant(editingBot.openai_assistant_id, {
         name: newBot.name,
         instructions: newBot.instructions,
         model: newBot.model,
         temperature: newBot.temperature,
       });
+
+      const { data, error } = await supabase
+        .from('bots')
+        .update({
+          name: newBot.name,
+          description: newBot.instructions,
+          model: newBot.model,
+          temperature: newBot.temperature,
+          max_tokens: newBot.max_tokens
+        })
+        .eq('id', editingBot.id)
+        .select();
+
+      if (error) throw error;
+
       toast.success('Bot atualizado com sucesso!');
       setIsModalOpen(false);
       fetchBots();
@@ -197,7 +233,8 @@ const OpenAIIntegration = () => {
                   <CardTitle>{bot.name}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p>Última edição: {format(new Date(bot.created_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}</p>
+                  <p>Criado em: {format(new Date(bot.created_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}</p>
+                  <p>Última edição: {format(new Date(bot.updated_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}</p>
                   <p>Modelo: {bot.model}</p>
                   <Button onClick={() => handleEditBot(bot)} className="mt-2">Editar</Button>
                 </CardContent>

@@ -31,7 +31,7 @@ const Sidebar = () => {
     { icon: <ShoppingCart size={20} />, label: 'Pedidos', to: '/orders' },
     { icon: <Activity size={20} />, label: 'Atividade', to: '/activity-logs' },
     { icon: <Users size={20} />, label: 'Usuários', to: '/users' },
-    { icon: <Bell size={20} />, label: 'Notificações', to: '/notifications' },
+    { icon: <Bell size={20} />, label: 'Notificações', to: '/notification-manager' },
     { icon: <MessageSquare size={20} />, label: 'Suporte', to: '/support' },
     { icon: <HelpCircle size={20} />, label: 'Ajuda', to: '/help' },
     { icon: <Store size={20} />, label: 'Mercado APIs', to: '/api-store' },

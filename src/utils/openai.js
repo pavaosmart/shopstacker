@@ -83,3 +83,14 @@ export const updateAssistant = async (assistantId, updates) => {
     throw error;
   }
 };
+
+export const deleteAssistant = async (assistantId) => {
+  try {
+    const openai = await getOpenAIInstance();
+    await openai.beta.assistants.del(assistantId);
+    console.log('Assistente excluído com sucesso:', assistantId);
+  } catch (error) {
+    console.error('Erro ao excluir assistente:', error);
+    throw error;
+  }
+};

@@ -4,13 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { toast } from "sonner";
 import { useSupabaseAuth } from '../integrations/supabase/auth';
 import { supabase } from '../integrations/supabase/supabase';
-import { initializeOpenAI, testConnection, listAssistants, createAssistant, updateAssistant } from '../utils/openai';
+import { initializeOpenAI, testConnection, listAssistants, createAssistant, updateAssistant, deleteAssistant } from '../utils/openai';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
@@ -20,6 +20,7 @@ const OpenAIIntegration = () => {
   const [bots, setBots] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingBot, setEditingBot] = useState(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [newBot, setNewBot] = useState({
     name: '',
     instructions: '',
@@ -188,6 +189,37 @@ const OpenAIIntegration = () => {
     }
   };
 
+  const handleDeleteBot = async () => {
+    setIsLoading(true);
+    try {
+      if (!editingBot.openai_assistant_id) {
+        throw new Error('Assistant ID is undefined');
+      }
+
+      // Delete from OpenAI
+      await deleteAssistant(editingBot.openai_assistant_id);
+
+      // Delete from Supabase
+      const { error } = await supabase
+        .from('bots')
+        .delete()
+        .eq('id', editingBot.id);
+
+      if (error) throw error;
+
+      toast.success('Bot excluído com sucesso!');
+      setIsModalOpen(false);
+      setIsDeleteDialogOpen(false);
+      fetchBots();
+    } catch (error) {
+      console.error('Erro ao excluir bot:', error);
+      toast.error('Falha ao excluir bot: ' + error.message);
+    } finally {
+      setIsLoading(false);
+      setEditingBot(null);
+    }
+  };
+
   const handleFileUpload = (event) => {
     const files = Array.from(event.target.files);
     setNewBot(prev => ({
@@ -328,8 +360,28 @@ const OpenAIIntegration = () => {
             </div>
           </div>
           <DialogFooter>
+            {editingBot && (
+              <Button variant="destructive" onClick={() => setIsDeleteDialogOpen(true)}>
+                Excluir Bot
+              </Button>
+            )}
             <Button onClick={editingBot ? handleUpdateBot : handleCreateBot} disabled={isLoading}>
               {isLoading ? 'Processando...' : (editingBot ? 'Atualizar Bot' : 'Criar Bot')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirmar Exclusão</DialogTitle>
+          </DialogHeader>
+          <p>Tem certeza que deseja excluir este bot? Esta ação não pode ser desfeita.</p>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>Cancelar</Button>
+            <Button variant="destructive" onClick={handleDeleteBot} disabled={isLoading}>
+              {isLoading ? 'Excluindo...' : 'Confirmar Exclusão'}
             </Button>
           </DialogFooter>
         </DialogContent>

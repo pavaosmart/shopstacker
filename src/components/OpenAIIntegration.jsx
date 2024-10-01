@@ -7,7 +7,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
-import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { useSupabaseAuth } from '../integrations/supabase/auth';
 import { supabase } from '../integrations/supabase/supabase';
@@ -23,12 +22,8 @@ const OpenAIIntegration = () => {
     instructions: '',
     model: 'gpt-4',
     temperature: 1,
-    topP: 1,
-    responseFormat: 'text',
-    fileSearch: false,
-    codeInterpreter: false,
-    functions: false,
-    files: []
+    maxTokens: 150,
+    documents: []
   });
   const { session } = useSupabaseAuth();
 
@@ -104,13 +99,7 @@ const OpenAIIntegration = () => {
     try {
       const assistant = await createAssistant(newBot.name, newBot.instructions, newBot.model, {
         temperature: newBot.temperature,
-        top_p: newBot.topP,
-        response_format: { type: newBot.responseFormat },
-        tools: [
-          ...(newBot.fileSearch ? [{ type: "retrieval" }] : []),
-          ...(newBot.codeInterpreter ? [{ type: "code_interpreter" }] : []),
-          ...(newBot.functions ? [{ type: "function" }] : []),
-        ],
+        max_tokens: newBot.maxTokens,
       });
       toast.success('Bot created successfully!');
       setIsModalOpen(false);
@@ -121,6 +110,14 @@ const OpenAIIntegration = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleFileUpload = (event) => {
+    const files = Array.from(event.target.files);
+    setNewBot(prev => ({
+      ...prev,
+      documents: [...prev.documents, ...files]
+    }));
   };
 
   return (
@@ -210,21 +207,6 @@ const OpenAIIntegration = () => {
               </Select>
             </div>
             <div>
-              <Label htmlFor="responseFormat">Response Format</Label>
-              <Select 
-                value={newBot.responseFormat} 
-                onValueChange={(value) => setNewBot({...newBot, responseFormat: value})}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select response format" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="text">Text</SelectItem>
-                  <SelectItem value="json_object">JSON Object</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
               <Label htmlFor="temperature">Temperature: {newBot.temperature}</Label>
               <Slider
                 id="temperature"
@@ -236,39 +218,29 @@ const OpenAIIntegration = () => {
               />
             </div>
             <div>
-              <Label htmlFor="topP">Top P: {newBot.topP}</Label>
+              <Label htmlFor="maxTokens">Max Tokens: {newBot.maxTokens}</Label>
               <Slider
-                id="topP"
-                min={0}
-                max={1}
-                step={0.1}
-                value={[newBot.topP]}
-                onValueChange={(value) => setNewBot({...newBot, topP: value[0]})}
+                id="maxTokens"
+                min={50}
+                max={500}
+                step={10}
+                value={[newBot.maxTokens]}
+                onValueChange={(value) => setNewBot({...newBot, maxTokens: value[0]})}
               />
             </div>
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="fileSearch"
-                checked={newBot.fileSearch}
-                onCheckedChange={(checked) => setNewBot({...newBot, fileSearch: checked})}
+            <div>
+              <Label htmlFor="documents">Add Documents to Knowledge Base</Label>
+              <Input
+                id="documents"
+                type="file"
+                multiple
+                onChange={handleFileUpload}
               />
-              <Label htmlFor="fileSearch">File search</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="codeInterpreter"
-                checked={newBot.codeInterpreter}
-                onCheckedChange={(checked) => setNewBot({...newBot, codeInterpreter: checked})}
-              />
-              <Label htmlFor="codeInterpreter">Code interpreter</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="functions"
-                checked={newBot.functions}
-                onCheckedChange={(checked) => setNewBot({...newBot, functions: checked})}
-              />
-              <Label htmlFor="functions">Functions</Label>
+              <div className="mt-2">
+                {newBot.documents.map((doc, index) => (
+                  <div key={index} className="text-sm text-gray-600">{doc.name}</div>
+                ))}
+              </div>
             </div>
           </div>
           <DialogFooter>

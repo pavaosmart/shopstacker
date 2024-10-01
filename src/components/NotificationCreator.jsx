@@ -12,15 +12,15 @@ const NotificationCreator = ({ isOpen, onClose, onSubmit, type }) => {
     scheduledDate: '',
     scheduledTime: '',
   });
+  const [showSchedule, setShowSchedule] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setNotification(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onSubmit({ ...notification, type });
+  const handleSubmit = (isScheduled) => {
+    onSubmit({ ...notification, type, scheduled: isScheduled });
     onClose();
   };
 
@@ -30,31 +30,37 @@ const NotificationCreator = ({ isOpen, onClose, onSubmit, type }) => {
         <DialogHeader>
           <DialogTitle>Criar Nova Notificação</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit}>
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="title">Título</Label>
-              <Input id="title" name="title" value={notification.title} onChange={handleChange} required />
-            </div>
-            <div>
-              <Label htmlFor="message">Mensagem</Label>
-              <Textarea id="message" name="message" value={notification.message} onChange={handleChange} required />
-            </div>
-            <div>
-              <Label htmlFor="scheduledDate">Data</Label>
-              <Input type="date" id="scheduledDate" name="scheduledDate" value={notification.scheduledDate} onChange={handleChange} />
-            </div>
-            <div>
-              <Label htmlFor="scheduledTime">Hora</Label>
-              <Input type="time" id="scheduledTime" name="scheduledTime" value={notification.scheduledTime} onChange={handleChange} />
-            </div>
+        <div className="space-y-4">
+          <div>
+            <Label htmlFor="title">Título</Label>
+            <Input id="title" name="title" value={notification.title} onChange={handleChange} required />
           </div>
-          <DialogFooter className="mt-4">
-            <Button type="button" variant="outline" onClick={onClose}>Cancelar</Button>
-            <Button type="submit">Enviar Agora</Button>
-            <Button type="submit" onClick={() => setNotification(prev => ({ ...prev, scheduled: true }))}>Agendar</Button>
-          </DialogFooter>
-        </form>
+          <div>
+            <Label htmlFor="message">Mensagem</Label>
+            <Textarea id="message" name="message" value={notification.message} onChange={handleChange} required />
+          </div>
+          {showSchedule && (
+            <>
+              <div>
+                <Label htmlFor="scheduledDate">Data</Label>
+                <Input type="date" id="scheduledDate" name="scheduledDate" value={notification.scheduledDate} onChange={handleChange} />
+              </div>
+              <div>
+                <Label htmlFor="scheduledTime">Hora</Label>
+                <Input type="time" id="scheduledTime" name="scheduledTime" value={notification.scheduledTime} onChange={handleChange} />
+              </div>
+            </>
+          )}
+        </div>
+        <DialogFooter className="mt-4">
+          <Button type="button" variant="outline" onClick={onClose}>Cancelar</Button>
+          <Button type="button" onClick={() => handleSubmit(false)}>Enviar Agora</Button>
+          {!showSchedule ? (
+            <Button type="button" onClick={() => setShowSchedule(true)}>Agendar</Button>
+          ) : (
+            <Button type="button" onClick={() => handleSubmit(true)}>Confirmar Agendamento</Button>
+          )}
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

@@ -53,13 +53,14 @@ export const listAssistants = async () => {
   }
 };
 
-export const createAssistant = async (name, instructions, model = 'gpt-3.5-turbo') => {
+export const createAssistant = async (name, instructions, model = 'gpt-3.5-turbo', options = {}) => {
   try {
     const openai = await getOpenAIInstance();
     const assistant = await openai.beta.assistants.create({
       name,
       instructions,
       model,
+      ...options
     });
     return assistant;
   } catch (error) {

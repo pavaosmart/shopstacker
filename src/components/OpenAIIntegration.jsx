@@ -6,6 +6,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
+import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { useSupabaseAuth } from '../integrations/supabase/auth';
 import { supabase } from '../integrations/supabase/supabase';
@@ -18,11 +20,15 @@ const OpenAIIntegration = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newBot, setNewBot] = useState({
     name: '',
-    prompt: '',
-    model: 'gpt-3.5-turbo',
-    temperature: 0.7,
-    maxTokens: 150,
-    document: null
+    instructions: '',
+    model: 'gpt-4',
+    temperature: 1,
+    topP: 1,
+    responseFormat: 'text',
+    fileSearch: false,
+    codeInterpreter: false,
+    functions: false,
+    files: []
   });
   const { session } = useSupabaseAuth();
 
@@ -96,7 +102,16 @@ const OpenAIIntegration = () => {
   const handleCreateBot = async () => {
     setIsLoading(true);
     try {
-      const assistant = await createAssistant(newBot.name, newBot.prompt, newBot.model);
+      const assistant = await createAssistant(newBot.name, newBot.instructions, newBot.model, {
+        temperature: newBot.temperature,
+        top_p: newBot.topP,
+        response_format: { type: newBot.responseFormat },
+        tools: [
+          ...(newBot.fileSearch ? [{ type: "retrieval" }] : []),
+          ...(newBot.codeInterpreter ? [{ type: "code_interpreter" }] : []),
+          ...(newBot.functions ? [{ type: "function" }] : []),
+        ],
+      });
       toast.success('Bot created successfully!');
       setIsModalOpen(false);
       fetchBots();
@@ -149,7 +164,7 @@ const OpenAIIntegration = () => {
                   <CardTitle>{bot.name}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p>{bot.description}</p>
+                  <p>{bot.instructions}</p>
                 </CardContent>
               </Card>
             ))}
@@ -158,7 +173,7 @@ const OpenAIIntegration = () => {
       </Card>
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>Create New Bot</DialogTitle>
           </DialogHeader>
@@ -172,11 +187,11 @@ const OpenAIIntegration = () => {
               />
             </div>
             <div>
-              <Label htmlFor="prompt">Prompt</Label>
+              <Label htmlFor="instructions">System Instructions</Label>
               <Textarea 
-                id="prompt" 
-                value={newBot.prompt} 
-                onChange={(e) => setNewBot({...newBot, prompt: e.target.value})}
+                id="instructions" 
+                value={newBot.instructions} 
+                onChange={(e) => setNewBot({...newBot, instructions: e.target.value})}
               />
             </div>
             <div>
@@ -193,6 +208,67 @@ const OpenAIIntegration = () => {
                   <SelectItem value="gpt-4">GPT-4</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+            <div>
+              <Label htmlFor="responseFormat">Response Format</Label>
+              <Select 
+                value={newBot.responseFormat} 
+                onValueChange={(value) => setNewBot({...newBot, responseFormat: value})}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select response format" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="text">Text</SelectItem>
+                  <SelectItem value="json_object">JSON Object</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="temperature">Temperature: {newBot.temperature}</Label>
+              <Slider
+                id="temperature"
+                min={0}
+                max={1}
+                step={0.1}
+                value={[newBot.temperature]}
+                onValueChange={(value) => setNewBot({...newBot, temperature: value[0]})}
+              />
+            </div>
+            <div>
+              <Label htmlFor="topP">Top P: {newBot.topP}</Label>
+              <Slider
+                id="topP"
+                min={0}
+                max={1}
+                step={0.1}
+                value={[newBot.topP]}
+                onValueChange={(value) => setNewBot({...newBot, topP: value[0]})}
+              />
+            </div>
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="fileSearch"
+                checked={newBot.fileSearch}
+                onCheckedChange={(checked) => setNewBot({...newBot, fileSearch: checked})}
+              />
+              <Label htmlFor="fileSearch">File search</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="codeInterpreter"
+                checked={newBot.codeInterpreter}
+                onCheckedChange={(checked) => setNewBot({...newBot, codeInterpreter: checked})}
+              />
+              <Label htmlFor="codeInterpreter">Code interpreter</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="functions"
+                checked={newBot.functions}
+                onCheckedChange={(checked) => setNewBot({...newBot, functions: checked})}
+              />
+              <Label htmlFor="functions">Functions</Label>
             </div>
           </div>
           <DialogFooter>

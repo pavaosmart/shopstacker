@@ -1,16 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Plus, Trash2 } from 'lucide-react';
 
-const NotificationCreator = ({ isOpen, onClose, onSubmit, type }) => {
+const NotificationCreator = ({ isOpen, onClose, onSubmit, editingNotification }) => {
   const [notification, setNotification] = useState({
     version: 'beta',
     updateItems: [{ title: '', description: '' }],
   });
-  const [showSchedule, setShowSchedule] = useState(false);
+
+  useEffect(() => {
+    if (editingNotification) {
+      setNotification(editingNotification);
+    } else {
+      setNotification({
+        version: 'beta',
+        updateItems: [{ title: '', description: '' }],
+      });
+    }
+  }, [editingNotification]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -37,14 +47,8 @@ const NotificationCreator = ({ isOpen, onClose, onSubmit, type }) => {
     }));
   };
 
-  const handleSubmit = (isScheduled) => {
-    const formattedNotification = {
-      ...notification,
-      type,
-      scheduled: isScheduled,
-      title: `Atualização do Sistema: ${notification.version}`,
-    };
-    onSubmit(formattedNotification);
+  const handleSubmit = () => {
+    onSubmit(notification);
     onClose();
   };
 
@@ -52,7 +56,7 @@ const NotificationCreator = ({ isOpen, onClose, onSubmit, type }) => {
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle>Criar Nova Notificação de Atualização do Sistema</DialogTitle>
+          <DialogTitle>{editingNotification ? 'Editar' : 'Criar'} Notificação de Atualização do Sistema</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
           <div>
@@ -88,27 +92,10 @@ const NotificationCreator = ({ isOpen, onClose, onSubmit, type }) => {
               <Plus className="mr-2 h-4 w-4" /> Adicionar Item
             </Button>
           </div>
-          {showSchedule && (
-            <>
-              <div>
-                <Label htmlFor="scheduledDate">Data</Label>
-                <Input type="date" id="scheduledDate" name="scheduledDate" value={notification.scheduledDate} onChange={handleChange} />
-              </div>
-              <div>
-                <Label htmlFor="scheduledTime">Hora</Label>
-                <Input type="time" id="scheduledTime" name="scheduledTime" value={notification.scheduledTime} onChange={handleChange} />
-              </div>
-            </>
-          )}
         </div>
         <DialogFooter className="mt-4">
           <Button type="button" variant="outline" onClick={onClose}>Cancelar</Button>
-          <Button type="button" onClick={() => handleSubmit(false)}>Enviar Agora</Button>
-          {!showSchedule ? (
-            <Button type="button" onClick={() => setShowSchedule(true)}>Agendar</Button>
-          ) : (
-            <Button type="button" onClick={() => handleSubmit(true)}>Confirmar Agendamento</Button>
-          )}
+          <Button type="button" onClick={handleSubmit}>{editingNotification ? 'Atualizar' : 'Criar'}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

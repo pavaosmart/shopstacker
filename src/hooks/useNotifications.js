@@ -1,25 +1,28 @@
 import { useState, useEffect } from 'react';
 
-// Dados mockados para simular notificações
-const mockNotifications = [
-  { id: 1, title: 'Bem-vindo', content: 'Bem-vindo ao nosso sistema!', type: 'message', status: 'pending', created_at: new Date().toISOString() },
-  { id: 2, title: 'Atualização', content: 'Nova atualização disponível', type: 'system-update', status: 'pending', created_at: new Date(Date.now() - 86400000).toISOString() },
-];
-
-export const useNotifications = () => {
-  const [notifications, setNotifications] = useState(mockNotifications);
-
-  const fetchNotifications = async () => {
-    // Simula uma chamada assíncrona
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(mockNotifications);
-      }, 500);
-    });
-  };
+const useNotifications = () => {
+  const [notifications, setNotifications] = useState([]);
 
   useEffect(() => {
-    fetchNotifications().then(setNotifications);
+    // Simula uma chamada assíncrona para carregar notificações
+    const fetchNotifications = async () => {
+      // Aqui você faria uma chamada real à API
+      const mockNotifications = [
+        {
+          id: 1,
+          type: 'system-update',
+          version: 'beta 1.0',
+          updateItems: [
+            { title: 'Nova funcionalidade', description: 'Adicionada a capacidade de editar notificações' },
+            { title: 'Correção de bug', description: 'Resolvido problema de exibição em telas pequenas' }
+          ],
+          created_at: new Date().toISOString()
+        }
+      ];
+      setNotifications(mockNotifications);
+    };
+
+    fetchNotifications();
   }, []);
 
   const createNotification = (newNotification) => {
@@ -27,7 +30,6 @@ export const useNotifications = () => {
       ...newNotification,
       id: Date.now(),
       created_at: new Date().toISOString(),
-      status: 'pending',
     };
     setNotifications((prev) => [notification, ...prev]);
   };
@@ -51,3 +53,5 @@ export const useNotifications = () => {
     deleteNotification,
   };
 };
+
+export default useNotifications;

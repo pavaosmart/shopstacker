@@ -2,16 +2,12 @@ import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Plus, Trash2 } from 'lucide-react';
 
 const NotificationCreator = ({ isOpen, onClose, onSubmit, type }) => {
   const [notification, setNotification] = useState({
-    version: '',
-    message: '',
-    scheduledDate: '',
-    scheduledTime: '',
+    version: 'beta',
     updateItems: [{ title: '', description: '' }],
   });
   const [showSchedule, setShowSchedule] = useState(false);
@@ -68,10 +64,6 @@ const NotificationCreator = ({ isOpen, onClose, onSubmit, type }) => {
               onChange={handleChange}
               required
             />
-          </div>
-          <div>
-            <Label htmlFor="message">Mensagem Geral</Label>
-            <Textarea id="message" name="message" value={notification.message} onChange={handleChange} required />
           </div>
           <div className="space-y-2">
             <Label>Itens da Atualização</Label>

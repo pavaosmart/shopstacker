@@ -5,7 +5,7 @@ import { Home, Package, ShoppingCart, Activity, Users, Bell, Settings, HelpCircl
 const Navigation = () => {
   const navItems = [
     { to: '/', icon: Home, label: 'Dashboard' },
-    { to: '/products', icon: Package, label: 'Produtos' },
+    { to: '/estoque', icon: Package, label: 'Estoque' },
     { to: '/meus-produtos', icon: Package, label: 'Meus Produtos' },
     { to: '/orders', icon: ShoppingCart, label: 'Pedidos' },
     { to: '/activity-logs', icon: Activity, label: 'Logs de Atividade' },

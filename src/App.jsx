@@ -4,7 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { SupabaseAuthProvider } from './integrations/supabase/auth';
 import Layout from './components/Layout';
 import Index from './pages/Index';
-import Products from './pages/Products';
+import Estoque from './pages/Estoque';
 import MeusProdutos from './pages/MeusProdutos';
 import Orders from './pages/Orders';
 import ActivityLogs from './pages/ActivityLogs';
@@ -38,7 +38,7 @@ function App() {
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/" element={<Layout />}>
               <Route index element={<Index />} />
-              <Route path="products" element={<ProtectedRoute><Products /></ProtectedRoute>} />
+              <Route path="estoque" element={<ProtectedRoute><Estoque /></ProtectedRoute>} />
               <Route path="meus-produtos" element={<ProtectedRoute><MeusProdutos /></ProtectedRoute>} />
               <Route path="orders" element={<ProtectedRoute><Orders /></ProtectedRoute>} />
               <Route path="activity-logs" element={<ProtectedRoute><ActivityLogs /></ProtectedRoute>} />

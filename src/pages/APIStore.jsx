@@ -73,14 +73,13 @@ const APIStore = () => {
     if (apiName === "OpenAI GPT-4") {
       navigate('/api-integration/openai');
     } else {
-      // For other APIs, you might want to show a "coming soon" message or implement their integration pages
       console.log(`Integration for ${apiName} is not implemented yet.`);
     }
   };
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6">API Marketplace</h1>
+      <h1 className="text-3xl font-bold mb-6">Integrações</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {apiList.map((api, index) => (
           <Card key={index} className="flex flex-col">

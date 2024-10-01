@@ -5,14 +5,14 @@ const getApiKey = async () => {
   const { data, error } = await supabase
     .from('user_settings')
     .select('openai_api_key')
-    .limit(1);
+    .limit(1);  // Add this line to limit the result to 1 row
   
   if (error) {
     console.error('Error fetching OpenAI API key:', error);
     return null;
   }
   
-  return data?.[0]?.openai_api_key;
+  return data?.[0]?.openai_api_key;  // Access the first item in the array
 };
 
 let openaiInstance = null;
@@ -44,14 +44,14 @@ export const testConnection = async () => {
   }
 };
 
-export const createAssistant = async (name, instructions, model = 'gpt-3.5-turbo', temperature = 0.7, maxTokens = 150) => {
+export const createAssistant = async (name, instructions) => {
   try {
     console.log('Creating assistant with name:', name, 'and instructions:', instructions);
     const openai = await getOpenAIInstance();
     const assistant = await openai.beta.assistants.create({
       name,
       instructions,
-      model,
+      model: 'gpt-3.5-turbo',
       tools: [{ type: "code_interpreter" }],
     });
     console.log('Assistant created successfully:', assistant);
@@ -61,28 +61,6 @@ export const createAssistant = async (name, instructions, model = 'gpt-3.5-turbo
     if (error.response) {
       console.error('OpenAI API response:', error.response.data);
     }
-    throw error;
-  }
-};
-
-export const listAssistants = async () => {
-  try {
-    const { data: bots, error } = await supabase
-      .from('bots')
-      .select(`
-        *,
-        bot_configurations (*)
-      `);
-
-    if (error) {
-      console.error('Error fetching bots:', error);
-      throw error;
-    }
-
-    console.log('Bots fetched successfully:', bots);
-    return bots;
-  } catch (error) {
-    console.error('Error fetching bots:', error);
     throw error;
   }
 };
@@ -190,4 +168,26 @@ export const verifyBotData = async (botId) => {
 
   console.log('Bot data verified:', { bot, config, prompts });
   return true;
+};
+
+export const listAssistants = async () => {
+  try {
+    const { data: bots, error } = await supabase
+      .from('bots')
+      .select(`
+        *,
+        bot_configurations (*)
+      `);
+
+    if (error) {
+      console.error('Error fetching bots:', error);
+      throw error;
+    }
+
+    console.log('Bots fetched successfully:', bots);
+    return bots;
+  } catch (error) {
+    console.error('Error fetching bots:', error);
+    throw error;
+  }
 };

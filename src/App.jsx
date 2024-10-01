@@ -5,6 +5,7 @@ import { SupabaseAuthProvider } from './integrations/supabase/auth';
 import Layout from './components/Layout';
 import Index from './pages/Index';
 import Products from './pages/Products';
+import MeusProdutos from './pages/MeusProdutos';
 import Orders from './pages/Orders';
 import ActivityLogs from './pages/ActivityLogs';
 import UsersAndPermissions from './pages/UsersAndPermissions';
@@ -37,7 +38,8 @@ function App() {
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/" element={<Layout />}>
               <Route index element={<Index />} />
-              <Route path="products" element={<ProtectedRoute><Products /></ProtectedRoute>} />
+              <Route path="estoque" element={<ProtectedRoute><Products /></ProtectedRoute>} />
+              <Route path="meus-produtos" element={<ProtectedRoute><MeusProdutos /></ProtectedRoute>} />
               <Route path="orders" element={<ProtectedRoute><Orders /></ProtectedRoute>} />
               <Route path="activity-logs" element={<ProtectedRoute><ActivityLogs /></ProtectedRoute>} />
               <Route path="users" element={<ProtectedRoute><UsersAndPermissions /></ProtectedRoute>} />

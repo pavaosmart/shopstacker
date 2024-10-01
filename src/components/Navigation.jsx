@@ -1,11 +1,12 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { Home, Package, ShoppingCart, Activity, Users, Bell, Settings, HelpCircle, Store, FileText } from 'lucide-react';
+import { Home, Package, ShoppingCart, Activity, Users, Bell, Settings, HelpCircle, Store, FileText, Clipboard } from 'lucide-react';
 
 const Navigation = () => {
   const navItems = [
     { to: '/', icon: Home, label: 'Dashboard' },
-    { to: '/products', icon: Package, label: 'Produtos' },
+    { to: '/estoque', icon: Package, label: 'Estoque' },
+    { to: '/meus-produtos', icon: Clipboard, label: 'Meus Produtos' },
     { to: '/orders', icon: ShoppingCart, label: 'Pedidos' },
     { to: '/activity-logs', icon: Activity, label: 'Logs de Atividade' },
     { to: '/users', icon: Users, label: 'Usuários' },

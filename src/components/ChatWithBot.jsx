@@ -46,8 +46,6 @@ const ChatWithBot = () => {
     try {
       const openai = await getOpenAIInstance();
       
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
       const response = await openai.chat.completions.create({
         model: selectedAssistant.model || "gpt-3.5-turbo",
         messages: [

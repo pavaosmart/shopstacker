@@ -23,6 +23,7 @@ import Documentation from './pages/Documentation';
 import UIComponentsPanel from './components/UIComponentsPanel';
 import ProtectedRoute from './components/ProtectedRoute';
 import Market from './pages/Market';
+import MeusProdutos from './pages/MeusProdutos';
 
 const queryClient = new QueryClient();
 
@@ -51,6 +52,7 @@ function App() {
               <Route path="profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
               <Route path="documentation" element={<ProtectedRoute><Documentation /></ProtectedRoute>} />
               <Route path="market" element={<ProtectedRoute><Market /></ProtectedRoute>} />
+              <Route path="meus-produtos" element={<ProtectedRoute><MeusProdutos /></ProtectedRoute>} />
             </Route>
           </Routes>
           <UIComponentsPanel />

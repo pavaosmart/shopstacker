@@ -14,6 +14,7 @@ const Navigation = () => {
     { to: '/help', icon: HelpCircle, label: 'Ajuda' },
     { to: '/market', icon: Store, label: 'Mercado' },
     { to: '/integrations', icon: FileText, label: 'Integrações' },
+    { to: '/meus-produtos', icon: Package, label: 'Meus Produtos' },
   ];
 
   return (

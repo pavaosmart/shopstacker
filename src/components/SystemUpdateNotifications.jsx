@@ -12,7 +12,7 @@ const SystemUpdateNotifications = () => {
     createNotification({
       ...notification,
       type: 'system-update',
-      title: `Atualização do Sistema: ${notification.version}`
+      title: `Atualização do Sistema ${notification.version}`
     });
   };
 

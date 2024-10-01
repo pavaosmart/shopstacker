@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import NotificationCreator from './NotificationCreator';
 import NotificationList from './NotificationList';
 import ConfirmDeleteDialog from './ConfirmDeleteDialog';
-import { useNotifications } from '../hooks/useNotifications';
+import useNotifications from '../hooks/useNotifications';
 
 const SystemUpdateNotifications = () => {
   const [isCreatorOpen, setIsCreatorOpen] = useState(false);

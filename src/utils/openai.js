@@ -40,27 +40,6 @@ export const testConnection = async () => {
   }
 };
 
-export const createAssistant = async (name, instructions, model = 'gpt-3.5-turbo', temperature = 0.7, maxTokens = 150) => {
-  try {
-    console.log('Creating assistant with name:', name, 'and instructions:', instructions);
-    const openai = await getOpenAIInstance();
-    const assistant = await openai.beta.assistants.create({
-      name,
-      instructions,
-      model,
-      tools: [{ type: "code_interpreter" }],
-    });
-    console.log('Assistant created successfully:', assistant);
-    return assistant;
-  } catch (error) {
-    console.error('Error creating assistant:', error);
-    if (error.response) {
-      console.error('OpenAI API response:', error.response.data);
-    }
-    throw error;
-  }
-};
-
 export const listAssistants = async () => {
   try {
     const openai = await getOpenAIInstance();
@@ -72,6 +51,21 @@ export const listAssistants = async () => {
     return filteredAssistants;
   } catch (error) {
     console.error('Error listing assistants:', error);
+    throw error;
+  }
+};
+
+export const createAssistant = async (name, instructions, model = 'gpt-3.5-turbo') => {
+  try {
+    const openai = await getOpenAIInstance();
+    const assistant = await openai.beta.assistants.create({
+      name,
+      instructions,
+      model,
+    });
+    return assistant;
+  } catch (error) {
+    console.error('Error creating assistant:', error);
     throw error;
   }
 };

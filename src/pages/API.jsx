@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { useSupabaseAuth } from '../integrations/supabase/auth';
 import { supabase } from '../integrations/supabase/supabase';
 import { initializeOpenAI, testConnection, listAssistants, createAssistant } from '../utils/openai';
+import Navigation from '../components/Navigation';
 
 const API = () => {
   const [openaiApiKey, setOpenaiApiKey] = useState('');
@@ -95,12 +96,12 @@ const API = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-6">Configurações de API</h1>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {/* OpenAI Card */}
-        <Card>
+    <div>
+      <Navigation />
+      <div className="container mx-auto px-4 py-8">
+        <h1 className="text-2xl font-bold mb-6">Configurações de API</h1>
+        
+        <Card className="mb-6">
           <CardHeader>
             <CardTitle>OpenAI</CardTitle>
           </CardHeader>
@@ -153,46 +154,6 @@ const API = () => {
                 )}
               </div>
             </div>
-          </CardContent>
-        </Card>
-
-        {/* Mercado Livre Card */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Mercado Livre</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p>Configuração da API do Mercado Livre (em desenvolvimento)</p>
-          </CardContent>
-        </Card>
-
-        {/* Shopee Card */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Shopee</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p>Configuração da API da Shopee (em desenvolvimento)</p>
-          </CardContent>
-        </Card>
-
-        {/* Shopify Card */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Shopify</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p>Configuração da API do Shopify (em desenvolvimento)</p>
-          </CardContent>
-        </Card>
-
-        {/* Amazon Card */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Amazon</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p>Configuração da API da Amazon (em desenvolvimento)</p>
           </CardContent>
         </Card>
       </div>

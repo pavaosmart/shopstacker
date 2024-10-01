@@ -1,40 +1,28 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
-import { Home, Package, ShoppingCart, Activity, Users, Bell, Settings, HelpCircle, Store, FileText } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { useSupabaseAuth } from '../integrations/supabase/auth';
 
 const Navigation = () => {
-  const navItems = [
-    { to: '/', icon: Home, label: 'Dashboard' },
-    { to: '/estoque', icon: Package, label: 'Estoque' },
-    { to: '/meus-produtos', icon: Package, label: 'Meus Produtos' },
-    { to: '/orders', icon: ShoppingCart, label: 'Pedidos' },
-    { to: '/activity-logs', icon: Activity, label: 'Logs de Atividade' },
-    { to: '/users', icon: Users, label: 'Usuários' },
-    { to: '/notifications', icon: Bell, label: 'Notificações' },
-    { to: '/settings', icon: Settings, label: 'Configurações' },
-    { to: '/help', icon: HelpCircle, label: 'Ajuda' },
-    { to: '/market', icon: Store, label: 'Mercado' },
-    { to: '/integrations', icon: FileText, label: 'Integrações' },
-  ];
+  const { session, logout } = useSupabaseAuth();
 
   return (
-    <nav className="space-y-1">
-      {navItems.map((item) => (
-        <NavLink
-          key={item.to}
-          to={item.to}
-          className={({ isActive }) =>
-            `flex items-center px-2 py-2 text-sm font-medium rounded-md ${
-              isActive
-                ? 'bg-gray-100 text-gray-900'
-                : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-            }`
-          }
-        >
-          <item.icon className="mr-3 flex-shrink-0 h-6 w-6" />
-          {item.label}
-        </NavLink>
-      ))}
+    <nav className="bg-gray-800 text-white p-4">
+      <ul className="flex space-x-4">
+        <li><Link to="/" className="hover:text-gray-300">Home</Link></li>
+        {session && (
+          <>
+            <li><Link to="/api" className="hover:text-gray-300">API Config</Link></li>
+            <li><Link to="/notifications" className="hover:text-gray-300">Notifications</Link></li>
+            <li><button onClick={logout} className="hover:text-gray-300">Logout</button></li>
+          </>
+        )}
+        {!session && (
+          <>
+            <li><Link to="/login" className="hover:text-gray-300">Login</Link></li>
+            <li><Link to="/register" className="hover:text-gray-300">Register</Link></li>
+          </>
+        )}
+      </ul>
     </nav>
   );
 };

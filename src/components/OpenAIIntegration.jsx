@@ -39,9 +39,17 @@ const OpenAIIntegration = () => {
         .from('user_settings')
         .select('openai_api_key')
         .eq('user_id', session.user.id)
+        .order('created_at', { ascending: false })
+        .limit(1)
         .single();
 
-      if (error) throw error;
+      if (error) {
+        if (error.code === 'PGRST116') {
+          console.log('No API key found for the user');
+          return;
+        }
+        throw error;
+      }
       
       if (data?.openai_api_key) {
         setOpenaiApiKey(data.openai_api_key);

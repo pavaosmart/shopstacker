@@ -28,7 +28,7 @@ const Sidebar = () => {
 
   const sidebarItems = [
     { icon: <LayoutDashboard size={20} />, label: 'Dashboard', to: '/' },
-    { icon: <Package size={20} />, label: 'Produtos', to: '/products' },
+    { icon: <Package size={20} />, label: 'Estoque', to: '/estoque' },
     { icon: <Package size={20} />, label: 'Meus Produtos', to: '/meus-produtos' },
     { icon: <ShoppingCart size={20} />, label: 'Pedidos', to: '/orders' },
     { icon: <Activity size={20} />, label: 'Atividade', to: '/activity-logs' },

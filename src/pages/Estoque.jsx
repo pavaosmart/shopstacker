@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import { Package, Edit, Trash2, Plus, Image } from 'lucide-react';
 import ProductCard from '../components/ProductCard';
 
-const Products = () => {
+const Estoque = () => {
   const [newProduct, setNewProduct] = useState({ 
     name: '', 
     price: '', 
@@ -127,7 +127,7 @@ const Products = () => {
         <CardHeader>
           <CardTitle className="text-2xl font-bold flex items-center">
             <Package className="mr-2" />
-            Produtos
+            Estoque
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -292,4 +292,4 @@ const Products = () => {
   );
 };
 
-export default Products;
+export default Estoque;

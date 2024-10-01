@@ -1,20 +1,6 @@
 import OpenAI from "openai";
 import { supabase } from '../integrations/supabase/supabase';
 
-const getApiKey = async () => {
-  const { data, error } = await supabase
-    .from('user_settings')
-    .select('openai_api_key')
-    .limit(1);
-  
-  if (error) {
-    console.error('Error fetching OpenAI API key:', error);
-    return null;
-  }
-  
-  return data?.[0]?.openai_api_key;
-};
-
 let openaiInstance = null;
 
 export const initializeOpenAI = async (apiKey) => {
@@ -23,7 +9,17 @@ export const initializeOpenAI = async (apiKey) => {
 
 export const getOpenAIInstance = async () => {
   if (!openaiInstance) {
-    const apiKey = await getApiKey();
+    const { data, error } = await supabase
+      .from('user_settings')
+      .select('openai_api_key')
+      .limit(1);
+    
+    if (error) {
+      console.error('Error fetching OpenAI API key:', error);
+      return null;
+    }
+    
+    const apiKey = data?.[0]?.openai_api_key;
     if (!apiKey) {
       throw new Error('OpenAI API key not found');
     }
@@ -44,14 +40,14 @@ export const testConnection = async () => {
   }
 };
 
-export const createAssistant = async (name, instructions) => {
+export const createAssistant = async (name, instructions, model = 'gpt-3.5-turbo', temperature = 0.7, maxTokens = 150) => {
   try {
     console.log('Creating assistant with name:', name, 'and instructions:', instructions);
     const openai = await getOpenAIInstance();
     const assistant = await openai.beta.assistants.create({
       name,
       instructions,
-      model: 'gpt-3.5-turbo',
+      model,
       tools: [{ type: "code_interpreter" }],
     });
     console.log('Assistant created successfully:', assistant);

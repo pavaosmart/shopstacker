@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import NotificationCreator from './NotificationCreator';
 import NotificationList from './NotificationList';
+import { useNotifications } from '../hooks/useNotifications';
 
 const MessageNotifications = () => {
   const [isCreatorOpen, setIsCreatorOpen] = useState(false);
+  const { createNotification } = useNotifications();
 
   const handleCreateNotification = (notification) => {
-    // Aqui você implementaria a lógica para salvar a notificação
-    console.log('Nova notificação de mensagem:', notification);
+    createNotification({ ...notification, type: 'message' });
   };
 
   return (

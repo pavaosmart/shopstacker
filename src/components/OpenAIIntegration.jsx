@@ -151,6 +151,10 @@ const OpenAIIntegration = () => {
   const handleUpdateBot = async () => {
     setIsLoading(true);
     try {
+      if (!editingBot.openai_assistant_id) {
+        throw new Error('Assistant ID is undefined');
+      }
+
       const updatedAssistant = await updateAssistant(editingBot.openai_assistant_id, {
         name: newBot.name,
         instructions: newBot.instructions,
@@ -177,7 +181,7 @@ const OpenAIIntegration = () => {
       fetchBots();
     } catch (error) {
       console.error('Erro ao atualizar bot:', error);
-      toast.error('Falha ao atualizar bot');
+      toast.error('Falha ao atualizar bot: ' + error.message);
     } finally {
       setIsLoading(false);
       setEditingBot(null);

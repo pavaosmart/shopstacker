@@ -17,13 +17,13 @@ export const getOpenAIInstance = async () => {
       .single();
     
     if (error) {
-      console.error('Error fetching OpenAI API key:', error);
+      console.error('Erro ao buscar chave de API OpenAI:', error);
       return null;
     }
     
     const apiKey = data?.openai_api_key;
     if (!apiKey) {
-      throw new Error('OpenAI API key not found');
+      throw new Error('Chave de API OpenAI não encontrada');
     }
     await initializeOpenAI(apiKey);
   }
@@ -34,10 +34,10 @@ export const testConnection = async () => {
   try {
     const openai = await getOpenAIInstance();
     const response = await openai.models.list();
-    console.log('OpenAI connection successful:', response.data);
+    console.log('Conexão OpenAI bem-sucedida:', response.data);
     return true;
   } catch (error) {
-    console.error('OpenAI connection failed:', error);
+    console.error('Falha na conexão OpenAI:', error);
     return false;
   }
 };
@@ -48,7 +48,7 @@ export const listAssistants = async () => {
     const assistants = await openai.beta.assistants.list();
     return assistants.data;
   } catch (error) {
-    console.error('Error listing assistants:', error);
+    console.error('Erro ao listar assistentes:', error);
     throw error;
   }
 };
@@ -64,7 +64,7 @@ export const createAssistant = async (name, instructions, model = 'gpt-3.5-turbo
     });
     return assistant;
   } catch (error) {
-    console.error('Error creating assistant:', error);
+    console.error('Erro ao criar assistente:', error);
     throw error;
   }
 };
@@ -78,7 +78,7 @@ export const updateAssistant = async (assistantId, updates) => {
     );
     return updatedAssistant;
   } catch (error) {
-    console.error('Error updating assistant:', error);
+    console.error('Erro ao atualizar assistente:', error);
     throw error;
   }
 };

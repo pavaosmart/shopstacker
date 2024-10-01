@@ -12,6 +12,7 @@ import { useSupabaseAuth } from '../integrations/supabase/auth';
 import { supabase } from '../integrations/supabase/supabase';
 import { initializeOpenAI, testConnection, listAssistants, createAssistant, updateAssistant } from '../utils/openai';
 import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
 const OpenAIIntegration = () => {
   const [openaiApiKey, setOpenaiApiKey] = useState('');
@@ -24,6 +25,7 @@ const OpenAIIntegration = () => {
     instructions: '',
     model: 'gpt-4',
     temperature: 1,
+    max_tokens: 150,
     documents: []
   });
   const { session } = useSupabaseAuth();
@@ -47,7 +49,7 @@ const OpenAIIntegration = () => {
 
       if (error) {
         if (error.code === 'PGRST116') {
-          console.log('No API key found for the user');
+          console.log('Nenhuma chave de API encontrada para o usuário');
           return;
         }
         throw error;
@@ -58,8 +60,8 @@ const OpenAIIntegration = () => {
         initializeOpenAI(data.openai_api_key);
       }
     } catch (error) {
-      console.error('Error fetching API key:', error);
-      toast.error('Failed to load API key');
+      console.error('Erro ao buscar chave de API:', error);
+      toast.error('Falha ao carregar chave de API');
     }
   };
 
@@ -68,8 +70,8 @@ const OpenAIIntegration = () => {
       const botsList = await listAssistants();
       setBots(botsList);
     } catch (error) {
-      console.error('Error fetching bots:', error);
-      toast.error('Failed to load bots list');
+      console.error('Erro ao buscar bots:', error);
+      toast.error('Falha ao carregar lista de bots');
     }
   };
 
@@ -85,11 +87,11 @@ const OpenAIIntegration = () => {
 
       initializeOpenAI(openaiApiKey);
       await testConnection();
-      toast.success('API key saved and tested successfully');
+      toast.success('Chave de API salva e testada com sucesso');
       fetchBots();
     } catch (error) {
-      console.error('Error saving or testing API key:', error);
-      toast.error('Failed to save or test API key');
+      console.error('Erro ao salvar ou testar chave de API:', error);
+      toast.error('Falha ao salvar ou testar chave de API');
     } finally {
       setIsLoading(false);
     }
@@ -100,13 +102,14 @@ const OpenAIIntegration = () => {
     try {
       const assistant = await createAssistant(newBot.name, newBot.instructions, newBot.model, {
         temperature: newBot.temperature,
+        max_tokens: newBot.max_tokens,
       });
-      toast.success('Bot created successfully!');
+      toast.success('Bot criado com sucesso!');
       setIsModalOpen(false);
       fetchBots();
     } catch (error) {
-      console.error('Error creating bot:', error);
-      toast.error('Failed to create bot');
+      console.error('Erro ao criar bot:', error);
+      toast.error('Falha ao criar bot');
     } finally {
       setIsLoading(false);
     }
@@ -119,6 +122,7 @@ const OpenAIIntegration = () => {
       instructions: bot.instructions,
       model: bot.model,
       temperature: bot.temperature || 1,
+      max_tokens: bot.max_tokens || 150,
       documents: []
     });
     setIsModalOpen(true);
@@ -132,13 +136,14 @@ const OpenAIIntegration = () => {
         instructions: newBot.instructions,
         model: newBot.model,
         temperature: newBot.temperature,
+        max_tokens: newBot.max_tokens,
       });
-      toast.success('Bot updated successfully!');
+      toast.success('Bot atualizado com sucesso!');
       setIsModalOpen(false);
       fetchBots();
     } catch (error) {
-      console.error('Error updating bot:', error);
-      toast.error('Failed to update bot');
+      console.error('Erro ao atualizar bot:', error);
+      toast.error('Falha ao atualizar bot');
     } finally {
       setIsLoading(false);
       setEditingBot(null);
@@ -157,34 +162,34 @@ const OpenAIIntegration = () => {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>API Key Configuration</CardTitle>
+          <CardTitle>Configuração da Chave de API</CardTitle>
         </CardHeader>
         <CardContent>
           <Input
             type="password"
             value={openaiApiKey}
             onChange={(e) => setOpenaiApiKey(e.target.value)}
-            placeholder="Enter your OpenAI API Key"
+            placeholder="Digite sua Chave de API OpenAI"
             className="mb-2"
           />
           <Button onClick={handleSaveApiKey} disabled={isLoading}>
-            {isLoading ? 'Saving...' : 'Save and Test Key'}
+            {isLoading ? 'Salvando...' : 'Salvar e Testar Chave'}
           </Button>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle>Create New Bot</CardTitle>
+          <CardTitle>Criar Novo Bot</CardTitle>
         </CardHeader>
         <CardContent>
-          <Button onClick={() => { setEditingBot(null); setIsModalOpen(true); }}>Create New Bot</Button>
+          <Button onClick={() => { setEditingBot(null); setIsModalOpen(true); }}>Criar Novo Bot</Button>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle>Existing Bots</CardTitle>
+          <CardTitle>Bots Existentes</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -194,9 +199,9 @@ const OpenAIIntegration = () => {
                   <CardTitle>{bot.name}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p>Last edited: {format(new Date(bot.created_at), 'dd/MM/yyyy HH:mm')}</p>
-                  <p>Model: {bot.model}</p>
-                  <Button onClick={() => handleEditBot(bot)} className="mt-2">Edit</Button>
+                  <p>Última edição: {format(new Date(bot.created_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}</p>
+                  <p>Modelo: {bot.model}</p>
+                  <Button onClick={() => handleEditBot(bot)} className="mt-2">Editar</Button>
                 </CardContent>
               </Card>
             ))}
@@ -207,11 +212,11 @@ const OpenAIIntegration = () => {
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>{editingBot ? 'Edit Bot' : 'Create New Bot'}</DialogTitle>
+            <DialogTitle>{editingBot ? 'Editar Bot' : 'Criar Novo Bot'}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label htmlFor="name">Bot Name</Label>
+              <Label htmlFor="name">Nome do Bot</Label>
               <Input 
                 id="name" 
                 value={newBot.name} 
@@ -219,7 +224,7 @@ const OpenAIIntegration = () => {
               />
             </div>
             <div>
-              <Label htmlFor="instructions">System Instructions</Label>
+              <Label htmlFor="instructions">Instruções do Sistema</Label>
               <Textarea 
                 id="instructions" 
                 value={newBot.instructions} 
@@ -227,13 +232,13 @@ const OpenAIIntegration = () => {
               />
             </div>
             <div>
-              <Label htmlFor="model">Model</Label>
+              <Label htmlFor="model">Modelo</Label>
               <Select 
                 value={newBot.model} 
                 onValueChange={(value) => setNewBot({...newBot, model: value})}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select model" />
+                  <SelectValue placeholder="Selecione o modelo" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="gpt-3.5-turbo">GPT-3.5 Turbo</SelectItem>
@@ -242,7 +247,7 @@ const OpenAIIntegration = () => {
               </Select>
             </div>
             <div>
-              <Label htmlFor="temperature">Temperature: {newBot.temperature}</Label>
+              <Label htmlFor="temperature">Temperatura: {newBot.temperature}</Label>
               <Slider
                 id="temperature"
                 min={0}
@@ -253,7 +258,18 @@ const OpenAIIntegration = () => {
               />
             </div>
             <div>
-              <Label htmlFor="documents">Add Documents to Knowledge Base</Label>
+              <Label htmlFor="max_tokens">Máximo de Tokens: {newBot.max_tokens}</Label>
+              <Slider
+                id="max_tokens"
+                min={1}
+                max={4000}
+                step={1}
+                value={[newBot.max_tokens]}
+                onValueChange={(value) => setNewBot({...newBot, max_tokens: value[0]})}
+              />
+            </div>
+            <div>
+              <Label htmlFor="documents">Adicionar Documentos à Base de Conhecimento</Label>
               <Input
                 id="documents"
                 type="file"
@@ -262,7 +278,7 @@ const OpenAIIntegration = () => {
                 onChange={handleFileUpload}
               />
               <p className="text-sm text-gray-500 mt-1">
-                Allowed formats: .txt, .pdf, .doc, .docx, .csv
+                Formatos permitidos: .txt, .pdf, .doc, .docx, .csv
               </p>
               <div className="mt-2">
                 {newBot.documents.map((doc, index) => (
@@ -273,7 +289,7 @@ const OpenAIIntegration = () => {
           </div>
           <DialogFooter>
             <Button onClick={editingBot ? handleUpdateBot : handleCreateBot} disabled={isLoading}>
-              {isLoading ? 'Processing...' : (editingBot ? 'Update Bot' : 'Create Bot')}
+              {isLoading ? 'Processando...' : (editingBot ? 'Atualizar Bot' : 'Criar Bot')}
             </Button>
           </DialogFooter>
         </DialogContent>

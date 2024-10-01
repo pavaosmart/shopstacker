@@ -9,7 +9,11 @@ const SystemUpdateNotifications = () => {
   const { createNotification } = useNotifications();
 
   const handleCreateNotification = (notification) => {
-    createNotification({ ...notification, type: 'system-update' });
+    createNotification({
+      ...notification,
+      type: 'system-update',
+      title: `Atualização do Sistema: ${notification.version}`
+    });
   };
 
   return (

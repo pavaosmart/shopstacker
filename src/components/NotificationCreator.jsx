@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 
 const NotificationCreator = ({ isOpen, onClose, onSubmit, type }) => {
   const [notification, setNotification] = useState({
-    title: '',
+    version: '',
     message: '',
     scheduledDate: '',
     scheduledTime: '',
@@ -32,8 +32,16 @@ const NotificationCreator = ({ isOpen, onClose, onSubmit, type }) => {
         </DialogHeader>
         <div className="space-y-4">
           <div>
-            <Label htmlFor="title">Título</Label>
-            <Input id="title" name="title" value={notification.title} onChange={handleChange} required />
+            <Label htmlFor={type === 'system-update' ? 'version' : 'title'}>
+              {type === 'system-update' ? 'Versão' : 'Título'}
+            </Label>
+            <Input
+              id={type === 'system-update' ? 'version' : 'title'}
+              name={type === 'system-update' ? 'version' : 'title'}
+              value={type === 'system-update' ? notification.version : notification.title}
+              onChange={handleChange}
+              required
+            />
           </div>
           <div>
             <Label htmlFor="message">Mensagem</Label>

@@ -2,23 +2,23 @@ import React, { useState } from 'react';
 import { Bell } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { useNotifications } from '../hooks/useNotifications';
 
 const NotificationsMenu = () => {
-  const [notifications, setNotifications] = useState([
-    { id: 1, message: 'Nova mensagem recebida' },
-    { id: 2, message: 'Atualização do sistema disponível' },
-    { id: 3, message: 'Lembrete: reunião em 30 minutos' },
-  ]);
+  const { notifications, deleteNotification } = useNotifications();
 
-  const clearNotification = (id) => {
-    setNotifications(notifications.filter(notif => notif.id !== id));
+  const formatNotificationMessage = (notification) => {
+    if (notification.type === 'system-update') {
+      return `Atualização do Sistema: ${notification.version}`;
+    }
+    return notification.title || notification.message;
   };
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" className="relative">
-          <Bell className="h-6 w-6" /> {/* Increased size of the bell icon */}
+          <Bell className="h-6 w-6" />
           {notifications.length > 0 && (
             <span className="absolute -top-1 -right-1 flex items-center justify-center w-4 h-4 bg-red-500 text-white text-[10px] font-bold rounded-full">
               {notifications.length}
@@ -29,8 +29,8 @@ const NotificationsMenu = () => {
       <DropdownMenuContent align="end">
         {notifications.length > 0 ? (
           notifications.map((notif) => (
-            <DropdownMenuItem key={notif.id} onSelect={() => clearNotification(notif.id)}>
-              {notif.message}
+            <DropdownMenuItem key={notif.id} onSelect={() => deleteNotification(notif.id)}>
+              {formatNotificationMessage(notif)}
             </DropdownMenuItem>
           ))
         ) : (

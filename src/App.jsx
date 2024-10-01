@@ -16,13 +16,13 @@ import ForgotPassword from './pages/ForgotPassword';
 import Settings from './pages/Settings';
 import Support from './pages/Support';
 import Help from './pages/Help';
-import APIStore from './pages/APIStore';
+import Integrations from './pages/APIStore';
 import OpenAIIntegration from './components/OpenAIIntegration';
 import Profile from './pages/Profile';
 import Documentation from './pages/Documentation';
 import UIComponentsPanel from './components/UIComponentsPanel';
 import ProtectedRoute from './components/ProtectedRoute';
-import Market from './pages/Market'; // Importando a nova página Market
+import Market from './pages/Market';
 
 const queryClient = new QueryClient();
 
@@ -46,11 +46,11 @@ function App() {
               <Route path="settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
               <Route path="support" element={<ProtectedRoute><Support /></ProtectedRoute>} />
               <Route path="help" element={<ProtectedRoute><Help /></ProtectedRoute>} />
-              <Route path="api-store" element={<ProtectedRoute><APIStore /></ProtectedRoute>} />
+              <Route path="integrations" element={<ProtectedRoute><Integrations /></ProtectedRoute>} />
               <Route path="api-integration/openai" element={<ProtectedRoute><OpenAIIntegration /></ProtectedRoute>} />
               <Route path="profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
               <Route path="documentation" element={<ProtectedRoute><Documentation /></ProtectedRoute>} />
-              <Route path="market" element={<ProtectedRoute><Market /></ProtectedRoute>} /> {/* Nova rota para a página Market */}
+              <Route path="market" element={<ProtectedRoute><Market /></ProtectedRoute>} />
             </Route>
           </Routes>
           <UIComponentsPanel />

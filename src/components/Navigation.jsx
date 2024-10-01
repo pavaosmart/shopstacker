@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { Home, Package, ShoppingCart, Activity, Users, Bell, Settings, HelpCircle, Store } from 'lucide-react';
+import { Home, Package, ShoppingCart, Activity, Users, Bell, Settings, HelpCircle, Store, FileText } from 'lucide-react';
 
 const Navigation = () => {
   const navItems = [
@@ -12,7 +12,8 @@ const Navigation = () => {
     { to: '/notifications', icon: Bell, label: 'Notificações' },
     { to: '/settings', icon: Settings, label: 'Configurações' },
     { to: '/help', icon: HelpCircle, label: 'Ajuda' },
-    { to: '/market', icon: Store, label: 'Mercado' }, // Novo item de navegação para a página Market
+    { to: '/market', icon: Store, label: 'Mercado' },
+    { to: '/integrations', icon: FileText, label: 'Integrações' },
   ];
 
   return (

@@ -1,75 +1,53 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '../integrations/supabase/supabase';
+import { useState, useEffect } from 'react';
+
+// Dados mockados para simular notificações
+const mockNotifications = [
+  { id: 1, title: 'Bem-vindo', content: 'Bem-vindo ao nosso sistema!', type: 'message', status: 'pending', created_at: new Date().toISOString() },
+  { id: 2, title: 'Atualização', content: 'Nova atualização disponível', type: 'system-update', status: 'pending', created_at: new Date(Date.now() - 86400000).toISOString() },
+];
 
 export const useNotifications = () => {
-  const queryClient = useQueryClient();
+  const [notifications, setNotifications] = useState(mockNotifications);
 
   const fetchNotifications = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('notifications')
-        .select('*')
-        .order('created_at', { ascending: false });
-      if (error) throw error;
-      return data;
-    } catch (error) {
-      console.error('Error fetching notifications:', error);
-      return [];
-    }
+    // Simula uma chamada assíncrona
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve(mockNotifications);
+      }, 500);
+    });
   };
 
-  const { data: notifications = [], error: fetchError } = useQuery({
-    queryKey: ['notifications'],
-    queryFn: fetchNotifications,
-  });
+  useEffect(() => {
+    fetchNotifications().then(setNotifications);
+  }, []);
 
-  const createNotification = useMutation({
-    mutationFn: async (newNotification) => {
-      const { data, error } = await supabase
-        .from('notifications')
-        .insert([newNotification])
-        .select();
-      if (error) throw error;
-      return data[0];
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries(['notifications']);
-    },
-  });
+  const createNotification = (newNotification) => {
+    const notification = {
+      ...newNotification,
+      id: Date.now(),
+      created_at: new Date().toISOString(),
+      status: 'pending',
+    };
+    setNotifications((prev) => [notification, ...prev]);
+  };
 
-  const updateNotification = useMutation({
-    mutationFn: async (updatedNotification) => {
-      const { data, error } = await supabase
-        .from('notifications')
-        .update(updatedNotification)
-        .eq('id', updatedNotification.id)
-        .select();
-      if (error) throw error;
-      return data[0];
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries(['notifications']);
-    },
-  });
+  const updateNotification = (updatedNotification) => {
+    setNotifications((prev) =>
+      prev.map((notification) =>
+        notification.id === updatedNotification.id ? { ...notification, ...updatedNotification } : notification
+      )
+    );
+  };
 
-  const deleteNotification = useMutation({
-    mutationFn: async (id) => {
-      const { error } = await supabase
-        .from('notifications')
-        .delete()
-        .eq('id', id);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries(['notifications']);
-    },
-  });
+  const deleteNotification = (id) => {
+    setNotifications((prev) => prev.filter((notification) => notification.id !== id));
+  };
 
   return {
     notifications,
-    fetchError,
-    createNotification: createNotification.mutate,
-    updateNotification: updateNotification.mutate,
-    deleteNotification: deleteNotification.mutate,
+    createNotification,
+    updateNotification,
+    deleteNotification,
   };
 };

@@ -6,11 +6,11 @@ const ProductCard = ({ product }) => {
   const suggestedPrice = product.price * (product.markup || 2.5);
 
   return (
-    <Card className="w-full max-w-sm">
+    <Card className="w-full h-full flex flex-col">
       <CardHeader>
-        <CardTitle className="text-xl">{product.name}</CardTitle>
+        <CardTitle className="text-xl truncate">{product.name}</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="flex-grow">
         <img 
           src={product.images && product.images.length > 0 ? product.images[0] : "/placeholder.svg"} 
           alt={product.name} 

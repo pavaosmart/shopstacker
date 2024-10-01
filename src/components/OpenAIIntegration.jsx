@@ -236,6 +236,7 @@ const OpenAIIntegration = () => {
                   <p>Criado em: {format(new Date(bot.created_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}</p>
                   <p>Última edição: {format(new Date(bot.updated_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}</p>
                   <p>Modelo: {bot.model}</p>
+                  <p>Max Tokens: {bot.max_tokens || 'N/A'}</p>
                   <Button onClick={() => handleEditBot(bot)} className="mt-2">Editar</Button>
                 </CardContent>
               </Card>

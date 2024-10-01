@@ -2,6 +2,7 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from 'react-router-dom';
+import OpenAIIntegration from '../components/OpenAIIntegration';
 
 const APIStore = () => {
   const navigate = useNavigate();
@@ -11,7 +12,8 @@ const APIStore = () => {
       name: "OpenAI GPT-4",
       description: "Integrate advanced AI language models into your application.",
       category: "Artificial Intelligence",
-      price: "$0.03 per 1K tokens"
+      price: "$0.03 per 1K tokens",
+      route: "/api-integration/openai"
     },
     {
       name: "Stripe Payments",
@@ -69,17 +71,27 @@ const APIStore = () => {
     }
   ];
 
-  const handleIntegrate = (apiName) => {
-    if (apiName === "OpenAI GPT-4") {
-      navigate('/api-integration/openai');
+  const handleIntegrate = (api) => {
+    if (api.route) {
+      navigate(api.route);
     } else {
-      console.log(`Integration for ${apiName} is not implemented yet.`);
+      console.log(`Integration for ${api.name} is not implemented yet.`);
     }
   };
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6">Integrações</h1>
+      <h1 className="text-3xl font-bold mb-6">API Marketplace</h1>
+      
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle>OpenAI Integration</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <OpenAIIntegration />
+        </CardContent>
+      </Card>
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {apiList.map((api, index) => (
           <Card key={index} className="flex flex-col">
@@ -92,7 +104,7 @@ const APIStore = () => {
             </CardContent>
             <CardFooter className="flex justify-between items-center">
               <span className="text-sm font-semibold">{api.price}</span>
-              <Button onClick={() => handleIntegrate(api.name)}>Integrate</Button>
+              <Button onClick={() => handleIntegrate(api)}>Integrate</Button>
             </CardFooter>
           </Card>
         ))}

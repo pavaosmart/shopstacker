@@ -5,14 +5,14 @@ const getApiKey = async () => {
   const { data, error } = await supabase
     .from('user_settings')
     .select('openai_api_key')
-    .single();
+    .limit(1);  // Add this line to limit the result to 1 row
   
   if (error) {
     console.error('Error fetching OpenAI API key:', error);
     return null;
   }
   
-  return data?.openai_api_key;
+  return data?.[0]?.openai_api_key;  // Access the first item in the array
 };
 
 let openaiInstance = null;

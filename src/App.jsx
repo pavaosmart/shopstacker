@@ -10,7 +10,6 @@ import Orders from './pages/Orders';
 import ActivityLogs from './pages/ActivityLogs';
 import UsersAndPermissions from './pages/UsersAndPermissions';
 import Notifications from './pages/Notifications';
-import NotificationManager from './pages/NotificationManager';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
@@ -37,22 +36,17 @@ function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/" element={<Layout />}>
-              <Route index element={<Index />} />
-              <Route path="estoque" element={<ProtectedRoute><Estoque /></ProtectedRoute>} />
+              <Route index element={<ProtectedRoute><Index /></ProtectedRoute>} />
+              <Route path="market" element={<ProtectedRoute><Market /></ProtectedRoute>} />
               <Route path="meus-produtos" element={<ProtectedRoute><MeusProdutos /></ProtectedRoute>} />
               <Route path="orders" element={<ProtectedRoute><Orders /></ProtectedRoute>} />
+              <Route path="estoque" element={<ProtectedRoute><Estoque /></ProtectedRoute>} />
               <Route path="activity-logs" element={<ProtectedRoute><ActivityLogs /></ProtectedRoute>} />
               <Route path="users" element={<ProtectedRoute><UsersAndPermissions /></ProtectedRoute>} />
               <Route path="notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
-              <Route path="notification-manager" element={<ProtectedRoute><NotificationManager /></ProtectedRoute>} />
-              <Route path="settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
-              <Route path="support" element={<ProtectedRoute><Support /></ProtectedRoute>} />
-              <Route path="help" element={<ProtectedRoute><Help /></ProtectedRoute>} />
               <Route path="integrations" element={<ProtectedRoute><Integrations /></ProtectedRoute>} />
-              <Route path="api-integration/openai" element={<ProtectedRoute><OpenAIIntegration /></ProtectedRoute>} />
+              <Route path="support" element={<ProtectedRoute><Support /></ProtectedRoute>} />
               <Route path="profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-              <Route path="documentation" element={<ProtectedRoute><Documentation /></ProtectedRoute>} />
-              <Route path="market" element={<ProtectedRoute><Market /></ProtectedRoute>} />
             </Route>
           </Routes>
           <UIComponentsPanel />

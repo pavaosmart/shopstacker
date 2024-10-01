@@ -5,18 +5,16 @@ import { Button } from "@/components/ui/button";
 import { 
   LayoutDashboard, 
   Package, 
+  ShoppingCart,
   Activity, 
   Users, 
-  Settings, 
-  LogOut,
-  MessageSquare,
-  ShoppingCart,
   Bell,
+  FileText,
   HelpCircle,
+  LogOut,
   ChevronRight,
   ChevronLeft,
   Store,
-  FileText
 } from 'lucide-react';
 
 const Sidebar = () => {
@@ -26,49 +24,92 @@ const Sidebar = () => {
 
   const toggleSidebar = () => setIsExpanded(!isExpanded);
 
-  const sidebarItems = [
-    { icon: <LayoutDashboard size={20} />, label: 'Dashboard', to: '/' },
-    { icon: <Package size={20} />, label: 'Estoque', to: '/estoque' },
-    { icon: <Package size={20} />, label: 'Meus Produtos', to: '/meus-produtos' },
-    { icon: <ShoppingCart size={20} />, label: 'Pedidos', to: '/orders' },
-    { icon: <Activity size={20} />, label: 'Atividade', to: '/activity-logs' },
-    { icon: <Users size={20} />, label: 'Usuários', to: '/users' },
-    { icon: <Bell size={20} />, label: 'Notificações', to: '/notification-manager' },
-    { icon: <MessageSquare size={20} />, label: 'Suporte', to: '/support' },
-    { icon: <HelpCircle size={20} />, label: 'Ajuda', to: '/help' },
-    { icon: <Store size={20} />, label: 'Mercado', to: '/market' },
-    { icon: <FileText size={20} />, label: 'Integrações', to: '/integrations' },
+  const sidebarSections = [
+    {
+      title: 'Vendedor',
+      items: [
+        { icon: <LayoutDashboard size={20} />, label: 'Dashboard', to: '/' },
+        { icon: <Store size={20} />, label: 'Mercado', to: '/market' },
+        { icon: <Package size={20} />, label: 'Meus Produtos', to: '/meus-produtos' },
+        { icon: <ShoppingCart size={20} />, label: 'Pedidos', to: '/orders' },
+      ]
+    },
+    {
+      title: 'Fornecedor',
+      items: [
+        { icon: <Package size={20} />, label: 'Estoque', to: '/estoque' },
+      ]
+    },
+    {
+      title: 'Admin',
+      items: [
+        { icon: <Activity size={20} />, label: 'Atividades', to: '/activity-logs' },
+        { icon: <Users size={20} />, label: 'Usuários', to: '/users' },
+        { icon: <Bell size={20} />, label: 'Notificações', to: '/notifications' },
+        { icon: <FileText size={20} />, label: 'Integrações', to: '/integrations' },
+      ]
+    }
+  ];
+
+  const footerItems = [
+    { icon: <HelpCircle size={20} />, label: 'Suporte', to: '/support' },
+    { icon: <LogOut size={20} />, label: 'Sair', onClick: logout },
   ];
 
   return (
-    <div className={`bg-gray-800 text-white ${isExpanded ? 'w-64' : 'w-16'} min-h-screen p-4 transition-all duration-300`}>
+    <div className={`bg-gray-800 text-white ${isExpanded ? 'w-64' : 'w-16'} min-h-screen p-4 transition-all duration-300 flex flex-col`}>
       <div className="flex justify-between items-center mb-8">
         {isExpanded && <div className="text-2xl font-bold">ShopTools</div>}
         <Button onClick={toggleSidebar} variant="ghost" size="sm" className="text-white">
           {isExpanded ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
         </Button>
       </div>
-      <nav>
+      <nav className="flex-grow">
+        {sidebarSections.map((section, sectionIndex) => (
+          <div key={sectionIndex} className="mb-6">
+            {isExpanded && <h3 className="text-xs uppercase text-gray-400 mb-2">{section.title}</h3>}
+            <ul className="space-y-2">
+              {section.items.map((item, itemIndex) => (
+                <li key={itemIndex}>
+                  <Link 
+                    to={item.to} 
+                    className={`flex items-center ${isExpanded ? 'space-x-2' : 'justify-center'} p-2 rounded
+                      ${location.pathname === item.to ? 'bg-gray-700 text-white' : 'hover:bg-gray-700'}`}
+                  >
+                    {item.icon}
+                    {isExpanded && <span>{item.label}</span>}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </nav>
+      <div className="mt-auto pt-4 border-t border-gray-700">
         <ul className="space-y-2">
-          {sidebarItems.map((item, index) => (
+          {footerItems.map((item, index) => (
             <li key={index}>
-              <Link 
-                to={item.to} 
-                className={`flex items-center ${isExpanded ? 'space-x-2' : 'justify-center'} p-2 rounded
-                  ${location.pathname === item.to ? 'bg-gray-700 text-white' : 'hover:bg-gray-700'}`}
-              >
-                {item.icon}
-                {isExpanded && <span>{item.label}</span>}
-              </Link>
+              {item.to ? (
+                <Link 
+                  to={item.to}
+                  className={`flex items-center ${isExpanded ? 'space-x-2' : 'justify-center'} p-2 rounded hover:bg-gray-700`}
+                >
+                  {item.icon}
+                  {isExpanded && <span>{item.label}</span>}
+                </Link>
+              ) : (
+                <Button 
+                  onClick={item.onClick} 
+                  variant="ghost" 
+                  className={`w-full text-white hover:text-gray-300 ${isExpanded ? 'justify-start' : 'justify-center'}`}
+                >
+                  {item.icon}
+                  {isExpanded && <span className="ml-2">{item.label}</span>}
+                </Button>
+              )}
             </li>
           ))}
         </ul>
-      </nav>
-      <div className="mt-auto pt-4">
-        <Button onClick={logout} variant="ghost" className={`w-full text-white hover:text-gray-300 ${isExpanded ? 'justify-start' : 'justify-center'}`}>
-          <LogOut className="h-4 w-4" />
-          {isExpanded && <span className="ml-2">Logout</span>}
-        </Button>
       </div>
     </div>
   );

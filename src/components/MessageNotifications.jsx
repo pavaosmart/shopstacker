@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import NotificationCreator from './NotificationCreator';
 import NotificationList from './NotificationList';
-import { useNotifications } from '../hooks/useNotifications';
+import useNotifications from '../hooks/useNotifications';
 
 const MessageNotifications = () => {
   const [isCreatorOpen, setIsCreatorOpen] = useState(false);

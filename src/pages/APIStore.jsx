@@ -1,11 +1,86 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useNavigate } from 'react-router-dom';
-import OpenAIIntegration from '../components/OpenAIIntegration';
+import { useSupabaseAuth } from '../integrations/supabase/auth';
+import { supabase } from '../integrations/supabase/supabase';
+import { initializeOpenAI, testConnection, listAssistants, createAssistant } from '../utils/openai';
+import { toast } from "sonner";
 
 const APIStore = () => {
   const navigate = useNavigate();
+  const { session } = useSupabaseAuth();
+  const [openaiApiKey, setOpenaiApiKey] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [bots, setBots] = useState([]);
+
+  useEffect(() => {
+    if (session?.user?.id) {
+      fetchApiKey();
+      fetchBots();
+    }
+  }, [session]);
+
+  const fetchApiKey = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('user_settings')
+        .select('openai_api_key')
+        .eq('user_id', session.user.id)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+
+      if (error) {
+        if (error.code === 'PGRST116') {
+          console.log('No API key found for the user');
+          return;
+        }
+        throw error;
+      }
+      
+      if (data?.openai_api_key) {
+        setOpenaiApiKey(data.openai_api_key);
+        initializeOpenAI(data.openai_api_key);
+      }
+    } catch (error) {
+      console.error('Error fetching API key:', error);
+      toast.error('Failed to load API key');
+    }
+  };
+
+  const fetchBots = async () => {
+    try {
+      const botsList = await listAssistants();
+      setBots(botsList);
+    } catch (error) {
+      console.error('Error fetching bots:', error);
+      toast.error('Failed to load bots list');
+    }
+  };
+
+  const handleSaveApiKey = async () => {
+    setIsLoading(true);
+    try {
+      const { error } = await supabase
+        .from('user_settings')
+        .upsert({ user_id: session.user.id, openai_api_key: openaiApiKey })
+        .select();
+
+      if (error) throw error;
+
+      initializeOpenAI(openaiApiKey);
+      await testConnection();
+      toast.success('API key saved and tested successfully');
+      fetchBots();
+    } catch (error) {
+      console.error('Error saving or testing API key:', error);
+      toast.error('Failed to save or test API key');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const apiList = [
     {
@@ -83,15 +158,6 @@ const APIStore = () => {
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-6">API Marketplace</h1>
       
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle>OpenAI Integration</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <OpenAIIntegration />
-        </CardContent>
-      </Card>
-
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {apiList.map((api, index) => (
           <Card key={index} className="flex flex-col">
@@ -101,6 +167,30 @@ const APIStore = () => {
             </CardHeader>
             <CardContent className="flex-grow">
               <p>{api.description}</p>
+              {api.name === "OpenAI GPT-4" && (
+                <div className="mt-4 space-y-4">
+                  <Input
+                    type="password"
+                    value={openaiApiKey}
+                    onChange={(e) => setOpenaiApiKey(e.target.value)}
+                    placeholder="Enter your OpenAI API Key"
+                    className="mb-2"
+                  />
+                  <Button onClick={handleSaveApiKey} disabled={isLoading}>
+                    {isLoading ? 'Saving...' : 'Save and Test Key'}
+                  </Button>
+                  {bots.length > 0 && (
+                    <div>
+                      <h4 className="font-semibold mb-2">Your Bots:</h4>
+                      <ul className="list-disc pl-5">
+                        {bots.map((bot) => (
+                          <li key={bot.id}>{bot.name}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              )}
             </CardContent>
             <CardFooter className="flex justify-between items-center">
               <span className="text-sm font-semibold">{api.price}</span>

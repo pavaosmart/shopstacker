@@ -22,7 +22,6 @@ const OpenAIIntegration = () => {
     instructions: '',
     model: 'gpt-4',
     temperature: 1,
-    maxTokens: 150,
     documents: []
   });
   const { session } = useSupabaseAuth();
@@ -99,7 +98,6 @@ const OpenAIIntegration = () => {
     try {
       const assistant = await createAssistant(newBot.name, newBot.instructions, newBot.model, {
         temperature: newBot.temperature,
-        max_tokens: newBot.maxTokens,
       });
       toast.success('Bot created successfully!');
       setIsModalOpen(false);
@@ -215,17 +213,6 @@ const OpenAIIntegration = () => {
                 step={0.1}
                 value={[newBot.temperature]}
                 onValueChange={(value) => setNewBot({...newBot, temperature: value[0]})}
-              />
-            </div>
-            <div>
-              <Label htmlFor="maxTokens">Max Tokens: {newBot.maxTokens}</Label>
-              <Slider
-                id="maxTokens"
-                min={50}
-                max={500}
-                step={10}
-                value={[newBot.maxTokens]}
-                onValueChange={(value) => setNewBot({...newBot, maxTokens: value[0]})}
               />
             </div>
             <div>

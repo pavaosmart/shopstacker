@@ -170,14 +170,16 @@ const OpenAIIntegration = () => {
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {bots.map((bot) => (
-              <Card key={bot.id} className="bg-white shadow-md rounded-lg overflow-hidden">
+              <Card key={bot.id} className="hover:shadow-lg transition-shadow duration-300">
                 <CardHeader>
                   <CardTitle>{bot.name}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-gray-600 mb-2">GPT Version: {bot.model}</p>
-                  <p className="text-sm text-gray-600 mb-4">Created: {format(new Date(bot.created_at), 'dd/MM/yyyy HH:mm')}</p>
-                  <div className="flex justify-between">
+                  <p className="text-sm text-gray-600 mb-2">{bot.description}</p>
+                  <p className="text-xs text-gray-500">OpenAI ID: {bot.openai_assistant_id}</p>
+                  <p className="text-xs text-gray-500">Model: {bot.bot_configurations?.[0]?.model}</p>
+                  <p className="text-xs text-gray-500">Prompts: {bot.bot_prompts?.length || 0}</p>
+                  <div className="flex justify-between mt-4">
                     <Button variant="outline" size="sm" onClick={() => handleEditBot(bot)}>
                       Edit
                     </Button>

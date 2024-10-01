@@ -6,6 +6,7 @@ const Navigation = () => {
   const navItems = [
     { to: '/', icon: Home, label: 'Dashboard' },
     { to: '/products', icon: Package, label: 'Produtos' },
+    { to: '/meus-produtos', icon: Package, label: 'Meus Produtos' },
     { to: '/orders', icon: ShoppingCart, label: 'Pedidos' },
     { to: '/activity-logs', icon: Activity, label: 'Logs de Atividade' },
     { to: '/users', icon: Users, label: 'Usuários' },

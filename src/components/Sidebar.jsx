@@ -5,18 +5,14 @@ import { Button } from "@/components/ui/button";
 import { 
   LayoutDashboard, 
   Package, 
-  Activity, 
-  Users, 
-  Settings, 
-  LogOut,
-  MessageSquare,
   ShoppingCart,
-  Bell,
-  HelpCircle,
-  ChevronRight,
-  ChevronLeft,
   Store,
-  FileText
+  Truck,
+  Users,
+  Settings,
+  LogOut,
+  ChevronRight,
+  ChevronLeft
 } from 'lucide-react';
 
 const Sidebar = () => {
@@ -26,19 +22,42 @@ const Sidebar = () => {
 
   const toggleSidebar = () => setIsExpanded(!isExpanded);
 
-  const sidebarItems = [
-    { icon: <LayoutDashboard size={20} />, label: 'Dashboard', to: '/' },
-    { icon: <Package size={20} />, label: 'Estoque', to: '/estoque' },
-    { icon: <Package size={20} />, label: 'Meus Produtos', to: '/meus-produtos' },
-    { icon: <ShoppingCart size={20} />, label: 'Pedidos', to: '/orders' },
-    { icon: <Activity size={20} />, label: 'Atividade', to: '/activity-logs' },
-    { icon: <Users size={20} />, label: 'Usuários', to: '/users' },
-    { icon: <Bell size={20} />, label: 'Notificações', to: '/notification-manager' },
-    { icon: <MessageSquare size={20} />, label: 'Suporte', to: '/support' },
-    { icon: <HelpCircle size={20} />, label: 'Ajuda', to: '/help' },
-    { icon: <Store size={20} />, label: 'Mercado', to: '/market' },
-    { icon: <FileText size={20} />, label: 'Integrações', to: '/integrations' },
-  ];
+  const sidebarItems = {
+    vendedor: [
+      { icon: <LayoutDashboard size={20} />, label: 'Dashboard', to: '/' },
+      { icon: <Store size={20} />, label: 'Mercado', to: '/market' },
+      { icon: <Package size={20} />, label: 'Meus Produtos', to: '/meus-produtos' },
+      { icon: <ShoppingCart size={20} />, label: 'Pedidos', to: '/orders' },
+    ],
+    fornecedor: [
+      { icon: <Truck size={20} />, label: 'Fornecimento', to: '/fornecimento' },
+      { icon: <Package size={20} />, label: 'Catálogo', to: '/catalogo' },
+    ],
+    admin: [
+      { icon: <Users size={20} />, label: 'Usuários', to: '/users' },
+      { icon: <Settings size={20} />, label: 'Configurações', to: '/settings' },
+    ],
+  };
+
+  const renderSidebarSection = (section, items) => (
+    <div key={section}>
+      <h3 className={`text-sm font-semibold text-gray-400 uppercase mb-2 ${isExpanded ? '' : 'sr-only'}`}>{section}</h3>
+      <ul className="space-y-2">
+        {items.map((item, index) => (
+          <li key={index}>
+            <Link 
+              to={item.to} 
+              className={`flex items-center ${isExpanded ? 'space-x-2' : 'justify-center'} p-2 rounded
+                ${location.pathname === item.to ? 'bg-gray-700 text-white' : 'hover:bg-gray-700'}`}
+            >
+              {item.icon}
+              {isExpanded && <span>{item.label}</span>}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
 
   return (
     <div className={`bg-gray-800 text-white ${isExpanded ? 'w-64' : 'w-16'} min-h-screen p-4 transition-all duration-300`}>
@@ -48,21 +67,10 @@ const Sidebar = () => {
           {isExpanded ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
         </Button>
       </div>
-      <nav>
-        <ul className="space-y-2">
-          {sidebarItems.map((item, index) => (
-            <li key={index}>
-              <Link 
-                to={item.to} 
-                className={`flex items-center ${isExpanded ? 'space-x-2' : 'justify-center'} p-2 rounded
-                  ${location.pathname === item.to ? 'bg-gray-700 text-white' : 'hover:bg-gray-700'}`}
-              >
-                {item.icon}
-                {isExpanded && <span>{item.label}</span>}
-              </Link>
-            </li>
-          ))}
-        </ul>
+      <nav className="space-y-8">
+        {renderSidebarSection('Vendedor', sidebarItems.vendedor)}
+        {renderSidebarSection('Fornecedor', sidebarItems.fornecedor)}
+        {renderSidebarSection('Admin', sidebarItems.admin)}
       </nav>
       <div className="mt-auto pt-4">
         <Button onClick={logout} variant="ghost" className={`w-full text-white hover:text-gray-300 ${isExpanded ? 'justify-start' : 'justify-center'}`}>

@@ -68,3 +68,17 @@ export const createAssistant = async (name, instructions, model = 'gpt-3.5-turbo
     throw error;
   }
 };
+
+export const updateAssistant = async (assistantId, updates) => {
+  try {
+    const openai = await getOpenAIInstance();
+    const updatedAssistant = await openai.beta.assistants.update(
+      assistantId,
+      updates
+    );
+    return updatedAssistant;
+  } catch (error) {
+    console.error('Error updating assistant:', error);
+    throw error;
+  }
+};

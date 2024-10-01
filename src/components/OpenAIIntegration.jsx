@@ -10,13 +10,15 @@ import { Slider } from "@/components/ui/slider";
 import { toast } from "sonner";
 import { useSupabaseAuth } from '../integrations/supabase/auth';
 import { supabase } from '../integrations/supabase/supabase';
-import { initializeOpenAI, testConnection, listAssistants, createAssistant } from '../utils/openai';
+import { initializeOpenAI, testConnection, listAssistants, createAssistant, updateAssistant } from '../utils/openai';
+import { format } from 'date-fns';
 
 const OpenAIIntegration = () => {
   const [openaiApiKey, setOpenaiApiKey] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [bots, setBots] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingBot, setEditingBot] = useState(null);
   const [newBot, setNewBot] = useState({
     name: '',
     instructions: '',
@@ -110,6 +112,39 @@ const OpenAIIntegration = () => {
     }
   };
 
+  const handleEditBot = (bot) => {
+    setEditingBot(bot);
+    setNewBot({
+      name: bot.name,
+      instructions: bot.instructions,
+      model: bot.model,
+      temperature: bot.temperature || 1,
+      documents: []
+    });
+    setIsModalOpen(true);
+  };
+
+  const handleUpdateBot = async () => {
+    setIsLoading(true);
+    try {
+      const updatedAssistant = await updateAssistant(editingBot.id, {
+        name: newBot.name,
+        instructions: newBot.instructions,
+        model: newBot.model,
+        temperature: newBot.temperature,
+      });
+      toast.success('Bot updated successfully!');
+      setIsModalOpen(false);
+      fetchBots();
+    } catch (error) {
+      console.error('Error updating bot:', error);
+      toast.error('Failed to update bot');
+    } finally {
+      setIsLoading(false);
+      setEditingBot(null);
+    }
+  };
+
   const handleFileUpload = (event) => {
     const files = Array.from(event.target.files);
     setNewBot(prev => ({
@@ -143,7 +178,7 @@ const OpenAIIntegration = () => {
           <CardTitle>Create New Bot</CardTitle>
         </CardHeader>
         <CardContent>
-          <Button onClick={() => setIsModalOpen(true)}>Create New Bot</Button>
+          <Button onClick={() => { setEditingBot(null); setIsModalOpen(true); }}>Create New Bot</Button>
         </CardContent>
       </Card>
 
@@ -159,7 +194,9 @@ const OpenAIIntegration = () => {
                   <CardTitle>{bot.name}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p>{bot.instructions}</p>
+                  <p>Last edited: {format(new Date(bot.created_at), 'dd/MM/yyyy HH:mm')}</p>
+                  <p>Model: {bot.model}</p>
+                  <Button onClick={() => handleEditBot(bot)} className="mt-2">Edit</Button>
                 </CardContent>
               </Card>
             ))}
@@ -170,7 +207,7 @@ const OpenAIIntegration = () => {
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Create New Bot</DialogTitle>
+            <DialogTitle>{editingBot ? 'Edit Bot' : 'Create New Bot'}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div>
@@ -235,8 +272,8 @@ const OpenAIIntegration = () => {
             </div>
           </div>
           <DialogFooter>
-            <Button onClick={handleCreateBot} disabled={isLoading}>
-              {isLoading ? 'Creating...' : 'Create Bot'}
+            <Button onClick={editingBot ? handleUpdateBot : handleCreateBot} disabled={isLoading}>
+              {isLoading ? 'Processing...' : (editingBot ? 'Update Bot' : 'Create Bot')}
             </Button>
           </DialogFooter>
         </DialogContent>

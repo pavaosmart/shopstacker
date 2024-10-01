@@ -65,9 +65,11 @@ export const listAssistants = async () => {
   try {
     const openai = await getOpenAIInstance();
     const assistants = await openai.beta.assistants.list();
-    return assistants.data.filter(assistant => 
+    const filteredAssistants = assistants.data.filter(assistant => 
       assistant.name === 'Zilda 2' || assistant.name === 'Marcio'
     );
+    console.log('Filtered assistants:', filteredAssistants);
+    return filteredAssistants;
   } catch (error) {
     console.error('Error listing assistants:', error);
     throw error;

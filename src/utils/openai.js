@@ -63,22 +63,11 @@ export const createAssistant = async (name, instructions, model = 'gpt-3.5-turbo
 
 export const listAssistants = async () => {
   try {
-    const { data: bots, error } = await supabase
-      .from('bots')
-      .select(`
-        *,
-        bot_configurations (*)
-      `);
-
-    if (error) {
-      console.error('Error fetching bots:', error);
-      throw error;
-    }
-
-    console.log('Bots fetched successfully:', bots);
-    return bots;
+    const openai = await getOpenAIInstance();
+    const assistants = await openai.beta.assistants.list();
+    return assistants.data;
   } catch (error) {
-    console.error('Error fetching bots:', error);
+    console.error('Error listing assistants:', error);
     throw error;
   }
 };

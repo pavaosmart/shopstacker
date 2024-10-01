@@ -60,28 +60,15 @@ export const useNotifications = () => {
     },
   });
 
-  const cloneNotification = useMutation({
-    mutationFn: async (notification) => {
-      const { id, created_at, updated_at, ...clonedNotification } = notification;
-      clonedNotification.title = `Cópia de ${clonedNotification.title}`;
+  const createReminder = useMutation({
+    mutationFn: async (reminderData) => {
+      const newReminder = {
+        ...reminderData,
+        type: 'reminder',
+      };
       const { data, error } = await supabase
         .from('notifications')
-        .insert([clonedNotification])
-        .select();
-      if (error) throw error;
-      return data[0];
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries(['notifications']);
-    },
-  });
-
-  const scheduleNotification = useMutation({
-    mutationFn: async ({ notificationId, sendDate }) => {
-      const { data, error } = await supabase
-        .from('notifications')
-        .update({ sendDate, status: 'scheduled' })
-        .eq('id', notificationId)
+        .insert([newReminder])
         .select();
       if (error) throw error;
       return data[0];
@@ -96,7 +83,6 @@ export const useNotifications = () => {
     createNotification: createNotification.mutate,
     updateNotification: updateNotification.mutate,
     deleteNotification: deleteNotification.mutate,
-    cloneNotification: cloneNotification.mutate,
-    scheduleNotification: scheduleNotification.mutate,
+    createReminder: createReminder.mutate,
   };
 };

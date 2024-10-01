@@ -8,7 +8,7 @@ const NotificationScheduler = () => {
     notificationId: '',
     sendDate: '',
   });
-  const { scheduleNotification, notifications } = useNotifications();
+  const { notifications, scheduleNotification } = useNotifications();
 
   const handleChange = (e) => {
     const { name, value } = e.target;

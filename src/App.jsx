@@ -9,6 +9,7 @@ import Orders from './pages/Orders';
 import ActivityLogs from './pages/ActivityLogs';
 import UsersAndPermissions from './pages/UsersAndPermissions';
 import Notifications from './pages/Notifications';
+import NotificationManager from './pages/NotificationManager';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
@@ -40,6 +41,7 @@ function App() {
               <Route path="activity-logs" element={<ProtectedRoute><ActivityLogs /></ProtectedRoute>} />
               <Route path="users" element={<ProtectedRoute><UsersAndPermissions /></ProtectedRoute>} />
               <Route path="notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
+              <Route path="notification-manager" element={<ProtectedRoute><NotificationManager /></ProtectedRoute>} />
               <Route path="settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
               <Route path="support" element={<ProtectedRoute><Support /></ProtectedRoute>} />
               <Route path="help" element={<ProtectedRoute><Help /></ProtectedRoute>} />

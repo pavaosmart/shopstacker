@@ -1,6 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../integrations/supabase/supabase';
-import { toast } from "sonner";
 
 const fetchProducts = async () => {
   const { data, error } = await supabase
@@ -31,10 +30,6 @@ export const useAddProduct = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
-      toast.success('Produto adicionado com sucesso');
-    },
-    onError: (error) => {
-      toast.error(`Erro ao adicionar produto: ${error.message}`);
     },
   });
 };
@@ -53,10 +48,6 @@ export const useUpdateProduct = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
-      toast.success('Produto atualizado com sucesso');
-    },
-    onError: (error) => {
-      toast.error(`Erro ao atualizar produto: ${error.message}`);
     },
   });
 };
@@ -75,10 +66,6 @@ export const useDeleteProduct = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
-      toast.success('Produto excluído com sucesso');
-    },
-    onError: (error) => {
-      toast.error(`Erro ao excluir produto: ${error.message}`);
     },
   });
 };

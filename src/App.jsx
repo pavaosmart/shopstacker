@@ -47,7 +47,7 @@ function App() {
               <Route path="integrations" element={<ProtectedRoute><Integrations /></ProtectedRoute>} />
               <Route path="support" element={<ProtectedRoute><Support /></ProtectedRoute>} />
               <Route path="profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-              <Route path="openai-integration" element={<ProtectedRoute><OpenAIIntegration /></ProtectedRoute>} />
+              <Route path="api-integration/openai" element={<ProtectedRoute><OpenAIIntegration /></ProtectedRoute>} />
             </Route>
           </Routes>
           <UIComponentsPanel />

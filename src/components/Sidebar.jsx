@@ -15,7 +15,8 @@ import {
   HelpCircle,
   ChevronRight,
   ChevronLeft,
-  Store
+  Store,
+  FileText
 } from 'lucide-react';
 
 const Sidebar = () => {
@@ -34,7 +35,8 @@ const Sidebar = () => {
     { icon: <Bell size={20} />, label: 'Notificações', to: '/notification-manager' },
     { icon: <MessageSquare size={20} />, label: 'Suporte', to: '/support' },
     { icon: <HelpCircle size={20} />, label: 'Ajuda', to: '/help' },
-    { icon: <Store size={20} />, label: 'Mercado APIs', to: '/api-store' },
+    { icon: <Store size={20} />, label: 'Mercado', to: '/market' },
+    { icon: <FileText size={20} />, label: 'Integrações', to: '/integrations' },
   ];
 
   return (

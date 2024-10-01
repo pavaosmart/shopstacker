@@ -22,6 +22,7 @@ import Profile from './pages/Profile';
 import Documentation from './pages/Documentation';
 import UIComponentsPanel from './components/UIComponentsPanel';
 import ProtectedRoute from './components/ProtectedRoute';
+import Market from './pages/Market'; // Importando a nova página Market
 
 const queryClient = new QueryClient();
 
@@ -49,6 +50,7 @@ function App() {
               <Route path="api-integration/openai" element={<ProtectedRoute><OpenAIIntegration /></ProtectedRoute>} />
               <Route path="profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
               <Route path="documentation" element={<ProtectedRoute><Documentation /></ProtectedRoute>} />
+              <Route path="market" element={<ProtectedRoute><Market /></ProtectedRoute>} /> {/* Nova rota para a página Market */}
             </Route>
           </Routes>
           <UIComponentsPanel />

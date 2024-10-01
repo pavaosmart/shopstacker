@@ -1,27 +1,38 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { useSupabaseAuth } from '../integrations/supabase/auth';
-import { Button } from "@/components/ui/button";
+import { NavLink } from 'react-router-dom';
+import { Home, Package, ShoppingCart, Activity, Users, Bell, Settings, HelpCircle, Store } from 'lucide-react';
 
 const Navigation = () => {
-  const { logout } = useSupabaseAuth();
+  const navItems = [
+    { to: '/', icon: Home, label: 'Dashboard' },
+    { to: '/products', icon: Package, label: 'Produtos' },
+    { to: '/orders', icon: ShoppingCart, label: 'Pedidos' },
+    { to: '/activity-logs', icon: Activity, label: 'Logs de Atividade' },
+    { to: '/users', icon: Users, label: 'Usuários' },
+    { to: '/notifications', icon: Bell, label: 'Notificações' },
+    { to: '/settings', icon: Settings, label: 'Configurações' },
+    { to: '/help', icon: HelpCircle, label: 'Ajuda' },
+    { to: '/market', icon: Store, label: 'Mercado' }, // Novo item de navegação para a página Market
+  ];
 
   return (
-    <nav className="bg-gray-800 text-white p-4">
-      <ul className="flex space-x-4">
-        <li><Link to="/" className="hover:text-gray-300">Home</Link></li>
-        <li><Link to="/dashboard" className="hover:text-gray-300">Dashboard</Link></li>
-        <li><Link to="/products" className="hover:text-gray-300">Products</Link></li>
-        <li><Link to="/activity-logs" className="hover:text-gray-300">Activity Logs</Link></li>
-        <li><Link to="/users" className="hover:text-gray-300">Users</Link></li>
-        <li><Link to="/settings" className="hover:text-gray-300">Settings</Link></li>
-        <li><Link to="/create-bot" className="hover:text-gray-300">Create Bot</Link></li>
-        <li>
-          <Button onClick={logout} variant="ghost" className="hover:text-gray-300">
-            Logout
-          </Button>
-        </li>
-      </ul>
+    <nav className="space-y-1">
+      {navItems.map((item) => (
+        <NavLink
+          key={item.to}
+          to={item.to}
+          className={({ isActive }) =>
+            `flex items-center px-2 py-2 text-sm font-medium rounded-md ${
+              isActive
+                ? 'bg-gray-100 text-gray-900'
+                : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+            }`
+          }
+        >
+          <item.icon className="mr-3 flex-shrink-0 h-6 w-6" />
+          {item.label}
+        </NavLink>
+      ))}
     </nav>
   );
 };

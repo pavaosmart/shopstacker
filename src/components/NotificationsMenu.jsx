@@ -17,10 +17,10 @@ const NotificationsMenu = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon">
+        <Button variant="ghost" size="icon" className="relative">
           <Bell className="h-5 w-5" />
           {notifications.length > 0 && (
-            <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500"></span>
+            <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500 transform translate-x-1/2 -translate-y-1/2"></span>
           )}
         </Button>
       </DropdownMenuTrigger>

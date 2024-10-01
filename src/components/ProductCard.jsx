@@ -12,7 +12,7 @@ const ProductCard = ({ product }) => {
       </CardHeader>
       <CardContent>
         <img 
-          src={product.images && product.images.length > 0 ? product.images[0] : "https://via.placeholder.com/300x200"} 
+          src={product.images && product.images.length > 0 ? product.images[0] : "/placeholder.svg"} 
           alt={product.name} 
           className="w-full h-48 object-cover mb-4 rounded-md"
         />

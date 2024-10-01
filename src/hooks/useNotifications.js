@@ -9,11 +9,14 @@ export const useNotifications = () => {
       .from('notifications')
       .select('*')
       .order('created_at', { ascending: false });
-    if (error) throw error;
+    if (error) {
+      console.error('Error fetching notifications:', error);
+      return [];
+    }
     return data;
   };
 
-  const { data: notifications = [] } = useQuery({
+  const { data: notifications = [], error: fetchError } = useQuery({
     queryKey: ['notifications'],
     queryFn: fetchNotifications,
   });
@@ -60,29 +63,11 @@ export const useNotifications = () => {
     },
   });
 
-  const createReminder = useMutation({
-    mutationFn: async (reminderData) => {
-      const newReminder = {
-        ...reminderData,
-        type: 'reminder',
-      };
-      const { data, error } = await supabase
-        .from('notifications')
-        .insert([newReminder])
-        .select();
-      if (error) throw error;
-      return data[0];
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries(['notifications']);
-    },
-  });
-
   return {
     notifications,
+    fetchError,
     createNotification: createNotification.mutate,
     updateNotification: updateNotification.mutate,
     deleteNotification: deleteNotification.mutate,
-    createReminder: createReminder.mutate,
   };
 };

@@ -72,9 +72,10 @@ export const createAssistant = async (name, instructions, model = 'gpt-3.5-turbo
 export const updateAssistant = async (assistantId, updates) => {
   try {
     const openai = await getOpenAIInstance();
+    const { max_tokens, ...validUpdates } = updates; // Remove max_tokens from the updates
     const updatedAssistant = await openai.beta.assistants.update(
       assistantId,
-      updates
+      validUpdates
     );
     return updatedAssistant;
   } catch (error) {

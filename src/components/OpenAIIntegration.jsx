@@ -102,7 +102,6 @@ const OpenAIIntegration = () => {
     try {
       const assistant = await createAssistant(newBot.name, newBot.instructions, newBot.model, {
         temperature: newBot.temperature,
-        max_tokens: newBot.max_tokens,
       });
       toast.success('Bot criado com sucesso!');
       setIsModalOpen(false);
@@ -136,7 +135,6 @@ const OpenAIIntegration = () => {
         instructions: newBot.instructions,
         model: newBot.model,
         temperature: newBot.temperature,
-        max_tokens: newBot.max_tokens,
       });
       toast.success('Bot atualizado com sucesso!');
       setIsModalOpen(false);

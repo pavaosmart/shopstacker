@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { BellIcon } from 'lucide-react';
+import { Bell } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
@@ -18,9 +18,9 @@ const NotificationsMenu = () => {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" className="relative">
-          <BellIcon className="h-5 w-5" />
+          <Bell className="h-6 w-6" />
           {notifications.length > 0 && (
-            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+            <span className="absolute -top-1 -right-1 flex items-center justify-center w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full">
               {notifications.length}
             </span>
           )}

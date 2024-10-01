@@ -3,7 +3,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import MessageNotifications from '../components/MessageNotifications';
 import SystemUpdateNotifications from '../components/SystemUpdateNotifications';
 import ReminderNotifications from '../components/ReminderNotifications';
-import NotificationScheduler from '../components/NotificationScheduler';
 
 const NotificationManager = () => {
   const [activeTab, setActiveTab] = useState("messages");
@@ -16,7 +15,6 @@ const NotificationManager = () => {
           <TabsTrigger value="messages">Mensagens</TabsTrigger>
           <TabsTrigger value="system-updates">Atualizações do Sistema</TabsTrigger>
           <TabsTrigger value="reminders">Lembretes</TabsTrigger>
-          <TabsTrigger value="schedule">Agendar Notificação</TabsTrigger>
         </TabsList>
         <TabsContent value="messages">
           <MessageNotifications />
@@ -26,9 +24,6 @@ const NotificationManager = () => {
         </TabsContent>
         <TabsContent value="reminders">
           <ReminderNotifications />
-        </TabsContent>
-        <TabsContent value="schedule">
-          <NotificationScheduler />
         </TabsContent>
       </Tabs>
     </div>

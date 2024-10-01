@@ -234,8 +234,12 @@ const OpenAIIntegration = () => {
                 id="documents"
                 type="file"
                 multiple
+                accept=".txt,.pdf,.doc,.docx,.csv"
                 onChange={handleFileUpload}
               />
+              <p className="text-sm text-gray-500 mt-1">
+                Allowed formats: .txt, .pdf, .doc, .docx, .csv
+              </p>
               <div className="mt-2">
                 {newBot.documents.map((doc, index) => (
                   <div key={index} className="text-sm text-gray-600">{doc.name}</div>

@@ -10,7 +10,7 @@ import { Slider } from "@/components/ui/slider";
 import { toast } from "sonner";
 import { useSupabaseAuth } from '../integrations/supabase/auth';
 import { supabase } from '../integrations/supabase/supabase';
-import { initializeOpenAI, testConnection, listAssistants, createAssistant, updateAssistant, deleteAssistant } from '../utils/openai';
+import { initializeOpenAI, testConnection, createAssistant, updateAssistant, deleteAssistant } from '../utils/openai';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 

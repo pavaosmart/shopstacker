@@ -11,13 +11,18 @@ const Estoque = () => {
   const updateProductMutation = useUpdateProduct();
   const deleteProductMutation = useDeleteProduct();
 
-  const [newProduct, setNewProduct] = useState({ name: '', description: '' });
+  const [newProduct, setNewProduct] = useState({ name: '', description: '', price: '', stock_quantity: '', markup: '' });
   const [editingProduct, setEditingProduct] = useState(null);
 
   const handleAddProduct = async () => {
     try {
-      await addProductMutation.mutateAsync(newProduct);
-      setNewProduct({ name: '', description: '' });
+      await addProductMutation.mutateAsync({
+        ...newProduct,
+        price: parseFloat(newProduct.price),
+        stock_quantity: parseInt(newProduct.stock_quantity),
+        markup: parseFloat(newProduct.markup)
+      });
+      setNewProduct({ name: '', description: '', price: '', stock_quantity: '', markup: '' });
       toast.success('Produto adicionado com sucesso!');
     } catch (error) {
       toast.error('Erro ao adicionar produto: ' + error.message);
@@ -27,7 +32,13 @@ const Estoque = () => {
   const handleUpdateProduct = async () => {
     if (!editingProduct) return;
     try {
-      await updateProductMutation.mutateAsync(editingProduct);
+      await updateProductMutation.mutateAsync({
+        id: editingProduct.id,
+        ...editingProduct,
+        price: parseFloat(editingProduct.price),
+        stock_quantity: parseInt(editingProduct.stock_quantity),
+        markup: parseFloat(editingProduct.markup)
+      });
       setEditingProduct(null);
       toast.success('Produto atualizado com sucesso!');
     } catch (error) {
@@ -68,6 +79,27 @@ const Estoque = () => {
             onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
             className="mb-2"
           />
+          <Input
+            placeholder="Preço"
+            type="number"
+            value={newProduct.price}
+            onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
+            className="mb-2"
+          />
+          <Input
+            placeholder="Quantidade em Estoque"
+            type="number"
+            value={newProduct.stock_quantity}
+            onChange={(e) => setNewProduct({ ...newProduct, stock_quantity: e.target.value })}
+            className="mb-2"
+          />
+          <Input
+            placeholder="Markup"
+            type="number"
+            value={newProduct.markup}
+            onChange={(e) => setNewProduct({ ...newProduct, markup: e.target.value })}
+            className="mb-2"
+          />
           <Button onClick={handleAddProduct}>Adicionar Produto</Button>
         </CardContent>
       </Card>
@@ -80,6 +112,10 @@ const Estoque = () => {
             </CardHeader>
             <CardContent>
               <p>{product.description}</p>
+              <p>Preço: R$ {product.price.toFixed(2)}</p>
+              <p>Estoque: {product.stock_quantity}</p>
+              <p>Markup: {product.markup}</p>
+              <p>Preço de venda sugerido: R$ {(product.price * (1 + product.markup)).toFixed(2)}</p>
               <div className="mt-4">
                 <Button onClick={() => setEditingProduct(product)} className="mr-2">Editar</Button>
                 <Button onClick={() => handleDeleteProduct(product.id)} variant="destructive">Excluir</Button>
@@ -105,6 +141,27 @@ const Estoque = () => {
               placeholder="Descrição"
               value={editingProduct.description}
               onChange={(e) => setEditingProduct({ ...editingProduct, description: e.target.value })}
+              className="mb-2"
+            />
+            <Input
+              placeholder="Preço"
+              type="number"
+              value={editingProduct.price}
+              onChange={(e) => setEditingProduct({ ...editingProduct, price: e.target.value })}
+              className="mb-2"
+            />
+            <Input
+              placeholder="Quantidade em Estoque"
+              type="number"
+              value={editingProduct.stock_quantity}
+              onChange={(e) => setEditingProduct({ ...editingProduct, stock_quantity: e.target.value })}
+              className="mb-2"
+            />
+            <Input
+              placeholder="Markup"
+              type="number"
+              value={editingProduct.markup}
+              onChange={(e) => setEditingProduct({ ...editingProduct, markup: e.target.value })}
               className="mb-2"
             />
             <Button onClick={handleUpdateProduct}>Atualizar Produto</Button>

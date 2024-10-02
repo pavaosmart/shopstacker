@@ -34,7 +34,7 @@ const OpenAIIntegration = () => {
   useEffect(() => {
     if (session?.user?.id) {
       fetchApiKey();
-      syncBotsWithOpenAI();
+      fetchBots();
     }
   }, [session]);
 
@@ -63,62 +63,6 @@ const OpenAIIntegration = () => {
     } catch (error) {
       console.error('Erro ao buscar chave de API:', error);
       toast.error('Falha ao carregar chave de API');
-    }
-  };
-
-  const syncBotsWithOpenAI = async () => {
-    try {
-      setIsLoading(true);
-      const openAIBots = await listAssistants();
-      const { data: supabaseBots, error } = await supabase
-        .from('bots')
-        .select('*')
-        .eq('user_id', session.user.id);
-
-      if (error) throw error;
-
-      // Remove bots that no longer exist in OpenAI
-      for (const bot of supabaseBots) {
-        if (!openAIBots.find(openAIBot => openAIBot.id === bot.openai_assistant_id)) {
-          await supabase
-            .from('bots')
-            .delete()
-            .eq('id', bot.id);
-        }
-      }
-
-      // Update or insert bots from OpenAI
-      for (const openAIBot of openAIBots) {
-        const existingBot = supabaseBots.find(bot => bot.openai_assistant_id === openAIBot.id);
-        if (existingBot) {
-          await supabase
-            .from('bots')
-            .update({
-              name: openAIBot.name,
-              description: openAIBot.instructions,
-              model: openAIBot.model,
-              updated_at: new Date().toISOString()
-            })
-            .eq('id', existingBot.id);
-        } else {
-          await supabase
-            .from('bots')
-            .insert({
-              name: openAIBot.name,
-              description: openAIBot.instructions,
-              openai_assistant_id: openAIBot.id,
-              user_id: session.user.id,
-              model: openAIBot.model
-            });
-        }
-      }
-
-      await fetchBots();
-    } catch (error) {
-      console.error('Erro ao sincronizar bots:', error);
-      toast.error('Falha ao sincronizar bots com OpenAI');
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -151,7 +95,7 @@ const OpenAIIntegration = () => {
       initializeOpenAI(openaiApiKey);
       await testConnection();
       toast.success('Chave de API salva e testada com sucesso');
-      await syncBotsWithOpenAI();
+      await fetchBots();
     } catch (error) {
       console.error('Erro ao salvar ou testar chave de API:', error);
       toast.error('Falha ao salvar ou testar chave de API');

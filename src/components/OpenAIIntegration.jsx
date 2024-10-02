@@ -68,14 +68,25 @@ const OpenAIIntegration = () => {
 
   const fetchBots = async () => {
     try {
-      const { data, error } = await supabase
+      const assistants = await listAssistants();
+      const { data: dbBots, error } = await supabase
         .from('bots')
         .select('*')
-        .eq('user_id', session.user.id)
-        .order('created_at', { ascending: false });
+        .eq('user_id', session.user.id);
 
       if (error) throw error;
-      setBots(data);
+
+      const mergedBots = assistants.map(assistant => {
+        const dbBot = dbBots.find(bot => bot.openai_assistant_id === assistant.id);
+        return {
+          ...assistant,
+          ...dbBot,
+          name: assistant.name,
+          description: assistant.instructions,
+        };
+      });
+
+      setBots(mergedBots);
     } catch (error) {
       console.error('Erro ao buscar bots:', error);
       toast.error('Falha ao carregar lista de bots');

@@ -67,7 +67,7 @@ const ChatWithBot = () => {
         content: type === 'text' ? content : [
           {
             type: type,
-            [type === 'image' ? 'image_url' : 'audio_url']: content
+            [type === 'image' ? 'image_url' : 'audio_url']: { url: content }
           }
         ]
       });

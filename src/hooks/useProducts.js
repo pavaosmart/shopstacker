@@ -9,18 +9,18 @@ const fromSupabase = async (query) => {
 
 export const useProduct = (id) => useQuery({
   queryKey: ['products', id],
-  queryFn: () => fromSupabase(supabase.from('products').select('*').eq('id', id).single()),
+  queryFn: () => fromSupabase(supabase.from('bots').select('*').eq('id', id).single()),
 });
 
 export const useProducts = () => useQuery({
   queryKey: ['products'],
-  queryFn: () => fromSupabase(supabase.from('products').select('*')),
+  queryFn: () => fromSupabase(supabase.from('bots').select('*')),
 });
 
 export const useAddProduct = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (newProduct) => fromSupabase(supabase.from('products').insert([newProduct])),
+    mutationFn: (newProduct) => fromSupabase(supabase.from('bots').insert([newProduct])),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
     },
@@ -30,7 +30,7 @@ export const useAddProduct = () => {
 export const useUpdateProduct = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, ...updateData }) => fromSupabase(supabase.from('products').update(updateData).eq('id', id)),
+    mutationFn: ({ id, ...updateData }) => fromSupabase(supabase.from('bots').update(updateData).eq('id', id)),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
     },
@@ -40,7 +40,7 @@ export const useUpdateProduct = () => {
 export const useDeleteProduct = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (id) => fromSupabase(supabase.from('products').delete().eq('id', id)),
+    mutationFn: (id) => fromSupabase(supabase.from('bots').delete().eq('id', id)),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
     },

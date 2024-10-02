@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSupabaseAuth } from '../integrations/supabase/auth';
-import { listAssistants, getOpenAIInstance } from '../utils/openai';
+import { getOpenAIInstance } from '../utils/openai';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,80 +9,79 @@ import { toast } from "sonner";
 import { Bot } from 'lucide-react';
 
 const ChatWithBot = () => {
-  const [assistants, setAssistants] = useState([]);
-  const [selectedAssistant, setSelectedAssistant] = useState(null);
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [isTyping, setIsTyping] = useState(false);
+  const [threadId, setThreadId] = useState(null);
   const { session } = useSupabaseAuth();
 
   useEffect(() => {
-    fetchAssistants();
+    createThread();
   }, []);
 
-  const fetchAssistants = async () => {
+  const createThread = async () => {
     try {
-      const fetchedAssistants = await listAssistants();
-      setAssistants(fetchedAssistants);
-      if (fetchedAssistants.length > 0) {
-        setSelectedAssistant(fetchedAssistants[0]);
-      }
+      const openai = await getOpenAIInstance();
+      const thread = await openai.beta.threads.create();
+      setThreadId(thread.id);
     } catch (error) {
-      console.error('Erro ao buscar assistentes:', error);
-      toast.error('Falha ao carregar assistentes');
+      console.error('Erro ao criar thread:', error);
+      toast.error('Falha ao iniciar o chat');
     }
   };
 
   const handleSendMessage = async () => {
-    if (!inputMessage.trim() || !selectedAssistant) return;
+    if (!inputMessage.trim() || !threadId) return;
 
-    const newMessage = { role: 'user', content: inputMessage, sender: 'Você' };
+    const newMessage = { role: 'user', content: inputMessage };
     setMessages(prevMessages => [...prevMessages, newMessage]);
     setInputMessage('');
     setIsLoading(true);
-    setIsTyping(true);
 
     try {
       const openai = await getOpenAIInstance();
       
-      const response = await openai.chat.completions.create({
-        model: selectedAssistant.model || "gpt-3.5-turbo",
-        messages: [
-          { role: "system", content: `You are an AI assistant named ${selectedAssistant.name}.` },
-          ...messages,
-          newMessage
-        ],
+      // Adicionar a mensagem do usuário à thread
+      await openai.beta.threads.messages.create(threadId, {
+        role: 'user',
+        content: inputMessage
       });
 
-      const botResponse = { role: 'assistant', content: response.choices[0].message.content, sender: selectedAssistant.name };
-      setMessages(prevMessages => [...prevMessages, botResponse]);
+      // Executar o assistente
+      const run = await openai.beta.threads.runs.create(threadId, {
+        assistant_id: 'asst_zilda_id' // Substitua pelo ID real do assistente Zilda
+      });
+
+      // Aguardar a conclusão da execução
+      let runStatus = await openai.beta.threads.runs.retrieve(threadId, run.id);
+      while (runStatus.status !== 'completed') {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        runStatus = await openai.beta.threads.runs.retrieve(threadId, run.id);
+      }
+
+      // Recuperar as mensagens após a execução
+      const messages = await openai.beta.threads.messages.list(threadId);
+
+      // Adicionar a resposta do assistente ao estado de mensagens
+      const assistantMessage = messages.data[0];
+      setMessages(prevMessages => [...prevMessages, {
+        role: 'assistant',
+        content: assistantMessage.content[0].text.value
+      }]);
     } catch (error) {
       console.error('Erro ao enviar mensagem:', error);
       toast.error('Falha ao enviar mensagem: ' + error.message);
     } finally {
       setIsLoading(false);
-      setIsTyping(false);
     }
   };
 
   return (
     <Card className="w-full max-w-2xl mx-auto mt-8">
       <CardHeader>
-        <CardTitle>Chat com Bot</CardTitle>
+        <CardTitle>Chat com Zilda</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="mb-4">
-          <select
-            value={selectedAssistant?.id || ''}
-            onChange={(e) => setSelectedAssistant(assistants.find(a => a.id === e.target.value))}
-            className="w-full p-2 border rounded"
-          >
-            {assistants.map((assistant) => (
-              <option key={assistant.id} value={assistant.id}>{assistant.name}</option>
-            ))}
-          </select>
-        </div>
         <div className="space-y-4 mb-4 h-80 overflow-y-auto p-4 bg-gray-50 rounded-lg">
           {messages.map((message, index) => (
             <div key={index} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
@@ -96,9 +95,9 @@ const ChatWithBot = () => {
                         <Bot size={16} />
                       </AvatarFallback>
                     )}
-                    <AvatarFallback>{message.role === 'user' ? 'U' : 'B'}</AvatarFallback>
+                    <AvatarFallback>{message.role === 'user' ? 'U' : 'Z'}</AvatarFallback>
                   </Avatar>
-                  <span className="text-xs font-semibold">{message.sender}</span>
+                  <span className="text-xs font-semibold">{message.role === 'user' ? 'Você' : 'Zilda'}</span>
                 </div>
                 <div className={`p-3 rounded-lg ${
                   message.role === 'user' 
@@ -110,10 +109,10 @@ const ChatWithBot = () => {
               </div>
             </div>
           ))}
-          {isTyping && (
+          {isLoading && (
             <div className="flex justify-start">
               <div className="bg-gray-200 text-gray-800 p-3 rounded-lg rounded-bl-none max-w-[70%]">
-                <span className="animate-pulse">Digitando...</span>
+                <span className="animate-pulse">Zilda está digitando...</span>
               </div>
             </div>
           )}

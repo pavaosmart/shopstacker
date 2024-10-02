@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSupabaseAuth } from '../integrations/supabase/auth';
-import { getOpenAIInstance, getZildaAssistant } from '../utils/openai';
+import { getOpenAIInstance, getZildaAssistant, textToSpeech } from '../utils/openai';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -40,7 +40,7 @@ const ChatWithBot = () => {
   }, []);
 
   const handleSendMessage = async (content, type = 'text') => {
-    if ((!content.trim() && type === 'text') || !threadId || !zildaAssistant) return;
+    if ((!content || (type === 'text' && !content.trim())) || !threadId || !zildaAssistant) return;
 
     let newMessage = { role: 'user', content, type };
     setMessages(prevMessages => [...prevMessages, newMessage]);
@@ -108,19 +108,6 @@ const ChatWithBot = () => {
 
     const response = await openai.files.create(formData);
     return response.id;
-  };
-
-  const textToSpeech = async (text) => {
-    const openai = await getOpenAIInstance();
-    const response = await openai.audio.speech.create({
-      model: "tts-1",
-      voice: "alloy",
-      input: text,
-    });
-
-    const arrayBuffer = await response.arrayBuffer();
-    const blob = new Blob([arrayBuffer], { type: 'audio/mpeg' });
-    return URL.createObjectURL(blob);
   };
 
   const handleFileUpload = async (event) => {

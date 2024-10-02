@@ -14,9 +14,9 @@ const Estoque = () => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
 
-  const handleCreateProduct = async (newProduct) => {
+  const handleCreateProduct = async (formData) => {
     try {
-      await addProductMutation.mutateAsync(newProduct);
+      await addProductMutation.mutateAsync(formData);
       toast.success('Produto adicionado com sucesso!');
     } catch (error) {
       toast.error('Erro ao adicionar produto: ' + error.message);

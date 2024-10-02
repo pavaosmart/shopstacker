@@ -14,7 +14,7 @@ export const useProduct = (id) => useQuery({
 
 export const useProducts = () => useQuery({
   queryKey: ['products'],
-  queryFn: () => fromSupabase(supabase.from('bots').select('*')),
+  queryFn: () => fromSupabase(supabase.from('bots').select('name,description')),
 });
 
 export const useAddProduct = () => {

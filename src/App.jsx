@@ -1,46 +1,59 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { SupabaseAuthProvider } from './integrations/supabase/auth';
 import Layout from './components/Layout';
 import Index from './pages/Index';
-import MercadoPagoConfig from './pages/MercadoPagoConfig';
-import Dashboard from './pages/Dashboard';
 import Estoque from './pages/Estoque';
-import Produtos from './pages/Produtos';
-import Vendas from './pages/Vendas';
-import Configuracoes from './pages/Configuracoes';
-import Perfil from './pages/Perfil';
+import MeusProdutos from './pages/MeusProdutos';
+import Orders from './pages/Orders';
+import ActivityLogs from './pages/ActivityLogs';
+import UsersAndPermissions from './pages/UsersAndPermissions';
+import Notifications from './pages/Notifications';
 import Login from './pages/Login';
-import Registro from './pages/Registro';
-import RecuperarSenha from './pages/RecuperarSenha';
-import NotFound from './pages/NotFound';
+import Register from './pages/Register';
+import ForgotPassword from './pages/ForgotPassword';
+import Settings from './pages/Settings';
+import Support from './pages/Support';
+import Help from './pages/Help';
+import Integrations from './pages/APIStore';
+import OpenAIIntegration from './components/OpenAIIntegration';
+import Profile from './pages/Profile';
+import Documentation from './pages/Documentation';
+import UIComponentsPanel from './components/UIComponentsPanel';
 import ProtectedRoute from './components/ProtectedRoute';
-import { AuthProvider } from './contexts/AuthContext';
-import { ThemeProvider } from './contexts/ThemeContext';
+import Market from './pages/Market';
+
+const queryClient = new QueryClient();
 
 function App() {
   return (
-    <Router>
-      <AuthProvider>
-        <ThemeProvider>
-          <Layout>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/mercado-pago-config" element={<MercadoPagoConfig />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/registro" element={<Registro />} />
-              <Route path="/recuperar-senha" element={<RecuperarSenha />} />
-              <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-              <Route path="/estoque" element={<ProtectedRoute><Estoque /></ProtectedRoute>} />
-              <Route path="/produtos" element={<ProtectedRoute><Produtos /></ProtectedRoute>} />
-              <Route path="/vendas" element={<ProtectedRoute><Vendas /></ProtectedRoute>} />
-              <Route path="/configuracoes" element={<ProtectedRoute><Configuracoes /></ProtectedRoute>} />
-              <Route path="/perfil" element={<ProtectedRoute><Perfil /></ProtectedRoute>} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Layout>
-        </ThemeProvider>
-      </AuthProvider>
-    </Router>
+    <QueryClientProvider client={queryClient}>
+      <SupabaseAuthProvider>
+        <Router>
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/" element={<Layout />}>
+              <Route index element={<ProtectedRoute><Index /></ProtectedRoute>} />
+              <Route path="market" element={<ProtectedRoute><Market /></ProtectedRoute>} />
+              <Route path="meus-produtos" element={<ProtectedRoute><MeusProdutos /></ProtectedRoute>} />
+              <Route path="orders" element={<ProtectedRoute><Orders /></ProtectedRoute>} />
+              <Route path="estoque" element={<ProtectedRoute><Estoque /></ProtectedRoute>} />
+              <Route path="activity-logs" element={<ProtectedRoute><ActivityLogs /></ProtectedRoute>} />
+              <Route path="users" element={<ProtectedRoute><UsersAndPermissions /></ProtectedRoute>} />
+              <Route path="notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
+              <Route path="integrations" element={<ProtectedRoute><Integrations /></ProtectedRoute>} />
+              <Route path="support" element={<ProtectedRoute><Support /></ProtectedRoute>} />
+              <Route path="profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+              <Route path="api-integration/openai" element={<ProtectedRoute><OpenAIIntegration /></ProtectedRoute>} />
+            </Route>
+          </Routes>
+          <UIComponentsPanel />
+        </Router>
+      </SupabaseAuthProvider>
+    </QueryClientProvider>
   );
 }
 

@@ -45,7 +45,7 @@ export const testConnection = async () => {
 export const getZildaAssistant = async () => {
   const openai = await getOpenAIInstance();
   const assistants = await openai.beta.assistants.list();
-  const zilda = assistants.data.find(assistant => assistant.name === "Zilda");
+  const zilda = assistants.data.find(assistant => assistant.name.toLowerCase().includes('zilda'));
   if (!zilda) {
     throw new Error("Assistente Zilda não encontrado");
   }

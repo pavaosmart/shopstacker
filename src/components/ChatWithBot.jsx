@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSupabaseAuth } from '../integrations/supabase/auth';
-import { getOpenAIInstance } from '../utils/openai';
+import { getOpenAIInstance, getZildaAssistant } from '../utils/openai';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,10 +13,12 @@ const ChatWithBot = () => {
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [threadId, setThreadId] = useState(null);
+  const [zildaAssistant, setZildaAssistant] = useState(null);
   const { session } = useSupabaseAuth();
 
   useEffect(() => {
     createThread();
+    fetchZildaAssistant();
   }, []);
 
   const createThread = async () => {
@@ -30,8 +32,18 @@ const ChatWithBot = () => {
     }
   };
 
+  const fetchZildaAssistant = async () => {
+    try {
+      const assistant = await getZildaAssistant();
+      setZildaAssistant(assistant);
+    } catch (error) {
+      console.error('Erro ao buscar assistente Zilda:', error);
+      toast.error('Falha ao conectar com o assistente Zilda');
+    }
+  };
+
   const handleSendMessage = async () => {
-    if (!inputMessage.trim() || !threadId) return;
+    if (!inputMessage.trim() || !threadId || !zildaAssistant) return;
 
     const newMessage = { role: 'user', content: inputMessage };
     setMessages(prevMessages => [...prevMessages, newMessage]);
@@ -49,7 +61,7 @@ const ChatWithBot = () => {
 
       // Executar o assistente
       const run = await openai.beta.threads.runs.create(threadId, {
-        assistant_id: 'asst_zilda_id' // Substitua pelo ID real do assistente Zilda
+        assistant_id: zildaAssistant.id
       });
 
       // Aguardar a conclusão da execução

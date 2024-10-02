@@ -6,7 +6,6 @@ import Layout from './components/Layout';
 import Index from './pages/Index';
 import Estoque from './pages/Estoque';
 import MeusProdutos from './pages/MeusProdutos';
-import ProductDetails from './pages/ProductDetails';
 import Orders from './pages/Orders';
 import ActivityLogs from './pages/ActivityLogs';
 import UsersAndPermissions from './pages/UsersAndPermissions';
@@ -40,7 +39,6 @@ function App() {
               <Route index element={<ProtectedRoute><Index /></ProtectedRoute>} />
               <Route path="market" element={<ProtectedRoute><Market /></ProtectedRoute>} />
               <Route path="meus-produtos" element={<ProtectedRoute><MeusProdutos /></ProtectedRoute>} />
-              <Route path="meus-produtos/:id" element={<ProtectedRoute><ProductDetails /></ProtectedRoute>} />
               <Route path="orders" element={<ProtectedRoute><Orders /></ProtectedRoute>} />
               <Route path="estoque" element={<ProtectedRoute><Estoque /></ProtectedRoute>} />
               <Route path="activity-logs" element={<ProtectedRoute><ActivityLogs /></ProtectedRoute>} />

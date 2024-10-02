@@ -11,7 +11,7 @@ import { toast } from "sonner";
 import { useSupabaseAuth } from '../integrations/supabase/auth';
 import { supabase } from '../integrations/supabase/supabase';
 import { initializeOpenAI, testConnection, createAssistant, updateAssistant, deleteAssistant, listAssistants } from '../utils/openai';
-import { format, isValid } from 'date-fns';
+import { format, isValid, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
 const OpenAIIntegration = () => {
@@ -239,7 +239,8 @@ const OpenAIIntegration = () => {
   };
 
   const formatDate = (dateString) => {
-    const date = new Date(dateString);
+    if (!dateString) return 'Data não disponível';
+    const date = typeof dateString === 'string' ? parseISO(dateString) : new Date(dateString);
     return isValid(date) ? format(date, "dd/MM/yyyy HH:mm", { locale: ptBR }) : 'Data inválida';
   };
 

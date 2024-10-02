@@ -30,3 +30,25 @@ export const useAddUserProduct = () => {
     },
   });
 };
+
+export const useUpdateUserProduct = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (updatedProduct) => {
+      // Simulando um delay de rede
+      await new Promise(resolve => setTimeout(resolve, 500));
+      const index = userProductsMock.findIndex(p => p.id === updatedProduct.id);
+      if (index !== -1) {
+        userProductsMock[index] = { ...userProductsMock[index], ...updatedProduct };
+      }
+      return [...userProductsMock];
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['userProducts'] });
+      toast.success('Produto atualizado com sucesso');
+    },
+    onError: (error) => {
+      toast.error(`Falha ao atualizar produto: ${error.message}`);
+    },
+  });
+};

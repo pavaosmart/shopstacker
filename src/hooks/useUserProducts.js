@@ -1,25 +1,13 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '../integrations/supabase/supabase';
+import { userProductsMock } from '../mocks/userProductsMock';
 import { toast } from "sonner";
-
-const fromSupabase = async (query) => {
-  const { data, error } = await query;
-  if (error) {
-    console.error('Supabase error:', error);
-    throw new Error(error.message);
-  }
-  return data;
-};
 
 export const useUserProducts = () => useQuery({
   queryKey: ['userProducts'],
   queryFn: async () => {
-    try {
-      return await fromSupabase(supabase.from('user_products').select('*'));
-    } catch (error) {
-      toast.error(`Failed to fetch user products: ${error.message}`);
-      return [];
-    }
+    // Simulando um delay de rede
+    await new Promise(resolve => setTimeout(resolve, 500));
+    return userProductsMock;
   },
 });
 
@@ -27,16 +15,18 @@ export const useAddUserProduct = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (newProduct) => {
-      try {
-        return await fromSupabase(supabase.from('user_products').insert([newProduct]));
-      } catch (error) {
-        toast.error(`Failed to add product: ${error.message}`);
-        throw error;
-      }
+      // Simulando um delay de rede
+      await new Promise(resolve => setTimeout(resolve, 500));
+      const updatedProducts = [...userProductsMock, { ...newProduct, id: Date.now().toString() }];
+      userProductsMock.push({ ...newProduct, id: Date.now().toString() });
+      return updatedProducts;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['userProducts'] });
-      toast.success('Product added successfully');
+      toast.success('Produto adicionado com sucesso');
+    },
+    onError: (error) => {
+      toast.error(`Falha ao adicionar produto: ${error.message}`);
     },
   });
 };

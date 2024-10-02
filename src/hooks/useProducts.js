@@ -7,7 +7,7 @@ export const useProducts = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('products')
-        .select('id, name, description, price, stock_quantity, photos, cover_photo_index');
+        .select('id, name, description, price, stock_quantity');
       
       if (error) {
         throw new Error(error.message);
@@ -22,24 +22,6 @@ export const useAddProduct = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (formData) => {
-      const photos = [];
-      const coverPhotoIndex = formData.get('cover_photo_index');
-      
-      // Upload photos
-      for (let i = 0; i < 9; i++) {
-        const photo = formData.get(`photo_${i}`);
-        if (photo) {
-          const { data, error } = await supabase.storage
-            .from('product-photos')
-            .upload(`${Date.now()}_${photo.name}`, photo);
-          
-          if (error) throw new Error(error.message);
-          
-          photos.push(data.path);
-        }
-      }
-      
-      // Create product
       const { data, error } = await supabase
         .from('products')
         .insert([{
@@ -47,8 +29,6 @@ export const useAddProduct = () => {
           description: formData.get('description'),
           price: parseFloat(formData.get('price')),
           stock_quantity: parseInt(formData.get('stock_quantity')),
-          photos: photos,
-          cover_photo_index: parseInt(coverPhotoIndex)
         }])
         .select();
       

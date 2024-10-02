@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { X } from 'lucide-react';
 
 const CreateProductModal = ({ isOpen, onClose, onCreateProduct }) => {
   const [newProduct, setNewProduct] = useState({
@@ -13,40 +12,10 @@ const CreateProductModal = ({ isOpen, onClose, onCreateProduct }) => {
     price: '',
     stock_quantity: ''
   });
-  const [photos, setPhotos] = useState([]);
-  const [coverPhotoIndex, setCoverPhotoIndex] = useState(0);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setNewProduct(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handlePhotoUpload = (e) => {
-    const files = Array.from(e.target.files);
-    if (files.length + photos.length > 9) {
-      alert('Você pode adicionar no máximo 9 fotos.');
-      return;
-    }
-    
-    const newPhotos = files.map(file => ({
-      file,
-      preview: URL.createObjectURL(file)
-    }));
-    
-    setPhotos(prevPhotos => [...prevPhotos, ...newPhotos]);
-  };
-
-  const removePhoto = (index) => {
-    setPhotos(prevPhotos => prevPhotos.filter((_, i) => i !== index));
-    if (index === coverPhotoIndex) {
-      setCoverPhotoIndex(0);
-    } else if (index < coverPhotoIndex) {
-      setCoverPhotoIndex(prevIndex => prevIndex - 1);
-    }
-  };
-
-  const setCoverPhoto = (index) => {
-    setCoverPhotoIndex(index);
   };
 
   const handleSubmit = (e) => {
@@ -55,17 +24,13 @@ const CreateProductModal = ({ isOpen, onClose, onCreateProduct }) => {
     Object.keys(newProduct).forEach(key => {
       formData.append(key, newProduct[key]);
     });
-    photos.forEach((photo, index) => {
-      formData.append(`photo_${index}`, photo.file);
-    });
-    formData.append('cover_photo_index', coverPhotoIndex);
     onCreateProduct(formData);
     onClose();
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Adicionar Novo Produto</DialogTitle>
         </DialogHeader>
@@ -120,46 +85,6 @@ const CreateProductModal = ({ isOpen, onClose, onCreateProduct }) => {
                 onChange={handleChange}
                 className="col-span-3"
               />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="photos" className="text-right">
-                Fotos
-              </Label>
-              <Input
-                id="photos"
-                type="file"
-                accept="image/*"
-                multiple
-                onChange={handlePhotoUpload}
-                className="col-span-3"
-              />
-            </div>
-            <div className="grid grid-cols-3 gap-4 mt-4">
-              {photos.map((photo, index) => (
-                <div key={index} className="relative">
-                  <img
-                    src={photo.preview}
-                    alt={`Preview ${index}`}
-                    className="w-full h-32 object-cover rounded"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => removePhoto(index)}
-                    className="absolute top-0 right-0 bg-red-500 text-white p-1 rounded-full"
-                  >
-                    <X size={16} />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setCoverPhoto(index)}
-                    className={`absolute bottom-0 left-0 ${
-                      index === coverPhotoIndex ? 'bg-green-500' : 'bg-blue-500'
-                    } text-white p-1 rounded-full`}
-                  >
-                    Capa
-                  </button>
-                </div>
-              ))}
             </div>
           </div>
           <DialogFooter>

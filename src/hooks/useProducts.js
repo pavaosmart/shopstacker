@@ -7,7 +7,7 @@ export const useProducts = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('products')
-        .select('*');
+        .select('id, name, description, price, stock_quantity');
       
       if (error) {
         throw new Error(error.message);

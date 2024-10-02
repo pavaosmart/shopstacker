@@ -16,30 +16,33 @@ import NotFound from './pages/NotFound';
 import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
+import { SupabaseAuthProvider } from './integrations/supabase/auth';
 
 function App() {
   return (
     <Router>
-      <AuthProvider>
-        <ThemeProvider>
-          <Layout>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/mercado-pago-config" element={<MercadoPagoConfig />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/registro" element={<Registro />} />
-              <Route path="/recuperar-senha" element={<RecuperarSenha />} />
-              <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-              <Route path="/estoque" element={<ProtectedRoute><Estoque /></ProtectedRoute>} />
-              <Route path="/produtos" element={<ProtectedRoute><Produtos /></ProtectedRoute>} />
-              <Route path="/vendas" element={<ProtectedRoute><Vendas /></ProtectedRoute>} />
-              <Route path="/configuracoes" element={<ProtectedRoute><Configuracoes /></ProtectedRoute>} />
-              <Route path="/perfil" element={<ProtectedRoute><Perfil /></ProtectedRoute>} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Layout>
-        </ThemeProvider>
-      </AuthProvider>
+      <SupabaseAuthProvider>
+        <AuthProvider>
+          <ThemeProvider>
+            <Layout>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/mercado-pago-config" element={<MercadoPagoConfig />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/registro" element={<Registro />} />
+                <Route path="/recuperar-senha" element={<RecuperarSenha />} />
+                <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+                <Route path="/estoque" element={<ProtectedRoute><Estoque /></ProtectedRoute>} />
+                <Route path="/produtos" element={<ProtectedRoute><Produtos /></ProtectedRoute>} />
+                <Route path="/vendas" element={<ProtectedRoute><Vendas /></ProtectedRoute>} />
+                <Route path="/configuracoes" element={<ProtectedRoute><Configuracoes /></ProtectedRoute>} />
+                <Route path="/perfil" element={<ProtectedRoute><Perfil /></ProtectedRoute>} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </Layout>
+          </ThemeProvider>
+        </AuthProvider>
+      </SupabaseAuthProvider>
     </Router>
   );
 }

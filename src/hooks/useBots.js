@@ -1,13 +1,13 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '../integrations/supabase/supabase';
 
-export const useProducts = () => {
+export const useBots = () => {
   return useQuery({
-    queryKey: ['products'],
+    queryKey: ['bots'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('products')
-        .select('name, price, stock_quantity, markup');
+        .from('bots')
+        .select('*');
 
       if (error) {
         throw new Error(error.message);
@@ -18,13 +18,13 @@ export const useProducts = () => {
   });
 };
 
-export const useProduct = (id) => {
+export const useBot = (id) => {
   return useQuery({
-    queryKey: ['product', id],
+    queryKey: ['bot', id],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('products')
-        .select('name, price, stock_quantity, markup')
+        .from('bots')
+        .select('*')
         .eq('id', id)
         .single();
 

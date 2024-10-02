@@ -84,3 +84,16 @@ export const uploadFile = async (file, purpose) => {
   const response = await openai.files.create({ file, purpose });
   return response.id;
 };
+
+export const textToSpeech = async (text) => {
+  const openai = await getOpenAIInstance();
+  const response = await openai.audio.speech.create({
+    model: "tts-1",
+    voice: "alloy",
+    input: text,
+  });
+
+  const arrayBuffer = await response.arrayBuffer();
+  const blob = new Blob([arrayBuffer], { type: 'audio/mpeg' });
+  return URL.createObjectURL(blob);
+};

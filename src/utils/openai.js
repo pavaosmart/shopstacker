@@ -51,3 +51,30 @@ export const getZildaAssistant = async () => {
   }
   return zilda;
 };
+
+export const createAssistant = async (name, instructions) => {
+  const openai = await getOpenAIInstance();
+  const assistant = await openai.beta.assistants.create({
+    name: name,
+    instructions: instructions,
+    model: "gpt-3.5-turbo",
+  });
+  return assistant;
+};
+
+export const updateAssistant = async (assistantId, updates) => {
+  const openai = await getOpenAIInstance();
+  const updatedAssistant = await openai.beta.assistants.update(assistantId, updates);
+  return updatedAssistant;
+};
+
+export const deleteAssistant = async (assistantId) => {
+  const openai = await getOpenAIInstance();
+  await openai.beta.assistants.del(assistantId);
+};
+
+export const listAssistants = async () => {
+  const openai = await getOpenAIInstance();
+  const assistants = await openai.beta.assistants.list();
+  return assistants.data;
+};

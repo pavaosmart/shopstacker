@@ -22,6 +22,23 @@ const ChatWithBot = () => {
   const messagesEndRef = useRef(null);
   const [conversations, setConversations] = useState([]);
 
+  useEffect(() => {
+    const initializeChat = async () => {
+      try {
+        const openai = await getOpenAIInstance();
+        const assistant = await getZildaAssistant();
+        setZildaAssistant(assistant);
+        const thread = await openai.beta.threads.create();
+        setThreadId(thread.id);
+      } catch (error) {
+        console.error('Error initializing chat:', error);
+        toast.error('Failed to initialize chat');
+      }
+    };
+
+    initializeChat();
+  }, []);
+
   const handleSendMessage = async (content, type = 'text') => {
     if ((!content.trim() && type === 'text') || !threadId || !zildaAssistant) return;
 
@@ -47,12 +64,9 @@ const ChatWithBot = () => {
       } else if (type === 'image') {
         messageContent = { type: 'image_url', image_url: { url: content } };
       } else if (type === 'audio') {
-        // Convertemos o áudio para base64 e enviamos como um arquivo
         const base64Audio = await convertAudioToBase64(content);
-        messageContent = { 
-          type: 'file_id', 
-          file_id: await uploadAudioFile(openai, base64Audio) 
-        };
+        const fileId = await uploadAudioFile(openai, base64Audio);
+        messageContent = { type: 'file_id', file_id: fileId };
       }
 
       await openai.beta.threads.messages.create(threadId, {
@@ -132,12 +146,8 @@ const ChatWithBot = () => {
 
       mediaRecorderRef.current.onstop = async () => {
         const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
-        const reader = new FileReader();
-        reader.onload = async (e) => {
-          const base64Audio = e.target.result;
-          await handleSendMessage(base64Audio, 'audio');
-        };
-        reader.readAsDataURL(audioBlob);
+        const audioUrl = URL.createObjectURL(audioBlob);
+        await handleSendMessage(audioUrl, 'audio');
       };
 
       mediaRecorderRef.current.start();
@@ -159,7 +169,6 @@ const ChatWithBot = () => {
     // Implement logic to load selected conversation
     console.log('Selected conversation:', conversation);
   };
-
 
   return (
     <div className="flex h-full">

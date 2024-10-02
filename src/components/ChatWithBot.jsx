@@ -106,7 +106,10 @@ const ChatWithBot = () => {
     formData.append('file', audioBlob, 'audio.wav');
     formData.append('purpose', 'assistants');
 
-    const response = await openai.files.create(formData);
+    const response = await openai.files.create({
+      file: formData.get('file'),
+      purpose: formData.get('purpose')
+    });
     return response.id;
   };
 

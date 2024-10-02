@@ -71,7 +71,8 @@ const ChatWithBot = () => {
     } else if (type === 'image') {
       newMessage = { role: 'user', content: 'Imagem enviada', type, url: content };
     } else if (type === 'audio') {
-      newMessage = { role: 'user', content: 'Áudio enviado', type, url: content };
+      // For audio, we'll use the text "Áudio enviado" as a placeholder
+      newMessage = { role: 'user', content: 'Áudio enviado', type: 'text' };
     }
 
     setMessages(prevMessages => [...prevMessages, newMessage]);
@@ -81,14 +82,19 @@ const ChatWithBot = () => {
     try {
       const openai = await getOpenAIInstance();
       
+      let messageContent;
+      if (type === 'text') {
+        messageContent = { type: 'text', text: content };
+      } else if (type === 'image') {
+        messageContent = { type: 'image_url', image_url: { url: content } };
+      } else if (type === 'audio') {
+        // For audio, we'll send the text "Áudio enviado" to the API
+        messageContent = { type: 'text', text: 'Áudio enviado' };
+      }
+
       await openai.beta.threads.messages.create(threadId, {
         role: 'user',
-        content: type === 'text' ? content : [
-          {
-            type: type,
-            [type === 'image' ? 'image_url' : 'file_url']: { url: content }
-          }
-        ]
+        content: [messageContent]
       });
 
       const run = await openai.beta.threads.runs.create(threadId, {

@@ -82,6 +82,8 @@ const OpenAIIntegration = () => {
           ...dbBot,
           name: assistant.name,
           description: assistant.instructions,
+          created_at: assistant.created_at,
+          updated_at: assistant.updated_at
         };
       });
 

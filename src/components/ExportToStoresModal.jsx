@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import { useExportProduct } from '../hooks/useUserProducts';
 
 const stores = [
   { id: 'mercadolivre', name: 'Mercado Livre' },
@@ -13,6 +14,7 @@ const stores = [
 
 const ExportToStoresModal = ({ isOpen, onClose, productId }) => {
   const [selectedStores, setSelectedStores] = useState([]);
+  const exportProductMutation = useExportProduct();
 
   const handleStoreSelection = (storeId) => {
     setSelectedStores(prev => 
@@ -22,10 +24,13 @@ const ExportToStoresModal = ({ isOpen, onClose, productId }) => {
     );
   };
 
-  const handleExport = () => {
-    // Aqui você implementaria a lógica de exportação
-    console.log(`Exportando produto ${productId} para as lojas:`, selectedStores);
-    onClose();
+  const handleExport = async () => {
+    try {
+      await exportProductMutation.mutateAsync({ productId, platforms: selectedStores });
+      onClose();
+    } catch (error) {
+      console.error('Erro ao exportar produto:', error);
+    }
   };
 
   return (

@@ -59,6 +59,18 @@ const ProductDetails = () => {
                   </ul>
                 </div>
               )}
+              <div className="mb-4">
+                <h3 className="font-semibold mb-2">Plataformas de Venda:</h3>
+                {product.exportedPlatforms && product.exportedPlatforms.length > 0 ? (
+                  <ul>
+                    {product.exportedPlatforms.map((platform, index) => (
+                      <li key={index}>{platform}</li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p>Este produto ainda não foi exportado para nenhuma plataforma.</p>
+                )}
+              </div>
               <div className="space-x-2">
                 <Button onClick={() => setIsEditModalOpen(true)}>Editar Produto</Button>
                 <Button onClick={() => setIsExportModalOpen(true)}>Exportar para as lojas</Button>

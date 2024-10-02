@@ -2,16 +2,14 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App.jsx';
 import './index.css';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-// Inject environment variables
-if (window.env) {
-  Object.keys(window.env).forEach(key => {
-    import.meta.env[key] = window.env[key];
-  });
-}
+const queryClient = new QueryClient();
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <App />
+    <QueryClientProvider client={queryClient}>
+      <App />
+    </QueryClientProvider>
   </React.StrictMode>,
 );

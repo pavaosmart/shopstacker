@@ -4,7 +4,7 @@ import { supabase } from '../integrations/supabase/supabase';
 const fetchProducts = async () => {
   const { data, error } = await supabase
     .from('products')
-    .select('*')
+    .select('id, name, price, stock_quantity, markup')
     .order('created_at', { ascending: false });
   if (error) throw error;
   return data;

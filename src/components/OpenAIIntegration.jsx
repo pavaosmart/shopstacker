@@ -10,7 +10,7 @@ import { Slider } from "@/components/ui/slider";
 import { toast } from "sonner";
 import { useSupabaseAuth } from '../integrations/supabase/auth';
 import { supabase } from '../integrations/supabase/supabase';
-import { initializeOpenAI, testConnection, createAssistant, updateAssistant, deleteAssistant } from '../utils/openai';
+import { initializeOpenAI, testConnection, createAssistant, updateAssistant, deleteAssistant, listAssistants } from '../utils/openai';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
@@ -34,7 +34,7 @@ const OpenAIIntegration = () => {
   useEffect(() => {
     if (session?.user?.id) {
       fetchApiKey();
-      fetchBots();
+      syncBotsWithOpenAI();
     }
   }, [session]);
 
@@ -66,11 +66,68 @@ const OpenAIIntegration = () => {
     }
   };
 
+  const syncBotsWithOpenAI = async () => {
+    try {
+      setIsLoading(true);
+      const openAIBots = await listAssistants();
+      const { data: supabaseBots, error } = await supabase
+        .from('bots')
+        .select('*')
+        .eq('user_id', session.user.id);
+
+      if (error) throw error;
+
+      // Remove bots that no longer exist in OpenAI
+      for (const bot of supabaseBots) {
+        if (!openAIBots.find(openAIBot => openAIBot.id === bot.openai_assistant_id)) {
+          await supabase
+            .from('bots')
+            .delete()
+            .eq('id', bot.id);
+        }
+      }
+
+      // Update or insert bots from OpenAI
+      for (const openAIBot of openAIBots) {
+        const existingBot = supabaseBots.find(bot => bot.openai_assistant_id === openAIBot.id);
+        if (existingBot) {
+          await supabase
+            .from('bots')
+            .update({
+              name: openAIBot.name,
+              description: openAIBot.instructions,
+              model: openAIBot.model,
+              updated_at: new Date().toISOString()
+            })
+            .eq('id', existingBot.id);
+        } else {
+          await supabase
+            .from('bots')
+            .insert({
+              name: openAIBot.name,
+              description: openAIBot.instructions,
+              openai_assistant_id: openAIBot.id,
+              user_id: session.user.id,
+              model: openAIBot.model
+            });
+        }
+      }
+
+      await fetchBots();
+    } catch (error) {
+      console.error('Erro ao sincronizar bots:', error);
+      toast.error('Falha ao sincronizar bots com OpenAI');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const fetchBots = async () => {
     try {
       const { data, error } = await supabase
         .from('bots')
         .select('*')
+        .eq('user_id', session.user.id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -94,7 +151,7 @@ const OpenAIIntegration = () => {
       initializeOpenAI(openaiApiKey);
       await testConnection();
       toast.success('Chave de API salva e testada com sucesso');
-      fetchBots();
+      await syncBotsWithOpenAI();
     } catch (error) {
       console.error('Erro ao salvar ou testar chave de API:', error);
       toast.error('Falha ao salvar ou testar chave de API');
@@ -127,7 +184,7 @@ const OpenAIIntegration = () => {
 
       toast.success('Bot criado com sucesso!');
       setIsModalOpen(false);
-      fetchBots();
+      await fetchBots();
     } catch (error) {
       console.error('Erro ao criar bot:', error);
       toast.error('Falha ao criar bot');
@@ -160,7 +217,6 @@ const OpenAIIntegration = () => {
         name: newBot.name,
         instructions: newBot.instructions,
         model: newBot.model,
-        temperature: newBot.temperature,
       });
 
       const { data, error } = await supabase
@@ -170,7 +226,8 @@ const OpenAIIntegration = () => {
           description: newBot.instructions,
           model: newBot.model,
           temperature: newBot.temperature,
-          max_tokens: newBot.max_tokens
+          max_tokens: newBot.max_tokens,
+          updated_at: new Date().toISOString()
         })
         .eq('id', editingBot.id)
         .select();
@@ -179,7 +236,7 @@ const OpenAIIntegration = () => {
 
       toast.success('Bot atualizado com sucesso!');
       setIsModalOpen(false);
-      fetchBots();
+      await fetchBots();
     } catch (error) {
       console.error('Erro ao atualizar bot:', error);
       toast.error('Falha ao atualizar bot: ' + error.message);
@@ -210,7 +267,7 @@ const OpenAIIntegration = () => {
       toast.success('Bot excluído com sucesso!');
       setIsModalOpen(false);
       setIsDeleteDialogOpen(false);
-      fetchBots();
+      await fetchBots();
     } catch (error) {
       console.error('Erro ao excluir bot:', error);
       toast.error('Falha ao excluir bot: ' + error.message);

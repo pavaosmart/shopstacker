@@ -22,46 +22,6 @@ const ChatWithBot = () => {
   const messagesEndRef = useRef(null);
   const [conversations, setConversations] = useState([]);
 
-  useEffect(() => {
-    createThread();
-    fetchZildaAssistant();
-    // Simulating fetched conversations
-    setConversations([
-      { id: 1, title: "Conversa 1" },
-      { id: 2, title: "Conversa 2" },
-      { id: 3, title: "Conversa 3" },
-    ]);
-  }, []);
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
-  const createThread = async () => {
-    try {
-      const openai = await getOpenAIInstance();
-      const thread = await openai.beta.threads.create();
-      setThreadId(thread.id);
-    } catch (error) {
-      console.error('Erro ao criar thread:', error);
-      toast.error('Falha ao iniciar o chat');
-    }
-  };
-
-  const fetchZildaAssistant = async () => {
-    try {
-      const assistant = await getZildaAssistant();
-      setZildaAssistant(assistant);
-    } catch (error) {
-      console.error('Erro ao buscar assistente Zilda:', error);
-      toast.error('Falha ao conectar com o assistente Zilda');
-    }
-  };
-
   const handleSendMessage = async (content, type = 'text') => {
     if ((!content.trim() && type === 'text') || !threadId || !zildaAssistant) return;
 
@@ -71,8 +31,7 @@ const ChatWithBot = () => {
     } else if (type === 'image') {
       newMessage = { role: 'user', content: 'Imagem enviada', type, url: content };
     } else if (type === 'audio') {
-      // For audio, we'll use the text "Áudio enviado" as a placeholder
-      newMessage = { role: 'user', content: 'Áudio enviado', type: 'text' };
+      newMessage = { role: 'user', content: 'Áudio enviado', type, url: content };
     }
 
     setMessages(prevMessages => [...prevMessages, newMessage]);
@@ -88,8 +47,12 @@ const ChatWithBot = () => {
       } else if (type === 'image') {
         messageContent = { type: 'image_url', image_url: { url: content } };
       } else if (type === 'audio') {
-        // For audio, we'll send the text "Áudio enviado" to the API
-        messageContent = { type: 'text', text: 'Áudio enviado' };
+        // Convertemos o áudio para base64 e enviamos como um arquivo
+        const base64Audio = await convertAudioToBase64(content);
+        messageContent = { 
+          type: 'file_id', 
+          file_id: await uploadAudioFile(openai, base64Audio) 
+        };
       }
 
       await openai.beta.threads.messages.create(threadId, {
@@ -121,6 +84,28 @@ const ChatWithBot = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const convertAudioToBase64 = (audioUrl) => {
+    return new Promise((resolve, reject) => {
+      fetch(audioUrl)
+        .then(response => response.blob())
+        .then(blob => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result.split(',')[1]);
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
+        })
+        .catch(reject);
+    });
+  };
+
+  const uploadAudioFile = async (openai, base64Audio) => {
+    const response = await openai.files.create({
+      file: new Blob([Buffer.from(base64Audio, 'base64')], { type: 'audio/wav' }),
+      purpose: 'assistants'
+    });
+    return response.id;
   };
 
   const handleFileUpload = async (event) => {
@@ -174,6 +159,7 @@ const ChatWithBot = () => {
     // Implement logic to load selected conversation
     console.log('Selected conversation:', conversation);
   };
+
 
   return (
     <div className="flex h-full">

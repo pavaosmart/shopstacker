@@ -78,3 +78,9 @@ export const listAssistants = async () => {
   const assistants = await openai.beta.assistants.list();
   return assistants.data;
 };
+
+export const uploadFile = async (file, purpose) => {
+  const openai = await getOpenAIInstance();
+  const response = await openai.files.create({ file, purpose });
+  return response.id;
+};

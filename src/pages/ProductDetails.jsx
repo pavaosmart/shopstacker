@@ -19,6 +19,19 @@ const ProductDetails = () => {
 
   if (!product) return <div>Produto não encontrado</div>;
 
+  const renderVariations = () => {
+    if (typeof product.variations === 'string') {
+      return product.variations.split(',').map((variation, index) => (
+        <li key={index}>{variation.trim()}</li>
+      ));
+    } else if (Array.isArray(product.variations)) {
+      return product.variations.map((variation, index) => (
+        <li key={index}>{variation}</li>
+      ));
+    }
+    return null;
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       <Card>
@@ -53,9 +66,7 @@ const ProductDetails = () => {
                 <div className="mb-4">
                   <h3 className="font-semibold mb-2">Variações:</h3>
                   <ul>
-                    {product.variations.split(',').map((variation, index) => (
-                      <li key={index}>{variation.trim()}</li>
-                    ))}
+                    {renderVariations()}
                   </ul>
                 </div>
               )}

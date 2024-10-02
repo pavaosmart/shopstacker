@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useSupabaseAuth } from '../integrations/supabase/auth';
 import { getOpenAIInstance, getZildaAssistant } from '../utils/openai';
 import { Button } from "@/components/ui/button";
@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
-import { Bot, Image as ImageIcon, Mic } from 'lucide-react';
+import { Bot, Image as ImageIcon, Mic, Send } from 'lucide-react';
 
 const ChatWithBot = () => {
   const [messages, setMessages] = useState([]);
@@ -15,6 +15,9 @@ const ChatWithBot = () => {
   const [threadId, setThreadId] = useState(null);
   const [zildaAssistant, setZildaAssistant] = useState(null);
   const { session } = useSupabaseAuth();
+  const [isRecording, setIsRecording] = useState(false);
+  const mediaRecorderRef = useRef(null);
+  const audioChunksRef = useRef([]);
 
   useEffect(() => {
     createThread();
@@ -67,7 +70,7 @@ const ChatWithBot = () => {
         content: type === 'text' ? content : [
           {
             type: type,
-            [type === 'image' ? 'image_url' : 'audio_url']: { url: content }
+            [type === 'image' ? 'image_url' : 'file_url']: { url: content }
           }
         ]
       });
@@ -102,15 +105,50 @@ const ChatWithBot = () => {
     }
   };
 
-  const handleFileUpload = async (event, type) => {
+  const handleFileUpload = async (event) => {
     const file = event.target.files[0];
     if (file) {
       const reader = new FileReader();
       reader.onload = async (e) => {
         const base64 = e.target.result;
-        await handleSendMessage(base64, type);
+        await handleSendMessage(base64, file.type.startsWith('image/') ? 'image' : 'audio');
       };
       reader.readAsDataURL(file);
+    }
+  };
+
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaRecorderRef.current = new MediaRecorder(stream);
+      audioChunksRef.current = [];
+
+      mediaRecorderRef.current.ondataavailable = (event) => {
+        audioChunksRef.current.push(event.data);
+      };
+
+      mediaRecorderRef.current.onstop = async () => {
+        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+          const base64Audio = e.target.result;
+          await handleSendMessage(base64Audio, 'audio');
+        };
+        reader.readAsDataURL(audioBlob);
+      };
+
+      mediaRecorderRef.current.start();
+      setIsRecording(true);
+    } catch (error) {
+      console.error('Erro ao iniciar gravação:', error);
+      toast.error('Falha ao iniciar gravação de áudio');
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
     }
   };
 
@@ -166,30 +204,25 @@ const ChatWithBot = () => {
             className="flex-grow"
           />
           <Button onClick={() => handleSendMessage(inputMessage)} disabled={isLoading}>
-            {isLoading ? 'Enviando...' : 'Enviar'}
+            <Send size={20} />
           </Button>
           <label className="cursor-pointer">
             <input
               type="file"
-              accept="image/*"
+              accept="image/*,audio/*"
               className="hidden"
-              onChange={(e) => handleFileUpload(e, 'image')}
+              onChange={handleFileUpload}
             />
             <Button as="span" variant="outline">
               <ImageIcon size={20} />
             </Button>
           </label>
-          <label className="cursor-pointer">
-            <input
-              type="file"
-              accept="audio/*"
-              className="hidden"
-              onChange={(e) => handleFileUpload(e, 'audio')}
-            />
-            <Button as="span" variant="outline">
-              <Mic size={20} />
-            </Button>
-          </label>
+          <Button
+            variant="outline"
+            onClick={isRecording ? stopRecording : startRecording}
+          >
+            <Mic size={20} color={isRecording ? 'red' : 'currentColor'} />
+          </Button>
         </div>
       </CardContent>
     </Card>

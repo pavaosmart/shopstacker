@@ -26,7 +26,7 @@ const ProductCard = ({ product }) => {
         </div>
       </CardContent>
       <CardFooter>
-        <Button className="w-full">Adicionar ao Carrinho</Button>
+        <Button className="w-full">Adicionar aos meus produtos</Button>
       </CardFooter>
     </Card>
   );

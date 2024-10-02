@@ -26,7 +26,6 @@ const OpenAIIntegration = () => {
     instructions: '',
     model: 'gpt-3.5-turbo',
     temperature: 1,
-    max_tokens: 150,
     documents: []
   });
   const { session } = useSupabaseAuth();
@@ -131,7 +130,6 @@ const OpenAIIntegration = () => {
           user_id: session.user.id,
           model: newBot.model,
           temperature: newBot.temperature,
-          max_tokens: newBot.max_tokens
         })
         .select();
 
@@ -155,7 +153,6 @@ const OpenAIIntegration = () => {
       instructions: bot.description,
       model: bot.model,
       temperature: bot.temperature || 1,
-      max_tokens: bot.max_tokens || 150,
       documents: []
     });
     setIsModalOpen(true);
@@ -181,7 +178,6 @@ const OpenAIIntegration = () => {
           description: newBot.instructions,
           model: newBot.model,
           temperature: newBot.temperature,
-          max_tokens: newBot.max_tokens,
           updated_at: new Date().toISOString()
         })
         .eq('id', editingBot.id)
@@ -289,7 +285,6 @@ const OpenAIIntegration = () => {
                   <p>Criado em: {formatDate(bot.created_at)}</p>
                   <p>Última edição: {formatDate(bot.updated_at)}</p>
                   <p>Modelo: {bot.model}</p>
-                  <p>Max Tokens: {bot.max_tokens || 'N/A'}</p>
                   <Button onClick={() => handleEditBot(bot)} className="mt-2">Editar</Button>
                 </CardContent>
               </Card>
@@ -344,17 +339,6 @@ const OpenAIIntegration = () => {
                 step={0.1}
                 value={[newBot.temperature]}
                 onValueChange={(value) => setNewBot({...newBot, temperature: value[0]})}
-              />
-            </div>
-            <div>
-              <Label htmlFor="max_tokens">Máximo de Tokens: {newBot.max_tokens}</Label>
-              <Slider
-                id="max_tokens"
-                min={1}
-                max={4000}
-                step={1}
-                value={[newBot.max_tokens]}
-                onValueChange={(value) => setNewBot({...newBot, max_tokens: value[0]})}
               />
             </div>
             <div>

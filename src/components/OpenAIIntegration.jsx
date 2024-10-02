@@ -11,7 +11,7 @@ import { toast } from "sonner";
 import { useSupabaseAuth } from '../integrations/supabase/auth';
 import { supabase } from '../integrations/supabase/supabase';
 import { initializeOpenAI, testConnection, createAssistant, updateAssistant, deleteAssistant, listAssistants } from '../utils/openai';
-import { format } from 'date-fns';
+import { format, isValid } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
 const OpenAIIntegration = () => {
@@ -240,6 +240,11 @@ const OpenAIIntegration = () => {
     }));
   };
 
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return isValid(date) ? format(date, "dd/MM/yyyy HH:mm", { locale: ptBR }) : 'Data inválida';
+  };
+
   return (
     <div className="space-y-6">
       <Card>
@@ -281,8 +286,8 @@ const OpenAIIntegration = () => {
                   <CardTitle>{bot.name}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p>Criado em: {format(new Date(bot.created_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}</p>
-                  <p>Última edição: {format(new Date(bot.updated_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}</p>
+                  <p>Criado em: {formatDate(bot.created_at)}</p>
+                  <p>Última edição: {formatDate(bot.updated_at)}</p>
                   <p>Modelo: {bot.model}</p>
                   <p>Max Tokens: {bot.max_tokens || 'N/A'}</p>
                   <Button onClick={() => handleEditBot(bot)} className="mt-2">Editar</Button>

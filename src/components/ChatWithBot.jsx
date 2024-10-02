@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
-import { Bot } from 'lucide-react';
+import { Bot, Image as ImageIcon, Mic } from 'lucide-react';
 
 const ChatWithBot = () => {
   const [messages, setMessages] = useState([]);
@@ -42,10 +42,18 @@ const ChatWithBot = () => {
     }
   };
 
-  const handleSendMessage = async () => {
-    if (!inputMessage.trim() || !threadId || !zildaAssistant) return;
+  const handleSendMessage = async (content, type = 'text') => {
+    if ((!content.trim() && type === 'text') || !threadId || !zildaAssistant) return;
 
-    const newMessage = { role: 'user', content: inputMessage };
+    let newMessage;
+    if (type === 'text') {
+      newMessage = { role: 'user', content: content, type };
+    } else if (type === 'image') {
+      newMessage = { role: 'user', content: 'Imagem enviada', type, url: content };
+    } else if (type === 'audio') {
+      newMessage = { role: 'user', content: 'Áudio enviado', type, url: content };
+    }
+
     setMessages(prevMessages => [...prevMessages, newMessage]);
     setInputMessage('');
     setIsLoading(true);
@@ -56,7 +64,12 @@ const ChatWithBot = () => {
       // Adicionar a mensagem do usuário à thread
       await openai.beta.threads.messages.create(threadId, {
         role: 'user',
-        content: inputMessage
+        content: type === 'text' ? content : [
+          {
+            type: type,
+            [type === 'image' ? 'image_url' : 'audio_url']: content
+          }
+        ]
       });
 
       // Executar o assistente
@@ -78,13 +91,26 @@ const ChatWithBot = () => {
       const assistantMessage = messages.data[0];
       setMessages(prevMessages => [...prevMessages, {
         role: 'assistant',
-        content: assistantMessage.content[0].text.value
+        content: assistantMessage.content[0].text.value,
+        type: 'text'
       }]);
     } catch (error) {
       console.error('Erro ao enviar mensagem:', error);
       toast.error('Falha ao enviar mensagem: ' + error.message);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleFileUpload = async (event, type) => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        const base64 = e.target.result;
+        await handleSendMessage(base64, type);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -116,7 +142,9 @@ const ChatWithBot = () => {
                     ? 'bg-blue-500 text-white rounded-br-none' 
                     : 'bg-gray-200 text-gray-800 rounded-bl-none'
                 }`}>
-                  {message.content}
+                  {message.type === 'text' && message.content}
+                  {message.type === 'image' && <img src={message.url} alt="Imagem enviada" className="max-w-full h-auto rounded" />}
+                  {message.type === 'audio' && <audio src={message.url} controls className="max-w-full" />}
                 </div>
               </div>
             </div>
@@ -133,13 +161,35 @@ const ChatWithBot = () => {
           <Input
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+            onKeyPress={(e) => e.key === 'Enter' && handleSendMessage(inputMessage)}
             placeholder="Digite sua mensagem..."
             className="flex-grow"
           />
-          <Button onClick={handleSendMessage} disabled={isLoading}>
+          <Button onClick={() => handleSendMessage(inputMessage)} disabled={isLoading}>
             {isLoading ? 'Enviando...' : 'Enviar'}
           </Button>
+          <label className="cursor-pointer">
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => handleFileUpload(e, 'image')}
+            />
+            <Button as="span" variant="outline">
+              <ImageIcon size={20} />
+            </Button>
+          </label>
+          <label className="cursor-pointer">
+            <input
+              type="file"
+              accept="audio/*"
+              className="hidden"
+              onChange={(e) => handleFileUpload(e, 'audio')}
+            />
+            <Button as="span" variant="outline">
+              <Mic size={20} />
+            </Button>
+          </label>
         </div>
       </CardContent>
     </Card>

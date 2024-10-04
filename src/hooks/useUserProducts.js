@@ -96,7 +96,17 @@ export const useImportUserProduct = () => {
         ], 
         { 
           onConflict: 'sku',
-          update: { is_imported: true }
+          update: { 
+            name: productData.name,
+            description: productData.description,
+            price: productData.price,
+            stock_quantity: productData.stock_quantity,
+            suggested_price: productData.suggested_price,
+            images: productData.images,
+            cover_image_index: productData.cover_image_index,
+            cost_price: productData.cost_price,
+            is_imported: true
+          }
         });
       if (error) throw error;
       return data;

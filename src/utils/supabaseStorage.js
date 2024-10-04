@@ -2,65 +2,60 @@ import { supabase } from '../supabaseClient';
 
 export const ensureProductsBucket = async () => {
   try {
-    // Verifica se o bucket existe
+    // Check if the bucket exists
     const { data, error } = await supabase.storage.getBucket('products');
     
     if (error && error.statusCode === '404') {
-      // O bucket não existe, então vamos criá-lo
+      // Bucket doesn't exist, so create it
       const { data: createdBucket, error: createError } = await supabase.storage.createBucket('products', {
         public: true,
-        allowedMimeTypes: ['image/png', 'image/jpeg', 'image/gif'],
         fileSizeLimit: 10 * 1024 * 1024, // 10MB
       });
       
       if (createError) {
-        console.error('Erro ao criar o bucket:', createError);
+        console.error('Error creating bucket:', createError);
         return false;
       }
-      console.log('Bucket criado com sucesso:', createdBucket);
+      console.log('Bucket created successfully:', createdBucket);
       
-      // Configura as políticas do bucket após a criação
+      // Set up bucket policies after creation
       await updateBucketPolicies();
     } else if (error) {
-      console.error('Erro ao verificar o bucket:', error);
+      console.error('Error checking bucket:', error);
       return false;
     } else {
-      console.log('O bucket já existe:', data);
-      // Atualiza as políticas mesmo se o bucket já existir
+      console.log('Bucket already exists:', data);
+      // Update policies even if the bucket already exists
       await updateBucketPolicies();
     }
     
     return true;
   } catch (error) {
-    console.error('Erro ao garantir o bucket de produtos:', error);
+    console.error('Error ensuring products bucket:', error);
     return false;
   }
 };
 
 const updateBucketPolicies = async () => {
   try {
-    // Define acesso de leitura público
-    await supabase.storage.from('products').updateBucketPolicy({
-      type: 'READ',
-      definition: {
-        allow: true,
-        roles: ['anon', 'authenticated'],
-      },
-    });
+    // Set public read access
+    const { error: readError } = await supabase.storage.from('products').createSignedUrl('dummy.txt', 60);
+    if (readError) {
+      console.error('Error setting read policy:', readError);
+    }
 
-    // Define acesso de escrita para usuários autenticados
-    await supabase.storage.from('products').updateBucketPolicy({
-      type: 'WRITE',
-      definition: {
-        allow: true,
-        roles: ['authenticated'],
-      },
-    });
+    // Set write access for authenticated users
+    const { error: writeError } = await supabase.storage.from('products').upload('dummy.txt', 'test');
+    if (writeError) {
+      console.error('Error setting write policy:', writeError);
+    } else {
+      await supabase.storage.from('products').remove(['dummy.txt']);
+    }
 
-    console.log('Políticas do bucket atualizadas com sucesso');
+    console.log('Bucket policies updated successfully');
     return true;
   } catch (error) {
-    console.error('Erro ao atualizar as políticas do bucket:', error);
+    console.error('Error updating bucket policies:', error);
     return false;
   }
 };

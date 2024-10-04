@@ -9,7 +9,23 @@ const fromSupabase = async (query) => {
 
 export const useProduct = (id) => useQuery({
   queryKey: ['products', id],
-  queryFn: () => fromSupabase(supabase.from('products').select('*').eq('id', id).single()),
+  queryFn: async () => {
+    const { data, error } = await supabase
+      .from('products')
+      .select('*')
+      .eq('id', id)
+      .single();
+    
+    if (error) {
+      if (error.code === 'PGRST116') {
+        // No product found
+        return null;
+      }
+      throw new Error(error.message);
+    }
+    return data;
+  },
+  retry: false, // Don't retry if the product is not found
 });
 
 export const useProducts = () => useQuery({

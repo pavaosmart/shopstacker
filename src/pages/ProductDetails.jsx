@@ -1,16 +1,23 @@
 import React from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useProduct } from '../hooks/useProducts';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
 const ProductDetails = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { data: product, isLoading, error } = useProduct(id);
 
   if (isLoading) return <div>Carregando detalhes do produto...</div>;
   if (error) return <div>Erro ao carregar detalhes do produto: {error.message}</div>;
-  if (!product) return <div>Produto não encontrado</div>;
+  if (!product) return (
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-2xl font-bold mb-4">Produto não encontrado</h1>
+      <p>O produto que você está procurando não existe ou foi removido.</p>
+      <Button onClick={() => navigate('/products')} className="mt-4">Voltar para a lista de produtos</Button>
+    </div>
+  );
 
   return (
     <div className="container mx-auto px-4 py-8">

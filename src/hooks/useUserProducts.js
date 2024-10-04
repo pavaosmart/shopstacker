@@ -7,14 +7,14 @@ export const useUserProducts = () => useQuery({
     const { data: { user } } = await supabase.auth.getUser();
     const { data, error } = await supabase
       .from('user_products')
-      .select('id, name, description, price, stock_quantity, suggested_price, images, cover_image_index')
+      .select('*')
       .eq('user_id', user.id);
     if (error) throw error;
     return data;
   },
 });
 
-export const useImportUserProduct = () => {
+export const useAddUserProduct = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (newProduct) => {
@@ -25,16 +25,33 @@ export const useImportUserProduct = () => {
         .from('user_products')
         .select('id')
         .eq('user_id', user.id)
-        .eq('name', newProduct.name)
+        .eq('sku', newProduct.sku)
         .single();
 
       if (existingProduct) {
-        throw new Error('Um produto com este nome já existe.');
+        throw new Error('Um produto com este SKU já existe.');
       }
 
       const { data, error } = await supabase
         .from('user_products')
         .insert([{ ...newProduct, user_id: user.id }]);
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['userProducts'] });
+    },
+  });
+};
+
+export const useUpdateUserProduct = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, ...updateData }) => {
+      const { data, error } = await supabase
+        .from('user_products')
+        .update(updateData)
+        .eq('id', id);
       if (error) throw error;
       return data;
     },

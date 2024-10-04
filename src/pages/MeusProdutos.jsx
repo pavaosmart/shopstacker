@@ -3,18 +3,18 @@ import { useUserProducts, useDeleteUserProduct } from '../hooks/useUserProducts'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { useNavigate } from 'react-router-dom';
 import ProductForm from '../components/ProductForm';
 import ConfirmDeleteDialog from '../components/ConfirmDeleteDialog';
+import ProductDetails from '../components/ProductDetails';
 
 const MeusProdutos = () => {
   const { data: userProducts, isLoading, error } = useUserProducts();
   const deleteUserProductMutation = useDeleteUserProduct();
-  const navigate = useNavigate();
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [productToDelete, setProductToDelete] = useState(null);
+  const [detailsModalOpen, setDetailsModalOpen] = useState(false);
 
   const handleDelete = async (id) => {
     try {
@@ -27,13 +27,9 @@ const MeusProdutos = () => {
     }
   };
 
-  const handleEdit = (product) => {
-    setSelectedProduct(product);
-    setEditModalOpen(true);
-  };
-
   const handleManage = (product) => {
-    navigate(`/produto/${product.id}`);
+    setSelectedProduct(product);
+    setDetailsModalOpen(true);
   };
 
   const openDeleteDialog = (product) => {
@@ -61,20 +57,10 @@ const MeusProdutos = () => {
                   alt={product.name} 
                   className="w-full h-48 object-cover mb-4 rounded-md"
                 />
-                <div className="flex mb-4">
-                  {product.images.slice(0, 3).map((img, index) => (
-                    <img 
-                      key={index}
-                      src={img}
-                      alt={`${product.name} - ${index + 2}`}
-                      className="w-1/3 h-16 object-cover mr-2 rounded-md"
-                    />
-                  ))}
-                </div>
                 <div className="space-y-2">
                   <p className="text-2xl font-bold">R$ {product.price.toFixed(2)}</p>
                   <p className="text-sm text-gray-600">Estoque: {product.stock_quantity}</p>
-                  <p className="text-sm text-gray-600">Preço Sugerido: R$ {product.suggested_price?.toFixed(2)}</p>
+                  <p className="text-sm text-gray-600">SKU: {product.sku}</p>
                 </div>
               </CardContent>
               <CardFooter className="flex justify-between">
@@ -111,6 +97,15 @@ const MeusProdutos = () => {
         onConfirm={() => handleDelete(productToDelete.id)}
         productName={productToDelete?.name}
       />
+      {detailsModalOpen && (
+        <ProductDetails
+          product={selectedProduct}
+          onClose={() => {
+            setDetailsModalOpen(false);
+            setSelectedProduct(null);
+          }}
+        />
+      )}
     </div>
   );
 };

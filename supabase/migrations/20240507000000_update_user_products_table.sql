@@ -6,6 +6,21 @@ ADD COLUMN IF NOT EXISTS images TEXT[] DEFAULT '{}';
 ALTER TABLE public.user_products
 ADD COLUMN IF NOT EXISTS cover_image_index INTEGER DEFAULT 0;
 
+-- Adiciona a coluna 'sku'
+ALTER TABLE public.user_products
+ADD COLUMN IF NOT EXISTS sku TEXT UNIQUE;
+
+-- Adiciona a coluna 'cost_price'
+ALTER TABLE public.user_products
+ADD COLUMN IF NOT EXISTS cost_price NUMERIC(10, 2);
+
+-- Adiciona colunas para dados específicos de marketplaces
+ALTER TABLE public.user_products
+ADD COLUMN IF NOT EXISTS mercadolivre JSONB DEFAULT '{}',
+ADD COLUMN IF NOT EXISTS shopee JSONB DEFAULT '{}',
+ADD COLUMN IF NOT EXISTS amazon JSONB DEFAULT '{}',
+ADD COLUMN IF NOT EXISTS shopify JSONB DEFAULT '{}';
+
 -- Migra os dados existentes da coluna 'image' para o novo array 'images'
 UPDATE public.user_products
 SET images = ARRAY[image]

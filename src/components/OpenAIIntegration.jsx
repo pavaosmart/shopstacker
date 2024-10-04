@@ -3,9 +3,9 @@ import OpenAISettings from './OpenAISettings';
 
 const OpenAIIntegration = () => {
   return (
-    <div>
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-2xl font-bold mb-6">Integração OpenAI</h1>
       <OpenAISettings />
-      {/* Adicione outros componentes relacionados à integração OpenAI aqui, se necessário */}
     </div>
   );
 };

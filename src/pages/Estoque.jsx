@@ -5,42 +5,19 @@ import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
 import ProductForm from '../components/ProductForm';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Trash2, Edit, Eye } from 'lucide-react';
-import ProductDetailsDialog from '../components/ProductDetailsDialog';
-import EditProductModal from '../components/EditProductModal';
-import ConfirmDeleteDialog from '../components/ConfirmDeleteDialog';
 
 const Estoque = () => {
   const { data: products, isLoading, error } = useProducts();
   const deleteProductMutation = useDeleteProduct();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState(null);
-  const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
-  const handleDelete = async (sku) => {
+  const handleDelete = async (id) => {
     try {
-      await deleteProductMutation.mutateAsync(sku);
+      await deleteProductMutation.mutateAsync(id);
       toast.success('Produto excluído com sucesso!');
     } catch (error) {
       toast.error(`Erro ao excluir produto: ${error.message}`);
     }
-  };
-
-  const openDetailsDialog = (product) => {
-    setSelectedProduct(product);
-    setIsDetailsDialogOpen(true);
-  };
-
-  const openEditDialog = (product) => {
-    setSelectedProduct(product);
-    setIsEditDialogOpen(true);
-  };
-
-  const openDeleteDialog = (product) => {
-    setSelectedProduct(product);
-    setIsDeleteDialogOpen(true);
   };
 
   if (isLoading) return <div>Carregando...</div>;
@@ -75,36 +52,13 @@ const Estoque = () => {
                     className="w-full h-full object-cover rounded-md"
                   />
                 </div>
-                <div className="flex-grow grid grid-cols-6 gap-4 items-center">
-                  <div className="font-semibold col-span-2">{product.name}</div>
+                <div className="flex-grow grid grid-cols-5 gap-4 items-center">
+                  <div className="font-semibold">{product.name}</div>
                   <div>SKU: {product.sku}</div>
                   <div>R$ {product.price.toFixed(2)}</div>
                   <div>Estoque: {product.stock_quantity}</div>
-                  <div className="flex justify-end space-x-2">
-                    <Button
-                      onClick={() => openDetailsDialog(product)}
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8"
-                    >
-                      <Eye className="h-4 w-4 text-gray-700" />
-                    </Button>
-                    <Button
-                      onClick={() => openEditDialog(product)}
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8"
-                    >
-                      <Edit className="h-4 w-4 text-gray-700" />
-                    </Button>
-                    <Button
-                      onClick={() => openDeleteDialog(product)}
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8"
-                    >
-                      <Trash2 className="h-4 w-4 text-gray-700" />
-                    </Button>
+                  <div className="flex justify-end">
+                    <Button onClick={() => handleDelete(product.sku)} variant="destructive" size="sm">Excluir</Button>
                   </div>
                 </div>
               </div>
@@ -112,28 +66,6 @@ const Estoque = () => {
           </Card>
         ))}
       </div>
-
-      <ProductDetailsDialog
-        isOpen={isDetailsDialogOpen}
-        onClose={() => setIsDetailsDialogOpen(false)}
-        product={selectedProduct}
-      />
-
-      <EditProductModal
-        isOpen={isEditDialogOpen}
-        onClose={() => setIsEditDialogOpen(false)}
-        product={selectedProduct}
-      />
-
-      <ConfirmDeleteDialog
-        isOpen={isDeleteDialogOpen}
-        onClose={() => setIsDeleteDialogOpen(false)}
-        onConfirm={() => {
-          handleDelete(selectedProduct.sku);
-          setIsDeleteDialogOpen(false);
-        }}
-        productName={selectedProduct?.name}
-      />
     </div>
   );
 };

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,21 +9,10 @@ import { toast } from "sonner";
 
 const EditProductModal = ({ isOpen, onClose, product }) => {
   const [editedProduct, setEditedProduct] = useState({
-    name: '',
-    price: '',
-    description: '',
-    images: []
+    ...product,
+    salePrice: product.salePrice || product.price,
   });
   const updateProductMutation = useUpdateUserProduct();
-
-  useEffect(() => {
-    if (product) {
-      setEditedProduct({
-        ...product,
-        price: product.price || '',
-      });
-    }
-  }, [product]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -46,10 +35,6 @@ const EditProductModal = ({ isOpen, onClose, product }) => {
     }
   };
 
-  if (!product) {
-    return null;
-  }
-
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px]">
@@ -59,11 +44,11 @@ const EditProductModal = ({ isOpen, onClose, product }) => {
         <form onSubmit={handleSubmit}>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="name" className="text-right">
-                Nome
+              <Label htmlFor="title" className="text-right">
+                Título
               </Label>
               <Input
-                id="name"
+                id="title"
                 name="name"
                 value={editedProduct.name}
                 onChange={handleChange}
@@ -71,14 +56,14 @@ const EditProductModal = ({ isOpen, onClose, product }) => {
               />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="price" className="text-right">
-                Preço
+              <Label htmlFor="salePrice" className="text-right">
+                Preço de Venda
               </Label>
               <Input
-                id="price"
-                name="price"
+                id="salePrice"
+                name="salePrice"
                 type="number"
-                value={editedProduct.price}
+                value={editedProduct.salePrice}
                 onChange={handleChange}
                 className="col-span-3"
               />

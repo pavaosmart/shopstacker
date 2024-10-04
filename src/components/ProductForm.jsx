@@ -12,29 +12,8 @@ const ProductForm = ({ product, onSuccess }) => {
     defaultValues: product || {}
   });
   const [images, setImages] = useState(product?.images || []);
-  const [coverIndex, setCoverIndex] = useState(product?.cover_image_index || 0);
   const addProduct = useAddProduct();
   const updateProduct = useUpdateProduct();
-
-  const onSubmit = async (data) => {
-    try {
-      const productData = {
-        ...data,
-        images,
-        cover_image_index: coverIndex
-      };
-
-      if (product) {
-        await updateProduct.mutateAsync({ id: product.id, ...productData });
-      } else {
-        await addProduct.mutateAsync(productData);
-      }
-      toast.success(`Produto ${product ? 'atualizado' : 'adicionado'} com sucesso!`);
-      onSuccess();
-    } catch (error) {
-      toast.error(`Erro ao ${product ? 'atualizar' : 'adicionar'} produto: ${error.message}`);
-    }
-  };
 
   const handleImageUpload = async (e) => {
     const files = Array.from(e.target.files);
@@ -61,17 +40,23 @@ const ProductForm = ({ product, onSuccess }) => {
     }
   };
 
-  const moveImage = (fromIndex, toIndex) => {
-    const newImages = [...images];
-    const [movedImage] = newImages.splice(fromIndex, 1);
-    newImages.splice(toIndex, 0, movedImage);
-    setImages(newImages);
-    if (coverIndex === fromIndex) setCoverIndex(toIndex);
-    else if (coverIndex === toIndex) setCoverIndex(fromIndex);
-  };
+  const onSubmit = async (data) => {
+    try {
+      const productData = {
+        ...data,
+        images,
+      };
 
-  const setCoverImage = (index) => {
-    setCoverIndex(index);
+      if (product) {
+        await updateProduct.mutateAsync({ id: product.id, ...productData });
+      } else {
+        await addProduct.mutateAsync(productData);
+      }
+      toast.success(`Produto ${product ? 'atualizado' : 'adicionado'} com sucesso!`);
+      onSuccess();
+    } catch (error) {
+      toast.error(`Erro ao ${product ? 'atualizar' : 'adicionar'} produto: ${error.message}`);
+    }
   };
 
   return (
@@ -93,18 +78,10 @@ const ProductForm = ({ product, onSuccess }) => {
           {images.map((url, index) => (
             <div key={url} className="relative">
               <img src={url} alt={`Produto ${index + 1}`} className="w-24 h-24 object-cover" />
-              <button type="button" onClick={() => setCoverImage(index)} className="absolute top-0 left-0 bg-blue-500 text-white p-1 text-xs">
-                {index === coverIndex ? 'Capa' : 'Definir Capa'}
-              </button>
-              {index > 0 && (
-                <button type="button" onClick={() => moveImage(index, index - 1)} className="absolute bottom-0 left-0 bg-gray-500 text-white p-1 text-xs">
-                  ←
-                </button>
-              )}
-              {index < images.length - 1 && (
-                <button type="button" onClick={() => moveImage(index, index + 1)} className="absolute bottom-0 right-0 bg-gray-500 text-white p-1 text-xs">
-                  →
-                </button>
+              {index === 0 && (
+                <span className="absolute top-0 left-0 bg-blue-500 text-white px-2 py-1 text-xs">
+                  Capa
+                </span>
               )}
             </div>
           ))}

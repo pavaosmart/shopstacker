@@ -1,45 +1,42 @@
--- Função para garantir que o bucket 'products' exista e tenha as políticas corretas
+-- Function to ensure the 'products' bucket exists and has the correct policies
 CREATE OR REPLACE FUNCTION ensure_products_bucket_and_policies()
 RETURNS void AS $$
 DECLARE
   bucket_exists BOOLEAN;
 BEGIN
-  -- Verificar se o bucket 'products' já existe
+  -- Check if the 'products' bucket already exists
   SELECT EXISTS (
     SELECT 1 FROM storage.buckets WHERE name = 'products'
   ) INTO bucket_exists;
 
-  -- Se o bucket não existir, criá-lo
+  -- If the bucket doesn't exist, create it
   IF NOT bucket_exists THEN
     INSERT INTO storage.buckets (id, name, public)
     VALUES ('products', 'products', true);
   END IF;
 
-  -- Remover políticas existentes para o bucket 'products'
+  -- Remove existing policies for the 'products' bucket
   DELETE FROM storage.policies WHERE bucket_id = 'products';
 
-  -- Criar política para permitir leitura pública
-  INSERT INTO storage.policies (name, definition, bucket_id)
-  VALUES ('Allow public read access on products bucket', 
-          'bucket_id = ''products''',
-          'products');
+  -- Create policy to allow public read access
+  INSERT INTO storage.policies (bucket_id, name, definition)
+  VALUES ('products', 'Allow public read access on products bucket', 
+          'bucket_id = ''products''');
 
-  -- Criar política para permitir que usuários autenticados façam upload
-  INSERT INTO storage.policies (name, definition, bucket_id)
-  VALUES ('Allow authenticated users to upload to products bucket', 
-          'bucket_id = ''products'' AND auth.role() = ''authenticated''',
-          'products');
+  -- Create policy to allow authenticated users to upload
+  INSERT INTO storage.policies (bucket_id, name, definition)
+  VALUES ('products', 'Allow authenticated users to upload to products bucket', 
+          'bucket_id = ''products'' AND (auth.role() = ''authenticated'')');
 
-  -- Criar política para permitir que usuários autenticados excluam seus próprios arquivos
-  INSERT INTO storage.policies (name, definition, bucket_id)
-  VALUES ('Allow authenticated users to delete own files from products bucket', 
-          'bucket_id = ''products'' AND auth.role() = ''authenticated'' AND (storage.foldername(name))[1] = auth.uid()::text',
-          'products');
+  -- Create policy to allow authenticated users to delete their own files
+  INSERT INTO storage.policies (bucket_id, name, definition)
+  VALUES ('products', 'Allow authenticated users to delete own files from products bucket', 
+          'bucket_id = ''products'' AND (auth.role() = ''authenticated'') AND (storage.foldername(name))[1] = auth.uid()::text');
 END;
 $$ LANGUAGE plpgsql;
 
--- Executar a função para garantir que o bucket exista e tenha as políticas corretas
+-- Execute the function to ensure the bucket exists and has the correct policies
 SELECT ensure_products_bucket_and_policies();
 
--- Remover a função após a execução
+-- Remove the function after execution
 DROP FUNCTION ensure_products_bucket_and_policies();

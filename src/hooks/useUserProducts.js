@@ -63,3 +63,19 @@ export const useDeleteUserProduct = () => {
     },
   });
 };
+
+export const useUpdateUserProduct = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ sku, ...updateData }) => {
+      const { error } = await supabase
+        .from('user_products')
+        .update(updateData)
+        .eq('sku', sku);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['userProducts'] });
+    },
+  });
+};

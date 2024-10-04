@@ -19,16 +19,23 @@ export const useProduct = (sku) => useQuery({
 
 export const useProducts = () => useQuery({
   queryKey: ['products'],
-  queryFn: () => fromSupabase(supabase
-    .from('user_products')
-    .select('sku, name, description, price, cost_price, stock_quantity, suggested_price, images, cover_image_index')
-  ),
+  queryFn: async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    return fromSupabase(supabase
+      .from('user_products')
+      .select('sku, name, description, price, cost_price, stock_quantity, suggested_price, images, cover_image_index')
+      .eq('user_id', user.id)
+    );
+  },
 });
 
 export const useAddProduct = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (newProduct) => fromSupabase(supabase.from('user_products').insert([newProduct])),
+    mutationFn: async (newProduct) => {
+      const { data: { user } } = await supabase.auth.getUser();
+      return fromSupabase(supabase.from('user_products').insert([{ ...newProduct, user_id: user.id }]));
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
     },

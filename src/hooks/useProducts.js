@@ -6,24 +6,15 @@ export const useProduct = (id) => useQuery({
   queryFn: async () => {
     // Check if id is a valid UUID
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-    if (!uuidRegex.test(id)) {
-      // If not a UUID, try to fetch by SKU
-      const { data, error } = await supabase
-        .from('user_products')
-        .select('*')
-        .eq('sku', id)
-        .single();
-      
-      if (error) throw error;
-      return data;
+    let query = supabase.from('user_products').select('*');
+    
+    if (uuidRegex.test(id)) {
+      query = query.eq('id', id);
+    } else {
+      query = query.eq('sku', id);
     }
 
-    // If it's a UUID, proceed with the original query
-    const { data, error } = await supabase
-      .from('user_products')
-      .select('*')
-      .eq('id', id)
-      .single();
+    const { data, error } = await query.single();
     
     if (error) throw error;
     return data;
@@ -97,3 +88,4 @@ export const useDeleteProduct = () => {
     },
   });
 };
+

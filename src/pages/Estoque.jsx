@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
 import ProductForm from '../components/ProductForm';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Trash2, Edit, Eye } from 'lucide-react'; // Add this import
 
 const Estoque = () => {
   const { data: products, isLoading, error } = useProducts();
@@ -52,13 +53,36 @@ const Estoque = () => {
                     className="w-full h-full object-cover rounded-md"
                   />
                 </div>
-                <div className="flex-grow grid grid-cols-5 gap-4 items-center">
-                  <div className="font-semibold">{product.name}</div>
+                <div className="flex-grow grid grid-cols-6 gap-4 items-center">
+                  <div className="font-semibold col-span-2">{product.name}</div>
                   <div>SKU: {product.sku}</div>
                   <div>R$ {product.price.toFixed(2)}</div>
                   <div>Estoque: {product.stock_quantity}</div>
-                  <div className="flex justify-end">
-                    <Button onClick={() => handleDelete(product.sku)} variant="destructive" size="sm">Excluir</Button>
+                  <div className="flex justify-end space-x-2">
+                    <Button
+                      onClick={() => {/* Implement view details logic */}}
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                    >
+                      <Eye className="h-4 w-4 text-gray-700" />
+                    </Button>
+                    <Button
+                      onClick={() => {/* Implement edit logic */}}
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                    >
+                      <Edit className="h-4 w-4 text-gray-700" />
+                    </Button>
+                    <Button
+                      onClick={() => handleDelete(product.sku)}
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                    >
+                      <Trash2 className="h-4 w-4 text-gray-700" />
+                    </Button>
                   </div>
                 </div>
               </div>

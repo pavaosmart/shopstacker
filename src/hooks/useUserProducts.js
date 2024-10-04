@@ -6,7 +6,7 @@ export const useUserProducts = () => useQuery({
   queryFn: async () => {
     const { data, error } = await supabase
       .from('user_products')
-      .select('*');
+      .select('id, name, description, price, stock_quantity, image');
     if (error) throw error;
     return data;
   },
@@ -16,9 +16,10 @@ export const useImportUserProduct = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (newProduct) => {
+      const { data: { user } } = await supabase.auth.getUser();
       const { data, error } = await supabase
         .from('user_products')
-        .insert([newProduct]);
+        .insert([{ ...newProduct, user_id: user.id }]);
       if (error) throw error;
       return data;
     },

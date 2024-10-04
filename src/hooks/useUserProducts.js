@@ -79,3 +79,19 @@ export const useUpdateUserProduct = () => {
     },
   });
 };
+
+export const useImportUserProduct = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (productData) => {
+      const { data: { user } } = await supabase.auth.getUser();
+      const { error } = await supabase
+        .from('user_products')
+        .insert({ ...productData, user_id: user.id, is_imported: true });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['userProducts'] });
+    },
+  });
+};

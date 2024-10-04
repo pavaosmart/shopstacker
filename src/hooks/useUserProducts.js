@@ -85,10 +85,21 @@ export const useImportUserProduct = () => {
   return useMutation({
     mutationFn: async (productData) => {
       const { data: { user } } = await supabase.auth.getUser();
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('user_products')
-        .insert({ ...productData, user_id: user.id, is_imported: true });
+        .upsert([
+          { 
+            ...productData, 
+            user_id: user.id, 
+            is_imported: true 
+          }
+        ], 
+        { 
+          onConflict: 'sku',
+          update: { is_imported: true }
+        });
       if (error) throw error;
+      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['userProducts'] });

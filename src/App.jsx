@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import { AuthProvider } from './contexts/AuthContext';
+import { SupabaseAuthProvider } from './integrations/supabase/auth';
 import Estoque from './pages/Estoque';
 import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
@@ -13,7 +13,7 @@ import Navigation from './components/Navigation';
 
 function App() {
   return (
-    <AuthProvider>
+    <SupabaseAuthProvider>
       <Router>
         <Navigation />
         <Routes>
@@ -26,7 +26,7 @@ function App() {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>
-    </AuthProvider>
+    </SupabaseAuthProvider>
   );
 }
 

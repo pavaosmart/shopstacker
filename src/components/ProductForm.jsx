@@ -107,7 +107,6 @@ const ProductForm = ({ onSuccess }) => {
     }
   };
 
-
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <Input {...register("sku", { required: "SKU é obrigatório" })} placeholder="SKU" />

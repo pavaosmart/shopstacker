@@ -17,10 +17,13 @@ const ProductForm = ({ onSuccess }) => {
 
   useEffect(() => {
     const prepareStorage = async () => {
+      console.log('Preparing storage...');
       const initialized = await initializeStorage();
       setIsStorageReady(initialized);
       if (!initialized) {
         toast.error('Failed to initialize storage. Please try again later.');
+      } else {
+        console.log('Storage initialized successfully');
       }
     };
     prepareStorage();

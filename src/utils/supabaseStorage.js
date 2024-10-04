@@ -7,6 +7,7 @@ export const ensureProductsBucket = async () => {
     
     if (error) {
       if (error.statusCode === '404') {
+        console.log('Products bucket not found. Attempting to create...');
         // Bucket doesn't exist, so create it
         const { data: createdBucket, error: createError } = await supabase.storage.createBucket('products', {
           public: true,
@@ -23,7 +24,7 @@ export const ensureProductsBucket = async () => {
         return false;
       }
     } else {
-      console.log('Bucket already exists:', data);
+      console.log('Products bucket already exists:', data);
     }
     
     // Apply access policies
@@ -39,11 +40,18 @@ export const ensureProductsBucket = async () => {
 const applyBucketPolicies = async () => {
   try {
     // Allow public read access
-    await supabase.storage.from('products').setPublic();
+    const { error: publicError } = await supabase.storage.from('products').setPublic();
+    if (publicError) {
+      console.error('Error setting bucket to public:', publicError);
+      return false;
+    }
 
     // Apply policies for authenticated users
     const { error } = await supabase.rpc('apply_storage_policies');
-    if (error) throw error;
+    if (error) {
+      console.error('Error applying storage policies:', error);
+      return false;
+    }
 
     console.log('Bucket policies applied successfully');
     return true;
@@ -97,10 +105,12 @@ export const getImageUrl = async (userId, sku, fileName) => {
 };
 
 export const initializeStorage = async () => {
+  console.log('Initializing storage...');
   const bucketCreated = await ensureProductsBucket();
   if (!bucketCreated) {
     console.error('Failed to initialize storage');
     return false;
   }
+  console.log('Storage initialized successfully');
   return true;
 };

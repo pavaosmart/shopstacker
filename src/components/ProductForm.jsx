@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { useAddProduct } from '../hooks/useProducts';
-import { initializeStorage, uploadImage } from '../utils/supabaseStorage';
+import { ensureProductsBucket, uploadImage } from '../utils/supabaseStorage';
 import { supabase } from '../supabaseClient';
 
 const ProductForm = ({ onSuccess }) => {
@@ -17,7 +17,7 @@ const ProductForm = ({ onSuccess }) => {
 
   useEffect(() => {
     const prepareStorage = async () => {
-      const initialized = await initializeStorage();
+      const initialized = await ensureProductsBucket();
       setIsStorageReady(initialized);
     };
     prepareStorage();

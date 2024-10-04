@@ -2,9 +2,11 @@ import { supabase } from '../integrations/supabase/supabase';
 
 export const ensureProductsBucket = async () => {
   try {
+    // Check if the bucket exists
     const { data, error } = await supabase.storage.getBucket('products');
     
     if (error && error.statusCode === '404') {
+      // Bucket doesn't exist, so create it
       const { data: createdBucket, error: createError } = await supabase.storage.createBucket('products', {
         public: true,
         allowedMimeTypes: ['image/png', 'image/jpeg', 'image/gif'],
@@ -17,10 +19,13 @@ export const ensureProductsBucket = async () => {
       }
       console.log('Bucket created successfully:', createdBucket);
       
+      // Set up bucket policies after creation
       await updateBucketPolicies();
     } else if (error) {
       console.error('Error checking bucket:', error);
       return false;
+    } else {
+      console.log('Bucket already exists:', data);
     }
     
     return true;
@@ -32,6 +37,7 @@ export const ensureProductsBucket = async () => {
 
 export const updateBucketPolicies = async () => {
   try {
+    // Set public read access
     await supabase.storage.from('products').updateBucketPolicy({
       type: 'READ',
       definition: {
@@ -40,6 +46,7 @@ export const updateBucketPolicies = async () => {
       },
     });
 
+    // Set authenticated write access
     await supabase.storage.from('products').updateBucketPolicy({
       type: 'WRITE',
       definition: {

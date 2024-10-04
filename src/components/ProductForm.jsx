@@ -10,24 +10,20 @@ import ImageUploader from './ImageUploader';
 
 const createBucketIfNotExists = async (bucketName) => {
   try {
-    // First, try to get the bucket
     const { data, error } = await supabase.storage.getBucket(bucketName);
     
-    if (error) {
-      if (error.statusCode === '404') {
-        console.log(`Bucket '${bucketName}' not found. Attempting to create it.`);
-        // Bucket doesn't exist, so create it
-        const { data: createdBucket, error: createError } = await supabase.storage.createBucket(bucketName, { public: true });
-        if (createError) {
-          console.error('Error creating bucket:', createError);
-          throw createError;
-        }
-        console.log(`Bucket '${bucketName}' created successfully:`, createdBucket);
-        return true;
-      } else {
-        console.error('Error checking bucket:', error);
-        throw error;
+    if (error && error.status === 404) {
+      console.log(`Bucket '${bucketName}' not found. Attempting to create it.`);
+      const { data: createdBucket, error: createError } = await supabase.storage.createBucket(bucketName, { public: true });
+      if (createError) {
+        console.error('Error creating bucket:', createError);
+        throw createError;
       }
+      console.log(`Bucket '${bucketName}' created successfully:`, createdBucket);
+      return true;
+    } else if (error) {
+      console.error('Error checking bucket:', error);
+      throw error;
     } else {
       console.log(`Bucket '${bucketName}' already exists:`, data);
       return true;

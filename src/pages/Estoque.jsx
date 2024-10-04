@@ -38,11 +38,9 @@ const Estoque = () => {
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Gerenciamento de Estoque</h1>
       
-      {isSupplier && (
-        <Button onClick={() => { setIsModalOpen(true); setCurrentProduct(null); }} className="mb-4">
-          Adicionar Novo Produto
-        </Button>
-      )}
+      <Button onClick={() => { setIsModalOpen(true); setCurrentProduct(null); }} className="mb-4">
+        Adicionar Novo Produto
+      </Button>
 
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">

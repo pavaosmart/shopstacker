@@ -7,7 +7,7 @@ export const useUserProducts = () => useQuery({
     const { data: { user } } = await supabase.auth.getUser();
     const { data, error } = await supabase
       .from('user_products')
-      .select('id, name, description, price, stock_quantity, image, suggested_price, cover_image, additional_images, variations')
+      .select('id, name, description, price, stock_quantity, suggested_price, images, cover_image_index')
       .eq('user_id', user.id);
     if (error) throw error;
     return data;

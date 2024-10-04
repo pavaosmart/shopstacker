@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { useAddProduct } from '../hooks/useProducts';
-import { ensureProductsBucket, uploadImage } from '../utils/supabaseStorage';
+import { initializeStorage, uploadImage } from '../utils/supabaseStorage';
 import { supabase } from '../supabaseClient';
 
 const ProductForm = ({ onSuccess }) => {
@@ -17,8 +17,11 @@ const ProductForm = ({ onSuccess }) => {
 
   useEffect(() => {
     const prepareStorage = async () => {
-      const initialized = await ensureProductsBucket();
+      const initialized = await initializeStorage();
       setIsStorageReady(initialized);
+      if (!initialized) {
+        toast.error('Failed to initialize storage. Please try again later.');
+      }
     };
     prepareStorage();
   }, []);
@@ -37,7 +40,11 @@ const ProductForm = ({ onSuccess }) => {
 
       let imageUrl = null;
       if (image) {
-        imageUrl = await uploadImage(image, user.id, data.sku, 0);
+        const uploadResult = await uploadImage(image, user.id, data.sku);
+        if (!uploadResult.success) {
+          throw new Error(uploadResult.message);
+        }
+        imageUrl = uploadResult.publicUrl;
       }
 
       const productData = {
@@ -50,11 +57,11 @@ const ProductForm = ({ onSuccess }) => {
       };
 
       await addProduct.mutateAsync(productData);
-      toast.success('Produto adicionado com sucesso!');
+      toast.success('Product added successfully!');
       onSuccess();
     } catch (error) {
       console.error('Error adding product:', error);
-      toast.error(`Erro ao adicionar produto: ${error.message}`);
+      toast.error(`Error adding product: ${error.message}`);
     }
   };
 

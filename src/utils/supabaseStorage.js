@@ -2,51 +2,53 @@ import { supabase } from '../supabaseClient';
 
 export const ensureProductsBucket = async () => {
   try {
-    // Verificar se o bucket existe
+    // Check if the bucket exists
     const { data, error } = await supabase.storage.getBucket('products');
     
-    if (error && error.statusCode === '404') {
-      // O bucket não existe, então vamos criá-lo
-      const { data: createdBucket, error: createError } = await supabase.storage.createBucket('products', {
-        public: true,
-        fileSizeLimit: 10 * 1024 * 1024, // Limite de 10MB
-      });
-      
-      if (createError) {
-        console.error('Erro ao criar bucket:', createError);
+    if (error) {
+      if (error.statusCode === '404') {
+        // Bucket doesn't exist, so create it
+        const { data: createdBucket, error: createError } = await supabase.storage.createBucket('products', {
+          public: true,
+          fileSizeLimit: 50 * 1024 * 1024, // 50MB limit
+        });
+        
+        if (createError) {
+          console.error('Error creating bucket:', createError);
+          return false;
+        }
+        console.log('Bucket created successfully:', createdBucket);
+      } else {
+        console.error('Error checking bucket:', error);
         return false;
       }
-      console.log('Bucket criado com sucesso:', createdBucket);
-    } else if (error) {
-      console.error('Erro ao verificar bucket:', error);
-      return false;
     } else {
-      console.log('Bucket já existe:', data);
+      console.log('Bucket already exists:', data);
     }
     
-    // Aplicar políticas de acesso
+    // Apply access policies
     await applyBucketPolicies();
     
     return true;
   } catch (error) {
-    console.error('Erro ao garantir bucket de produtos:', error);
+    console.error('Error ensuring products bucket:', error);
     return false;
   }
 };
 
 const applyBucketPolicies = async () => {
   try {
-    // Permitir acesso público de leitura
+    // Allow public read access
     await supabase.storage.from('products').setPublic();
 
-    // Aplicar políticas para usuários autenticados
+    // Apply policies for authenticated users
     const { error } = await supabase.rpc('apply_storage_policies');
     if (error) throw error;
 
-    console.log('Políticas do bucket aplicadas com sucesso');
+    console.log('Bucket policies applied successfully');
     return true;
   } catch (error) {
-    console.error('Erro ao aplicar políticas do bucket:', error);
+    console.error('Error applying bucket policies:', error);
     return false;
   }
 };
@@ -55,7 +57,7 @@ export const uploadImage = async (fileObject, userId, sku) => {
   try {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
-      throw new Error('Usuário não autenticado');
+      throw new Error('User not authenticated');
     }
 
     const filePath = `${userId}/${sku}/${fileObject.name}`;
@@ -72,10 +74,10 @@ export const uploadImage = async (fileObject, userId, sku) => {
       .from('products')
       .getPublicUrl(filePath);
 
-    console.log('Arquivo enviado com sucesso:', data);
+    console.log('File uploaded successfully:', data);
     return { success: true, publicUrl: publicUrlData.publicUrl };
   } catch (error) {
-    console.error('Erro ao fazer upload da imagem:', error);
+    console.error('Error uploading image:', error);
     return { success: false, message: error.message };
   }
 };

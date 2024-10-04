@@ -19,6 +19,19 @@ export const useImportUserProduct = () => {
   return useMutation({
     mutationFn: async (newProduct) => {
       const { data: { user } } = await supabase.auth.getUser();
+      
+      // Check if the product already exists
+      const { data: existingProduct } = await supabase
+        .from('user_products')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('name', newProduct.name)
+        .single();
+
+      if (existingProduct) {
+        throw new Error('Um produto com este nome já existe.');
+      }
+
       const { data, error } = await supabase
         .from('user_products')
         .insert([{ ...newProduct, user_id: user.id }]);

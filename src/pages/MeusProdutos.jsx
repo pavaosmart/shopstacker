@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { useNavigate } from 'react-router-dom';
 import ExportToStoresModal from '../components/ExportToStoresModal';
 import ProductForm from '../components/ProductForm';
+import ConfirmDeleteDialog from '../components/ConfirmDeleteDialog';
 
 const MeusProdutos = () => {
   const { data: userProducts, isLoading, error } = useUserProducts();
@@ -14,11 +15,15 @@ const MeusProdutos = () => {
   const [exportModalOpen, setExportModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [editModalOpen, setEditModalOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [productToDelete, setProductToDelete] = useState(null);
 
   const handleDelete = async (id) => {
     try {
       await deleteUserProductMutation.mutateAsync(id);
       toast.success('Produto excluído com sucesso!');
+      setDeleteDialogOpen(false);
+      setProductToDelete(null);
     } catch (error) {
       toast.error(`Erro ao excluir produto: ${error.message}`);
     }
@@ -32,6 +37,15 @@ const MeusProdutos = () => {
   const handleEdit = (product) => {
     setSelectedProduct(product);
     setEditModalOpen(true);
+  };
+
+  const handleManage = (product) => {
+    navigate(`/produto/${product.id}`);
+  };
+
+  const openDeleteDialog = (product) => {
+    setProductToDelete(product);
+    setDeleteDialogOpen(true);
   };
 
   if (isLoading) return <div>Carregando produtos...</div>;
@@ -71,9 +85,9 @@ const MeusProdutos = () => {
                 </div>
               </CardContent>
               <CardFooter className="flex justify-between">
+                <Button onClick={() => handleManage(product)}>Gerenciar</Button>
                 <Button onClick={() => handleExport(product)}>Enviar para Marketplace</Button>
-                <Button onClick={() => handleEdit(product)}>Editar</Button>
-                <Button onClick={() => handleDelete(product.id)} variant="destructive">Excluir</Button>
+                <Button onClick={() => openDeleteDialog(product)} variant="destructive">Excluir</Button>
               </CardFooter>
             </Card>
           ))}
@@ -104,6 +118,12 @@ const MeusProdutos = () => {
           </div>
         </div>
       )}
+      <ConfirmDeleteDialog
+        isOpen={deleteDialogOpen}
+        onClose={() => setDeleteDialogOpen(false)}
+        onConfirm={() => handleDelete(productToDelete.id)}
+        productName={productToDelete?.name}
+      />
     </div>
   );
 };

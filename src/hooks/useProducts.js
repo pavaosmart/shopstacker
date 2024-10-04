@@ -9,12 +9,18 @@ const fromSupabase = async (query) => {
 
 export const useProduct = (sku) => useQuery({
   queryKey: ['products', sku],
-  queryFn: () => fromSupabase(supabase
-    .from('user_products')
-    .select('*')
-    .eq('sku', sku)
-    .single()
-  ),
+  queryFn: () => {
+    if (!sku) {
+      return Promise.resolve(null); // Return null if sku is undefined
+    }
+    return fromSupabase(supabase
+      .from('user_products')
+      .select('*')
+      .eq('sku', sku)
+      .single()
+    );
+  },
+  enabled: !!sku, // Only run the query if sku is truthy
 });
 
 export const useProducts = () => useQuery({

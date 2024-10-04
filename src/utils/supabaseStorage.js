@@ -2,12 +2,14 @@ import { supabase } from '../supabaseClient';
 
 export const ensureProductsBucket = async () => {
   try {
+    // Check if the bucket exists
     const { data, error } = await supabase.storage.getBucket('products');
     
     if (error && error.statusCode === '404') {
+      // Bucket doesn't exist, so create it
       const { data: createdBucket, error: createError } = await supabase.storage.createBucket('products', {
         public: true,
-        fileSizeLimit: 10 * 1024 * 1024, // 10MB
+        fileSizeLimit: 10 * 1024 * 1024, // 10MB limit
       });
       
       if (createError) {
@@ -16,13 +18,15 @@ export const ensureProductsBucket = async () => {
       }
       console.log('Bucket created successfully:', createdBucket);
       
-      await updateBucketPolicies();
+      // Set policies for the new bucket
+      await setBucketPolicies();
     } else if (error) {
       console.error('Error checking bucket:', error);
       return false;
     } else {
       console.log('Bucket already exists:', data);
-      await updateBucketPolicies();
+      // Ensure policies are set correctly for existing bucket
+      await setBucketPolicies();
     }
     
     return true;
@@ -32,14 +36,19 @@ export const ensureProductsBucket = async () => {
   }
 };
 
-const updateBucketPolicies = async () => {
+const setBucketPolicies = async () => {
   try {
-    const { data, error } = await supabase.rpc('apply_storage_policies');
-    if (error) throw error;
-    console.log('Bucket policies updated successfully:', data);
+    // Allow public read access
+    await supabase.storage.from('products').setPublic();
+
+    // Set policy for authenticated users to upload
+    const { error: policyError } = await supabase.rpc('apply_storage_policies');
+    if (policyError) throw policyError;
+
+    console.log('Bucket policies set successfully');
     return true;
   } catch (error) {
-    console.error('Error updating bucket policies:', error);
+    console.error('Error setting bucket policies:', error);
     return false;
   }
 };

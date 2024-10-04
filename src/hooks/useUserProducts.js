@@ -73,6 +73,10 @@ export const useImportUserProduct = () => {
     mutationFn: async (productData) => {
       const { data: { user } } = await supabase.auth.getUser();
       
+      if (!productData.sku) {
+        throw new Error('SKU is required for importing a product');
+      }
+
       // Check if the product with the given SKU already exists
       const { data: existingProduct, error: fetchError } = await supabase
         .from('user_products')
@@ -110,3 +114,5 @@ export const useImportUserProduct = () => {
     },
   });
 };
+
+// ... keep existing code (other hooks if any)

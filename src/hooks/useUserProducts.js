@@ -72,11 +72,38 @@ export const useImportUserProduct = () => {
   return useMutation({
     mutationFn: async (productData) => {
       const { data: { user } } = await supabase.auth.getUser();
-      const { data, error } = await supabase
+      
+      // Check if the product with the given SKU already exists
+      const { data: existingProduct, error: fetchError } = await supabase
         .from('user_products')
-        .insert([{ ...productData, user_id: user.id, is_imported: true }]);
-      if (error) throw error;
-      return data;
+        .select('*')
+        .eq('sku', productData.sku)
+        .eq('user_id', user.id)
+        .single();
+
+      if (fetchError && fetchError.code !== 'PGRST116') {
+        throw fetchError;
+      }
+
+      let result;
+      if (existingProduct) {
+        // Update existing product
+        const { data, error } = await supabase
+          .from('user_products')
+          .update({ ...productData, user_id: user.id, is_imported: true })
+          .eq('id', existingProduct.id);
+        if (error) throw error;
+        result = data;
+      } else {
+        // Insert new product
+        const { data, error } = await supabase
+          .from('user_products')
+          .insert([{ ...productData, user_id: user.id, is_imported: true }]);
+        if (error) throw error;
+        result = data;
+      }
+
+      return result;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['userProducts'] });

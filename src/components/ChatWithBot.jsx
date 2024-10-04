@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSupabaseAuth } from '../integrations/supabase/auth';
-import { getOpenAIInstance, getZildaAssistant, textToSpeech } from '../utils/openai';
+import { getOpenAIInstance, getZildaAssistant } from '../utils/openai';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -40,9 +40,17 @@ const ChatWithBot = () => {
   }, []);
 
   const handleSendMessage = async (content, type = 'text') => {
-    if ((!content || (type === 'text' && !content.trim())) || !threadId || !zildaAssistant) return;
+    if ((!content.trim() && type === 'text') || !threadId || !zildaAssistant) return;
 
-    let newMessage = { role: 'user', content, type };
+    let newMessage;
+    if (type === 'text') {
+      newMessage = { role: 'user', content: content, type };
+    } else if (type === 'image') {
+      newMessage = { role: 'user', content: 'Imagem enviada', type, url: content };
+    } else if (type === 'audio') {
+      newMessage = { role: 'user', content: 'Áudio enviado', type, url: content };
+    }
+
     setMessages(prevMessages => [...prevMessages, newMessage]);
     setInputMessage('');
     setIsLoading(true);
@@ -56,7 +64,8 @@ const ChatWithBot = () => {
       } else if (type === 'image') {
         messageContent = { type: 'image_url', image_url: { url: content } };
       } else if (type === 'audio') {
-        const fileId = await uploadAudioFile(openai, content);
+        const base64Audio = await convertAudioToBase64(content);
+        const fileId = await uploadAudioFile(openai, base64Audio);
         messageContent = { type: 'file_id', file_id: fileId };
       }
 
@@ -76,22 +85,12 @@ const ChatWithBot = () => {
       }
 
       const messages = await openai.beta.threads.messages.list(threadId);
+
       const assistantMessage = messages.data[0];
-
-      let responseContent;
-      let responseType = 'text';
-
-      if (type === 'audio') {
-        responseContent = await textToSpeech(assistantMessage.content[0].text.value);
-        responseType = 'audio';
-      } else {
-        responseContent = assistantMessage.content[0].text.value;
-      }
-
       setMessages(prevMessages => [...prevMessages, {
         role: 'assistant',
-        content: responseContent,
-        type: responseType
+        content: assistantMessage.content[0].text.value,
+        type: 'text'
       }]);
     } catch (error) {
       console.error('Erro ao enviar mensagem:', error);
@@ -101,14 +100,24 @@ const ChatWithBot = () => {
     }
   };
 
-  const uploadAudioFile = async (openai, audioBlob) => {
-    const formData = new FormData();
-    formData.append('file', audioBlob, 'audio.wav');
-    formData.append('purpose', 'assistants');
+  const convertAudioToBase64 = (audioUrl) => {
+    return new Promise((resolve, reject) => {
+      fetch(audioUrl)
+        .then(response => response.blob())
+        .then(blob => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result.split(',')[1]);
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
+        })
+        .catch(reject);
+    });
+  };
 
+  const uploadAudioFile = async (openai, base64Audio) => {
     const response = await openai.files.create({
-      file: formData.get('file'),
-      purpose: formData.get('purpose')
+      file: new Blob([Buffer.from(base64Audio, 'base64')], { type: 'audio/wav' }),
+      purpose: 'assistants'
     });
     return response.id;
   };
@@ -137,7 +146,8 @@ const ChatWithBot = () => {
 
       mediaRecorderRef.current.onstop = async () => {
         const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
-        await handleSendMessage(audioBlob, 'audio');
+        const audioUrl = URL.createObjectURL(audioBlob);
+        await handleSendMessage(audioUrl, 'audio');
       };
 
       mediaRecorderRef.current.start();
@@ -194,8 +204,8 @@ const ChatWithBot = () => {
                       : 'bg-gray-200 text-gray-800 rounded-bl-none'
                   }`}>
                     {message.type === 'text' && message.content}
-                    {message.type === 'image' && <img src={message.content} alt="Imagem enviada" className="max-w-full h-auto rounded" />}
-                    {message.type === 'audio' && <audio src={message.content} controls className="max-w-full" />}
+                    {message.type === 'image' && <img src={message.url} alt="Imagem enviada" className="max-w-full h-auto rounded" />}
+                    {message.type === 'audio' && <audio src={message.url} controls className="max-w-full" />}
                   </div>
                 </div>
               </div>
@@ -203,7 +213,7 @@ const ChatWithBot = () => {
             {isLoading && (
               <div className="flex justify-start">
                 <div className="bg-gray-200 text-gray-800 p-3 rounded-lg rounded-bl-none max-w-[70%]">
-                  <span className="animate-pulse">Zilda está processando...</span>
+                  <span className="animate-pulse">Zilda está digitando...</span>
                 </div>
               </div>
             )}

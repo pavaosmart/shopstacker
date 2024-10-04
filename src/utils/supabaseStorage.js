@@ -31,36 +31,51 @@ export const ensureProductsBucket = async () => {
 
 export const updateBucketPolicies = async () => {
   try {
-    const { error: readError } = await supabase.storage.from('products').createSignedUrl('dummy.txt', 60);
-    if (readError) {
-      await supabase.storage.from('products').updateBucketPolicy({
-        type: 'READ',
-        definition: {
-          allow: true,
-          roles: ['anon', 'authenticated'],
-        },
-      });
-    }
+    // Update read policy
+    await supabase.storage.from('products').updateBucketPolicy({
+      type: 'READ',
+      definition: {
+        allow: true,
+        roles: ['anon', 'authenticated'],
+      },
+    });
 
-    const { error: writeError } = await supabase.storage.from('products').upload('dummy.txt', 'test');
-    if (writeError) {
-      await supabase.storage.from('products').updateBucketPolicy({
-        type: 'WRITE',
-        definition: {
-          allow: true,
-          roles: ['authenticated'],
-        },
-      });
-    }
-
-    if (writeError) {
-      await supabase.storage.from('products').remove(['dummy.txt']);
-    }
+    // Update write policy
+    await supabase.storage.from('products').updateBucketPolicy({
+      type: 'WRITE',
+      definition: {
+        allow: true,
+        roles: ['authenticated'],
+      },
+    });
 
     console.log('Bucket policies updated successfully');
     return true;
   } catch (error) {
     console.error('Error updating bucket policies:', error);
     return false;
+  }
+};
+
+export const uploadImage = async (file, userId, sku, index) => {
+  try {
+    const fileName = `${userId}/${sku}_${index}.jpg`;
+    const { data, error } = await supabase.storage
+      .from('products')
+      .upload(fileName, file, {
+        contentType: 'image/jpeg',
+        upsert: true
+      });
+
+    if (error) throw error;
+
+    const { data: publicUrlData } = supabase.storage
+      .from('products')
+      .getPublicUrl(fileName);
+
+    return publicUrlData.publicUrl;
+  } catch (error) {
+    console.error('Error uploading image:', error);
+    throw error;
   }
 };

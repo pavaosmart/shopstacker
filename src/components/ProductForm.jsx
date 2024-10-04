@@ -6,7 +6,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { useAddProduct } from '../hooks/useProducts';
 import ImageUploader from './ImageUploader';
-import { ensureProductsBucket, updateBucketPolicies } from '../utils/supabaseStorage';
+import { ensureProductsBucket, updateBucketPolicies, uploadImage } from '../utils/supabaseStorage';
+import { useSupabaseAuth } from '../integrations/supabase/auth';
 
 const ProductForm = ({ onSuccess }) => {
   const { register, handleSubmit, formState: { errors } } = useForm();
@@ -14,6 +15,7 @@ const ProductForm = ({ onSuccess }) => {
   const [coverIndex, setCoverIndex] = useState(0);
   const [isBucketReady, setIsBucketReady] = useState(false);
   const addProduct = useAddProduct();
+  const { session } = useSupabaseAuth();
 
   useEffect(() => {
     const initializeBucket = async () => {
@@ -33,10 +35,14 @@ const ProductForm = ({ onSuccess }) => {
     }
 
     try {
+      const uploadedImages = await Promise.all(
+        images.map((file, index) => uploadImage(file, session.user.id, data.sku, index))
+      );
+
       const productData = {
         ...data,
         cost_price: data.price,
-        images,
+        images: uploadedImages,
         cover_image_index: coverIndex
       };
       await addProduct.mutateAsync(productData);

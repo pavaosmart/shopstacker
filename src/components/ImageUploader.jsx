@@ -40,7 +40,11 @@ const ImageUploader = ({ images, setImages, coverIndex, setCoverIndex, isBucketR
       )}
       {images.map((image, index) => (
         <div key={index} className="relative">
-          <img src={URL.createObjectURL(image)} alt={`Produto ${index + 1}`} className="w-20 h-20 object-cover rounded" />
+          <img 
+            src={URL.createObjectURL(image)} 
+            alt={`Produto ${index + 1}`} 
+            className="w-20 h-20 object-cover rounded" 
+          />
           {index === coverIndex && (
             <span className="absolute top-0 left-0 bg-blue-500 text-white text-xs px-1 rounded-br">
               Capa

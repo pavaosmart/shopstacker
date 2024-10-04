@@ -5,18 +5,27 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import { useAuth } from '../hooks/useAuth'; // Assumindo que você tem um hook de autenticação
 
 const Estoque = () => {
   const { data: products, isLoading, error } = useProducts();
   const addProductMutation = useAddProduct();
   const updateProductMutation = useUpdateProduct();
   const deleteProductMutation = useDeleteProduct();
+  const { user } = useAuth(); // Hook para obter informações do usuário atual
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentProduct, setCurrentProduct] = useState(null);
 
+  const isSupplier = user?.role === 'supplier'; // Verifica se o usuário é um fornecedor
+
   const handleSubmit = async (event) => {
     event.preventDefault();
+    if (!isSupplier) {
+      toast.error('Apenas fornecedores podem adicionar ou editar produtos.');
+      return;
+    }
+
     const formData = new FormData(event.target);
     const productData = {
       name: formData.get('name'),
@@ -45,6 +54,11 @@ const Estoque = () => {
   };
 
   const handleDelete = async (id) => {
+    if (!isSupplier) {
+      toast.error('Apenas fornecedores podem excluir produtos.');
+      return;
+    }
+
     try {
       await deleteProductMutation.mutateAsync(id);
       toast.success('Produto excluído com sucesso!');
@@ -60,9 +74,11 @@ const Estoque = () => {
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Gerenciamento de Estoque</h1>
       
-      <Button onClick={() => { setIsModalOpen(true); setCurrentProduct(null); }} className="mb-4">
-        Adicionar Novo Produto
-      </Button>
+      {isSupplier && (
+        <Button onClick={() => { setIsModalOpen(true); setCurrentProduct(null); }} className="mb-4">
+          Adicionar Novo Produto
+        </Button>
+      )}
 
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
@@ -99,10 +115,12 @@ const Estoque = () => {
               <p>Preço: R$ {product.price.toFixed(2)}</p>
               <p>Estoque: {product.stock_quantity}</p>
               <p>Preço Sugerido: R$ {product.suggested_price?.toFixed(2)}</p>
-              <div className="mt-4">
-                <Button onClick={() => { setCurrentProduct(product); setIsModalOpen(true); }} className="mr-2">Editar</Button>
-                <Button onClick={() => handleDelete(product.id)} variant="destructive">Excluir</Button>
-              </div>
+              {isSupplier && (
+                <div className="mt-4">
+                  <Button onClick={() => { setCurrentProduct(product); setIsModalOpen(true); }} className="mr-2">Editar</Button>
+                  <Button onClick={() => handleDelete(product.id)} variant="destructive">Excluir</Button>
+                </div>
+              )}
             </CardContent>
           </Card>
         ))}

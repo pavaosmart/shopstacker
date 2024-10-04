@@ -3,14 +3,12 @@ import { useUserProducts, useDeleteUserProduct } from '../hooks/useUserProducts'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import ProductForm from '../components/ProductForm';
 import ConfirmDeleteDialog from '../components/ConfirmDeleteDialog';
 import ProductDetails from '../components/ProductDetails';
 
 const MeusProdutos = () => {
   const { data: userProducts, isLoading, error } = useUserProducts();
   const deleteUserProductMutation = useDeleteUserProduct();
-  const [editModalOpen, setEditModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [productToDelete, setProductToDelete] = useState(null);
@@ -43,7 +41,6 @@ const MeusProdutos = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-6">Meus Produtos</h1>
-      <Button onClick={() => setEditModalOpen(true)} className="mb-4">Adicionar Novo Produto</Button>
       {userProducts && userProducts.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {userProducts.map((product) => (
@@ -71,25 +68,7 @@ const MeusProdutos = () => {
           ))}
         </div>
       ) : (
-        <p>Você ainda não adicionou nenhum produto.</p>
-      )}
-      {editModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg w-full max-w-2xl">
-            <h2 className="text-2xl font-bold mb-4">{selectedProduct ? 'Editar' : 'Adicionar'} Produto</h2>
-            <ProductForm 
-              product={selectedProduct} 
-              onSuccess={() => {
-                setEditModalOpen(false);
-                setSelectedProduct(null);
-              }} 
-            />
-            <Button onClick={() => {
-              setEditModalOpen(false);
-              setSelectedProduct(null);
-            }} className="mt-4">Cancelar</Button>
-          </div>
-        </div>
+        <p>Você ainda não importou nenhum produto. Visite a página "Mercado" para importar produtos.</p>
       )}
       <ConfirmDeleteDialog
         isOpen={deleteDialogOpen}

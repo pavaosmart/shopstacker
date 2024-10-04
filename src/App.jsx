@@ -23,6 +23,8 @@ import Documentation from './pages/Documentation';
 import UIComponentsPanel from './components/UIComponentsPanel';
 import ProtectedRoute from './components/ProtectedRoute';
 import Market from './pages/Market';
+import OpenAISettings from './components/OpenAISettings';
+import ChatWithBot from './components/ChatWithBot';
 
 const queryClient = new QueryClient();
 
@@ -48,6 +50,8 @@ function App() {
               <Route path="support" element={<ProtectedRoute><Support /></ProtectedRoute>} />
               <Route path="profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
               <Route path="api-integration/openai" element={<ProtectedRoute><OpenAIIntegration /></ProtectedRoute>} />
+              <Route path="/openai-settings" element={<OpenAISettings />} />
+              <Route path="/chat-with-bot" element={<ChatWithBot />} />
             </Route>
           </Routes>
           <UIComponentsPanel />

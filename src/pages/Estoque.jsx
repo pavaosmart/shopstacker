@@ -5,20 +5,42 @@ import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
 import ProductForm from '../components/ProductForm';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Trash2, Edit, Eye } from 'lucide-react'; // Add this import
+import { Trash2, Edit, Eye } from 'lucide-react';
+import ProductDetailsDialog from '../components/ProductDetailsDialog';
+import EditProductModal from '../components/EditProductModal';
+import ConfirmDeleteDialog from '../components/ConfirmDeleteDialog';
 
 const Estoque = () => {
   const { data: products, isLoading, error } = useProducts();
   const deleteProductMutation = useDeleteProduct();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (sku) => {
     try {
-      await deleteProductMutation.mutateAsync(id);
+      await deleteProductMutation.mutateAsync(sku);
       toast.success('Produto excluído com sucesso!');
     } catch (error) {
       toast.error(`Erro ao excluir produto: ${error.message}`);
     }
+  };
+
+  const openDetailsDialog = (product) => {
+    setSelectedProduct(product);
+    setIsDetailsDialogOpen(true);
+  };
+
+  const openEditDialog = (product) => {
+    setSelectedProduct(product);
+    setIsEditDialogOpen(true);
+  };
+
+  const openDeleteDialog = (product) => {
+    setSelectedProduct(product);
+    setIsDeleteDialogOpen(true);
   };
 
   if (isLoading) return <div>Carregando...</div>;
@@ -60,7 +82,7 @@ const Estoque = () => {
                   <div>Estoque: {product.stock_quantity}</div>
                   <div className="flex justify-end space-x-2">
                     <Button
-                      onClick={() => {/* Implement view details logic */}}
+                      onClick={() => openDetailsDialog(product)}
                       variant="ghost"
                       size="icon"
                       className="h-8 w-8"
@@ -68,7 +90,7 @@ const Estoque = () => {
                       <Eye className="h-4 w-4 text-gray-700" />
                     </Button>
                     <Button
-                      onClick={() => {/* Implement edit logic */}}
+                      onClick={() => openEditDialog(product)}
                       variant="ghost"
                       size="icon"
                       className="h-8 w-8"
@@ -76,7 +98,7 @@ const Estoque = () => {
                       <Edit className="h-4 w-4 text-gray-700" />
                     </Button>
                     <Button
-                      onClick={() => handleDelete(product.sku)}
+                      onClick={() => openDeleteDialog(product)}
                       variant="ghost"
                       size="icon"
                       className="h-8 w-8"
@@ -90,6 +112,28 @@ const Estoque = () => {
           </Card>
         ))}
       </div>
+
+      <ProductDetailsDialog
+        isOpen={isDetailsDialogOpen}
+        onClose={() => setIsDetailsDialogOpen(false)}
+        product={selectedProduct}
+      />
+
+      <EditProductModal
+        isOpen={isEditDialogOpen}
+        onClose={() => setIsEditDialogOpen(false)}
+        product={selectedProduct}
+      />
+
+      <ConfirmDeleteDialog
+        isOpen={isDeleteDialogOpen}
+        onClose={() => setIsDeleteDialogOpen(false)}
+        onConfirm={() => {
+          handleDelete(selectedProduct.sku);
+          setIsDeleteDialogOpen(false);
+        }}
+        productName={selectedProduct?.name}
+      />
     </div>
   );
 };

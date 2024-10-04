@@ -11,6 +11,7 @@ const ProductForm = ({ onSuccess }) => {
   const { register, handleSubmit, formState: { errors } } = useForm();
   const [images, setImages] = useState([]);
   const [coverIndex, setCoverIndex] = useState(0);
+  const [isBucketReady, setIsBucketReady] = useState(false);
   const addProduct = useAddProduct();
 
   useEffect(() => {
@@ -32,12 +33,14 @@ const ProductForm = ({ onSuccess }) => {
         } else {
           console.log('Bucket created successfully:', createdBucket);
           toast.success('Bucket de produtos criado com sucesso');
+          setIsBucketReady(true);
         }
       } else if (error) {
         console.error('Error checking bucket:', error);
         toast.error('Falha ao verificar bucket de armazenamento');
       } else {
         console.log('Products bucket already exists:', data);
+        setIsBucketReady(true);
       }
     } catch (error) {
       console.error('Unexpected error:', error);
@@ -46,6 +49,10 @@ const ProductForm = ({ onSuccess }) => {
   };
 
   const uploadImage = async (file) => {
+    if (!isBucketReady) {
+      console.error('Bucket is not ready for upload');
+      throw new Error('Bucket de armazenamento não está pronto');
+    }
     console.log('Uploading image:', file.name);
     const fileExt = file.name.split('.').pop();
     const fileName = `${Math.random()}.${fileExt}`;
@@ -71,6 +78,10 @@ const ProductForm = ({ onSuccess }) => {
   };
 
   const onSubmit = async (data) => {
+    if (!isBucketReady) {
+      toast.error('O sistema de armazenamento não está pronto. Por favor, tente novamente em alguns instantes.');
+      return;
+    }
     try {
       console.log('Submitting product data:', data);
       const uploadedImageUrls = await Promise.all(images.map(uploadImage));
@@ -161,11 +172,20 @@ const ProductForm = ({ onSuccess }) => {
         placeholder="Preço Sugerido para Venda" 
       />
       {errors.suggested_price && <p className="text-red-500">{errors.suggested_price.message}</p>}
-
+      
       <div>
         <p className="text-sm text-gray-600 mb-2">Imagens devem ser 1200x1200 pixels, formato JPG ou PNG</p>
-        <input type="file" onChange={handleImageUpload} multiple accept="image/*" className="mb-2" />
-        <div className="flex flex-wrap gap-2">
+        <input 
+          type="file" 
+          onChange={handleImageUpload} 
+          multiple 
+          accept="image/*" 
+          className="mb-2"
+          disabled={!isBucketReady}
+        />
+        {!isBucketReady && (
+          <p className="text-sm text-yellow-600">Aguarde, preparando sistema de armazenamento...</p>
+        )}
           {images.map((image, index) => (
             <div key={index} className="relative">
               <img src={URL.createObjectURL(image)} alt={`Produto ${index + 1}`} className="w-20 h-20 object-cover rounded" />
@@ -204,7 +224,9 @@ const ProductForm = ({ onSuccess }) => {
         </div>
       </div>
       
-      <Button type="submit">Adicionar Produto</Button>
+      <Button type="submit" disabled={!isBucketReady}>
+        {isBucketReady ? 'Adicionar Produto' : 'Aguarde...'}
+      </Button>
     </form>
   );
 };

@@ -2,11 +2,11 @@ import { supabase } from '../supabaseClient';
 
 export const ensureProductsBucket = async () => {
   try {
-    // Check if the bucket exists
+    // Verifica se o bucket existe
     const { data, error } = await supabase.storage.getBucket('products');
     
     if (error && error.statusCode === '404') {
-      // Bucket doesn't exist, so create it
+      // O bucket não existe, então vamos criá-lo
       const { data: createdBucket, error: createError } = await supabase.storage.createBucket('products', {
         public: true,
         allowedMimeTypes: ['image/png', 'image/jpeg', 'image/gif'],
@@ -14,30 +14,32 @@ export const ensureProductsBucket = async () => {
       });
       
       if (createError) {
-        console.error('Error creating bucket:', createError);
+        console.error('Erro ao criar o bucket:', createError);
         return false;
       }
-      console.log('Bucket created successfully:', createdBucket);
+      console.log('Bucket criado com sucesso:', createdBucket);
       
-      // Set up bucket policies after creation
+      // Configura as políticas do bucket após a criação
       await updateBucketPolicies();
     } else if (error) {
-      console.error('Error checking bucket:', error);
+      console.error('Erro ao verificar o bucket:', error);
       return false;
     } else {
-      console.log('Bucket already exists:', data);
+      console.log('O bucket já existe:', data);
+      // Atualiza as políticas mesmo se o bucket já existir
+      await updateBucketPolicies();
     }
     
     return true;
   } catch (error) {
-    console.error('Error ensuring products bucket:', error);
+    console.error('Erro ao garantir o bucket de produtos:', error);
     return false;
   }
 };
 
-export const updateBucketPolicies = async () => {
+const updateBucketPolicies = async () => {
   try {
-    // Set public read access
+    // Define acesso de leitura público
     await supabase.storage.from('products').updateBucketPolicy({
       type: 'READ',
       definition: {
@@ -46,7 +48,7 @@ export const updateBucketPolicies = async () => {
       },
     });
 
-    // Set authenticated write access
+    // Define acesso de escrita para usuários autenticados
     await supabase.storage.from('products').updateBucketPolicy({
       type: 'WRITE',
       definition: {
@@ -55,10 +57,10 @@ export const updateBucketPolicies = async () => {
       },
     });
 
-    console.log('Bucket policies updated successfully');
+    console.log('Políticas do bucket atualizadas com sucesso');
     return true;
   } catch (error) {
-    console.error('Error updating bucket policies:', error);
+    console.error('Erro ao atualizar as políticas do bucket:', error);
     return false;
   }
 };

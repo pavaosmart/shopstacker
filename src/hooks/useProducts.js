@@ -4,22 +4,26 @@ import { supabase } from '../supabaseClient';
 export const useProduct = (id) => useQuery({
   queryKey: ['product', id],
   queryFn: async () => {
-    // Check if id is a valid UUID
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-    let query = supabase.from('user_products').select('*');
-    
-    if (uuidRegex.test(id)) {
-      query = query.eq('id', id);
-    } else {
-      query = query.eq('sku', id);
+    if (!id) {
+      throw new Error('ID ou SKU não fornecido');
     }
 
-    const { data, error } = await query.single();
+    const { data, error } = await supabase
+      .from('user_products')
+      .select('*')
+      .or(`id.eq.${id},sku.eq.${id}`)
+      .single();
     
-    if (error) throw error;
+    if (error) {
+      if (error.code === 'PGRST116') {
+        // Nenhum resultado encontrado
+        return null;
+      }
+      throw error;
+    }
     return data;
   },
-  enabled: !!id, // Only run the query if id is truthy
+  enabled: !!id,
 });
 
 export const useProducts = () => useQuery({
@@ -88,4 +92,5 @@ export const useDeleteProduct = () => {
     },
   });
 };
+
 

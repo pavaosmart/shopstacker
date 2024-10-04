@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useProduct } from '../hooks/useProducts';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,13 +8,6 @@ const ProductDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { data: product, isLoading, error } = useProduct(id);
-  const [imageLoadError, setImageLoadError] = useState(false);
-
-  const handleImageError = (e) => {
-    console.error('Image failed to load:', e);
-    setImageLoadError(true);
-    e.target.src = "/placeholder.svg"; // Replace with a default image path
-  };
 
   if (isLoading) return <div>Carregando detalhes do produto...</div>;
   if (error) return <div>Erro ao carregar detalhes do produto: {error.message}</div>;
@@ -35,29 +28,19 @@ const ProductDetails = () => {
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              {imageLoadError ? (
-                <div className="w-full h-64 bg-gray-200 flex items-center justify-center text-gray-500">
-                  Imagem não disponível
-                </div>
-              ) : (
+              {product.main_image_url ? (
                 <img 
-                  src={product.main_image_url || "/placeholder.svg"}
+                  src={product.main_image_url}
                   alt={product.name} 
                   className="w-full h-64 object-cover rounded-md mb-4"
-                  onError={handleImageError}
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = "/placeholder.svg";
+                  }}
                 />
-              )}
-              {product.images && (
-                <div className="grid grid-cols-4 gap-2">
-                  {product.images.map((img, index) => (
-                    <img 
-                      key={index}
-                      src={img}
-                      alt={`${product.name} - ${index + 2}`}
-                      className="w-full h-20 object-cover rounded-md"
-                      onError={handleImageError}
-                    />
-                  ))}
+              ) : (
+                <div className="w-full h-64 bg-gray-200 flex items-center justify-center text-gray-500">
+                  Imagem não disponível
                 </div>
               )}
             </div>

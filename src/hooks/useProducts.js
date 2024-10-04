@@ -13,20 +13,25 @@ export const useProduct = (sku) => useQuery({
     if (!sku) {
       return null; // Return null if sku is undefined
     }
-    const { data, error } = await supabase
-      .from('user_products')
-      .select('*')
-      .eq('sku', sku)
-      .single();
-    
-    if (error) {
-      if (error.code === 'PGRST116') {
-        // No rows returned, which is fine, just return null
-        return null;
+    try {
+      const { data, error } = await supabase
+        .from('user_products')
+        .select('*')
+        .eq('sku', sku)
+        .single();
+      
+      if (error) {
+        if (error.code === 'PGRST116') {
+          // No rows returned, which is fine, just return null
+          return null;
+        }
+        throw error;
       }
-      throw new Error(error.message);
+      return data;
+    } catch (error) {
+      console.error('Error fetching product:', error);
+      return null;
     }
-    return data;
   },
   enabled: !!sku, // Only run the query if sku is truthy
 });

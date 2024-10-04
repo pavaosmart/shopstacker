@@ -56,6 +56,10 @@ const Market = () => {
                       src={product.images[product.cover_image_index || 0]}
                       alt={product.name}
                       className="w-full h-full object-cover rounded-md"
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = "/placeholder.svg";
+                      }}
                     />
                   ) : (
                     <span className="text-gray-500">No Image</span>

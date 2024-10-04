@@ -39,17 +39,20 @@ export const ensureProductsBucket = async () => {
 const updateBucketPolicies = async () => {
   try {
     // Set public read access
-    const { error: readError } = await supabase.storage.from('products').createSignedUrl('dummy.txt', 60);
-    if (readError) {
-      console.error('Error setting read policy:', readError);
+    const { data: policyData, error: policyError } = await supabase.storage.from('products').getPublicUrl('dummy.txt');
+    if (policyError) {
+      console.error('Error setting read policy:', policyError);
     }
 
     // Set write access for authenticated users
-    const { error: writeError } = await supabase.storage.from('products').upload('dummy.txt', 'test');
-    if (writeError) {
-      console.error('Error setting write policy:', writeError);
-    } else {
-      await supabase.storage.from('products').remove(['dummy.txt']);
+    const { data: userData } = await supabase.auth.getUser();
+    if (userData && userData.user) {
+      const { error: writeError } = await supabase.storage.from('products').upload('dummy.txt', 'test');
+      if (writeError) {
+        console.error('Error setting write policy:', writeError);
+      } else {
+        await supabase.storage.from('products').remove(['dummy.txt']);
+      }
     }
 
     console.log('Bucket policies updated successfully');

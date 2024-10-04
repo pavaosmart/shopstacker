@@ -1,4 +1,4 @@
--- Add is_imported column to user_products table
+-- Add is_imported column to user_products table if it doesn't exist
 ALTER TABLE public.user_products
 ADD COLUMN IF NOT EXISTS is_imported BOOLEAN DEFAULT false;
 

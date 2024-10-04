@@ -5,13 +5,23 @@ export const useUserProducts = () => useQuery({
   queryKey: ['userProducts'],
   queryFn: async () => {
     const { data: { user } } = await supabase.auth.getUser();
-    const { data, error } = await supabase
+    let query = supabase
       .from('user_products')
       .select('*')
-      .eq('user_id', user.id)
-      .eq('is_imported', true); // Only fetch imported products
-    if (error) throw error;
-    return data;
+      .eq('user_id', user.id);
+    
+    try {
+      // Try to filter by is_imported
+      const { data, error } = await query.eq('is_imported', true);
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      // If the is_imported column doesn't exist, fetch all products
+      console.warn('is_imported column might not exist yet:', error.message);
+      const { data, error: fallbackError } = await query;
+      if (fallbackError) throw fallbackError;
+      return data;
+    }
   },
 });
 

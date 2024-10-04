@@ -16,9 +16,6 @@ BEGIN
     INSERT INTO storage.buckets (id, name, public)
     VALUES ('products', 'products', true);
     
-    -- Grant access to authenticated users
-    GRANT ALL ON BUCKET products TO authenticated;
-    
     -- Allow public read access
     CREATE POLICY "Allow public read access on products bucket" ON storage.objects
       FOR SELECT

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useProducts } from '../hooks/useProducts';
-import { useImportUserProduct } from '../hooks/useUserProducts';
+import { useImportUserProduct, useUserProducts } from '../hooks/useUserProducts';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 
 const Market = () => {
   const { data: products, isLoading, error } = useProducts();
+  const { data: userProducts } = useUserProducts();
   const importUserProductMutation = useImportUserProduct();
   const navigate = useNavigate();
 
@@ -29,6 +30,10 @@ const Market = () => {
     } catch (error) {
       toast.error(`Erro ao importar produto: ${error.message}`);
     }
+  };
+
+  const isProductImported = (sku) => {
+    return userProducts?.some(userProduct => userProduct.sku === sku);
   };
 
   if (isLoading) return <div>Carregando produtos...</div>;
@@ -63,7 +68,13 @@ const Market = () => {
                 </div>
               </CardContent>
               <CardFooter className="flex justify-between">
-                <Button onClick={() => handleImport(product)}>Importar</Button>
+                {isProductImported(product.sku) ? (
+                  <Button disabled className="bg-gray-300 text-gray-600 cursor-not-allowed">
+                    Importado
+                  </Button>
+                ) : (
+                  <Button onClick={() => handleImport(product)}>Importar</Button>
+                )}
                 <Button onClick={() => navigate(`/product/${product.id}`)}>Detalhes</Button>
               </CardFooter>
             </Card>

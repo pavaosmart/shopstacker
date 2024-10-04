@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useNavigate } from 'react-router-dom';
 import ExportToStoresModal from '../components/ExportToStoresModal';
+import ProductForm from '../components/ProductForm';
 
 const MeusProdutos = () => {
   const { data: userProducts, isLoading, error } = useUserProducts();
@@ -12,6 +13,7 @@ const MeusProdutos = () => {
   const navigate = useNavigate();
   const [exportModalOpen, setExportModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [editModalOpen, setEditModalOpen] = useState(false);
 
   const handleDelete = async (id) => {
     try {
@@ -27,12 +29,18 @@ const MeusProdutos = () => {
     setExportModalOpen(true);
   };
 
+  const handleEdit = (product) => {
+    setSelectedProduct(product);
+    setEditModalOpen(true);
+  };
+
   if (isLoading) return <div>Carregando produtos...</div>;
   if (error) return <div>Erro ao carregar produtos: {error.message}</div>;
 
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-6">Meus Produtos</h1>
+      <Button onClick={() => setEditModalOpen(true)} className="mb-4">Adicionar Novo Produto</Button>
       {userProducts && userProducts.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {userProducts.map((product) => (
@@ -42,12 +50,12 @@ const MeusProdutos = () => {
               </CardHeader>
               <CardContent className="flex-grow">
                 <img 
-                  src={product.cover_image || '/placeholder.svg'}
+                  src={product.images[product.cover_image_index] || '/placeholder.svg'}
                   alt={product.name} 
                   className="w-full h-48 object-cover mb-4 rounded-md"
                 />
                 <div className="flex mb-4">
-                  {product.additional_images?.slice(0, 3).map((img, index) => (
+                  {product.images.slice(0, 3).map((img, index) => (
                     <img 
                       key={index}
                       src={img}
@@ -64,7 +72,7 @@ const MeusProdutos = () => {
               </CardContent>
               <CardFooter className="flex justify-between">
                 <Button onClick={() => handleExport(product)}>Enviar para Marketplace</Button>
-                <Button onClick={() => navigate(`/product/${product.id}`)}>Detalhes</Button>
+                <Button onClick={() => handleEdit(product)}>Editar</Button>
                 <Button onClick={() => handleDelete(product.id)} variant="destructive">Excluir</Button>
               </CardFooter>
             </Card>
@@ -78,6 +86,24 @@ const MeusProdutos = () => {
         onClose={() => setExportModalOpen(false)}
         product={selectedProduct}
       />
+      {editModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg w-full max-w-2xl">
+            <h2 className="text-2xl font-bold mb-4">{selectedProduct ? 'Editar' : 'Adicionar'} Produto</h2>
+            <ProductForm 
+              product={selectedProduct} 
+              onSuccess={() => {
+                setEditModalOpen(false);
+                setSelectedProduct(null);
+              }} 
+            />
+            <Button onClick={() => {
+              setEditModalOpen(false);
+              setSelectedProduct(null);
+            }} className="mt-4">Cancelar</Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

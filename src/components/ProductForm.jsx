@@ -26,20 +26,17 @@ const ProductForm = ({ onSuccess }) => {
         });
         if (createError) {
           console.error('Error creating bucket:', createError);
-          toast.error('Failed to create storage bucket');
+          toast.error('Falha ao criar bucket de armazenamento');
         } else {
           console.log('Bucket created successfully:', createdBucket);
-          toast.success('Storage bucket created successfully');
         }
       } else if (error) {
         console.error('Error checking bucket:', error);
-        toast.error('Failed to check storage bucket');
-      } else {
-        console.log('Bucket already exists:', data);
+        toast.error('Falha ao verificar bucket de armazenamento');
       }
     } catch (error) {
       console.error('Unexpected error:', error);
-      toast.error('An unexpected error occurred');
+      toast.error('Ocorreu um erro inesperado');
     }
   };
 
@@ -70,7 +67,10 @@ const ProductForm = ({ onSuccess }) => {
 
       const productData = {
         ...data,
-        cost_price: data.price,
+        price: parseFloat(data.price),
+        stock_quantity: parseInt(data.stock_quantity),
+        suggested_price: parseFloat(data.suggested_price),
+        cost_price: parseFloat(data.price),
         images: uploadedImageUrls,
         cover_image_index: coverIndex
       };
@@ -115,22 +115,48 @@ const ProductForm = ({ onSuccess }) => {
 
       <Textarea {...register("description")} placeholder="Descrição do Produto" />
 
-      <Input {...register("price", { required: "Preço é obrigatório", min: 0 })} type="number" step="0.01" placeholder="Preço (também será usado como preço de custo)" />
+      <Input 
+        {...register("price", { 
+          required: "Preço é obrigatório", 
+          min: { value: 0, message: "O preço deve ser maior que zero" },
+          validate: (value) => !isNaN(parseFloat(value)) || "O preço deve ser um número válido"
+        })} 
+        type="number" 
+        step="0.01" 
+        placeholder="Preço (também será usado como preço de custo)" 
+      />
       {errors.price && <p className="text-red-500">{errors.price.message}</p>}
 
-      <Input {...register("stock_quantity", { required: "Quantidade em estoque é obrigatória", min: 0 })} type="number" placeholder="Quantidade em Estoque" />
+      <Input 
+        {...register("stock_quantity", { 
+          required: "Quantidade em estoque é obrigatória", 
+          min: { value: 0, message: "A quantidade deve ser maior ou igual a zero" },
+          validate: (value) => Number.isInteger(Number(value)) || "A quantidade deve ser um número inteiro"
+        })} 
+        type="number" 
+        placeholder="Quantidade em Estoque" 
+      />
       {errors.stock_quantity && <p className="text-red-500">{errors.stock_quantity.message}</p>}
 
-      <Input {...register("suggested_price", { required: "Preço sugerido é obrigatório", min: 0 })} type="number" step="0.01" placeholder="Preço Sugerido para Venda" />
+      <Input 
+        {...register("suggested_price", { 
+          required: "Preço sugerido é obrigatório", 
+          min: { value: 0, message: "O preço sugerido deve ser maior que zero" },
+          validate: (value) => !isNaN(parseFloat(value)) || "O preço sugerido deve ser um número válido"
+        })} 
+        type="number" 
+        step="0.01" 
+        placeholder="Preço Sugerido para Venda" 
+      />
       {errors.suggested_price && <p className="text-red-500">{errors.suggested_price.message}</p>}
 
       <div>
         <p className="text-sm text-gray-600 mb-2">Imagens devem ser 1200x1200 pixels, formato JPG ou PNG</p>
         <input type="file" onChange={handleImageUpload} multiple accept="image/*" className="mb-2" />
         <div className="flex flex-wrap gap-2">
-          {images.map((url, index) => (
-            <div key={url} className="relative">
-              <img src={url} alt={`Produto ${index + 1}`} className="w-20 h-20 object-cover rounded" />
+          {images.map((image, index) => (
+            <div key={index} className="relative">
+              <img src={URL.createObjectURL(image)} alt={`Produto ${index + 1}`} className="w-20 h-20 object-cover rounded" />
               {index === coverIndex && (
                 <span className="absolute top-0 left-0 bg-blue-500 text-white text-xs px-1 rounded-br">
                   Capa

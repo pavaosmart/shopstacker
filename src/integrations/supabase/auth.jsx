@@ -25,8 +25,9 @@ export const SupabaseAuthProvider = ({ children }) => {
     getSession();
 
     return () => {
-      authListener.subscription.unsubscribe();
-      setLoading(false);
+      if (authListener && typeof authListener.unsubscribe === 'function') {
+        authListener.unsubscribe();
+      }
     };
   }, [queryClient]);
 

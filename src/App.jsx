@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { SupabaseAuthProvider } from './integrations/supabase/auth';
+import { AuthProvider } from './contexts/AuthContext';
 import Layout from './components/Layout';
 import Index from './pages/Index';
 import Estoque from './pages/Estoque';
@@ -30,7 +30,7 @@ const queryClient = new QueryClient();
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <SupabaseAuthProvider>
+      <AuthProvider>
         <Router>
           <Routes>
             <Route path="/login" element={<Login />} />
@@ -54,7 +54,7 @@ function App() {
           </Routes>
           <UIComponentsPanel />
         </Router>
-      </SupabaseAuthProvider>
+      </AuthProvider>
     </QueryClientProvider>
   );
 }

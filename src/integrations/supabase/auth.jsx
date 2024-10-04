@@ -129,7 +129,7 @@ export const SupabaseAuthProvider = ({ children }) => {
 
   return (
     <SupabaseAuthContext.Provider value={value}>
-      {children}
+      {!loading && children}
     </SupabaseAuthContext.Provider>
   );
 };

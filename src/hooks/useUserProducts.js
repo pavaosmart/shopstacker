@@ -1,21 +1,26 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../integrations/supabase/supabase';
-import { userProductsMock } from '../mocks/userProductsMock';
 
 export const useUserProducts = () => useQuery({
   queryKey: ['userProducts'],
   queryFn: async () => {
-    // Retorna os dados mock em vez de fazer uma chamada ao Supabase
-    return userProductsMock;
+    const { data, error } = await supabase
+      .from('user_products')
+      .select('*');
+    if (error) throw error;
+    return data;
   },
 });
 
-export const useDeleteUserProduct = () => {
+export const useImportUserProduct = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (productId) => {
-      // Simula a deleção do produto (não faz nada no mock)
-      console.log(`Produto ${productId} deletado (simulação)`);
+    mutationFn: async (newProduct) => {
+      const { data, error } = await supabase
+        .from('user_products')
+        .insert([newProduct]);
+      if (error) throw error;
+      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['userProducts'] });
@@ -23,4 +28,18 @@ export const useDeleteUserProduct = () => {
   });
 };
 
-// Adicione outras funções conforme necessário (ex: addUserProduct, updateUserProduct)
+export const useDeleteUserProduct = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (productId) => {
+      const { error } = await supabase
+        .from('user_products')
+        .delete()
+        .eq('id', productId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['userProducts'] });
+    },
+  });
+};

@@ -1,16 +1,27 @@
 import React from 'react';
 import { useProducts } from '../hooks/useProducts';
+import { useImportUserProduct } from '../hooks/useUserProducts';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
 const Market = () => {
   const { data: products, isLoading, error } = useProducts();
+  const importUserProductMutation = useImportUserProduct();
 
-  const handleImport = (product) => {
-    // Aqui você implementaria a lógica para importar o produto
-    console.log(`Importando produto: ${product.name}`);
-    toast.success(`Produto ${product.name} importado com sucesso!`);
+  const handleImport = async (product) => {
+    try {
+      await importUserProductMutation.mutateAsync({
+        name: product.name,
+        description: product.description,
+        price: product.price,
+        stock_quantity: product.stock_quantity,
+        image: product.image
+      });
+      toast.success(`Produto ${product.name} importado com sucesso!`);
+    } catch (error) {
+      toast.error(`Erro ao importar produto: ${error.message}`);
+    }
   };
 
   if (isLoading) return <div>Carregando produtos...</div>;

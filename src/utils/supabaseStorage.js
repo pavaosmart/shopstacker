@@ -2,10 +2,12 @@ import { supabase } from '../supabaseClient';
 
 export const ensureProductsBucket = async () => {
   try {
+    // Primeiro, tenta obter o bucket
     const { data, error } = await supabase.storage.getBucket('products');
     
     if (error && error.statusCode === '404') {
       console.log('Products bucket not found. Creating...');
+      // Se o bucket não existe, tenta criá-lo
       const { data: createdBucket, error: createError } = await supabase.storage.createBucket('products', {
         public: true,
         fileSizeLimit: 50 * 1024 * 1024, // 50MB limit
@@ -19,6 +21,7 @@ export const ensureProductsBucket = async () => {
       console.log('Products bucket already exists:', data);
     }
     
+    // Aplica as políticas do bucket
     await applyBucketPolicies();
     return true;
   } catch (error) {
@@ -29,9 +32,11 @@ export const ensureProductsBucket = async () => {
 
 const applyBucketPolicies = async () => {
   try {
+    // Torna o bucket público
     const { error: publicError } = await supabase.storage.from('products').setPublic();
     if (publicError) throw publicError;
 
+    // Aplica políticas personalizadas
     const { error } = await supabase.rpc('apply_storage_policies');
     if (error) throw error;
 

@@ -11,7 +11,7 @@ export const useProduct = (sku) => useQuery({
   queryKey: ['products', sku],
   queryFn: () => {
     if (!sku) {
-      return Promise.resolve(null); // Return null if sku is undefined
+      return Promise.resolve(null);
     }
     return fromSupabase(supabase
       .from('user_products')
@@ -20,7 +20,7 @@ export const useProduct = (sku) => useQuery({
       .single()
     );
   },
-  enabled: !!sku, // Only run the query if sku is truthy
+  enabled: !!sku,
 });
 
 export const useProducts = () => useQuery({

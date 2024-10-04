@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { useAddProduct } from '../hooks/useProducts';
+import { supabase } from '../integrations/supabase/supabase';
 
 const ProductForm = ({ onSuccess }) => {
   const { register, handleSubmit, formState: { errors } } = useForm();
@@ -12,12 +13,34 @@ const ProductForm = ({ onSuccess }) => {
   const [coverIndex, setCoverIndex] = useState(0);
   const addProduct = useAddProduct();
 
+  const uploadImage = async (file) => {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${Math.random()}.${fileExt}`;
+    const filePath = `product-images/${fileName}`;
+
+    const { data, error } = await supabase.storage
+      .from('products')
+      .upload(filePath, file);
+
+    if (error) {
+      throw error;
+    }
+
+    const { data: { publicUrl } } = supabase.storage
+      .from('products')
+      .getPublicUrl(filePath);
+
+    return publicUrl;
+  };
+
   const onSubmit = async (data) => {
     try {
+      const uploadedImageUrls = await Promise.all(images.map(uploadImage));
+
       const productData = {
         ...data,
-        cost_price: data.price, // Usando o mesmo valor para preço e preço de custo
-        images,
+        cost_price: data.price,
+        images: uploadedImageUrls,
         cover_image_index: coverIndex
       };
       await addProduct.mutateAsync(productData);
@@ -34,7 +57,7 @@ const ProductForm = ({ onSuccess }) => {
       toast.error('Você pode fazer upload de no máximo 6 imagens.');
       return;
     }
-    setImages(prev => [...prev, ...files.map(file => URL.createObjectURL(file))]);
+    setImages(prev => [...prev, ...files]);
   };
 
   const moveImage = (fromIndex, toIndex) => {

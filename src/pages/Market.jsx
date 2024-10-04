@@ -25,6 +25,7 @@ const Market = () => {
         cost_price: product.cost_price
       });
       toast.success(`Produto ${product.name} importado com sucesso!`);
+      navigate('/meus-produtos');
     } catch (error) {
       toast.error(`Erro ao importar produto: ${error.message}`);
     }

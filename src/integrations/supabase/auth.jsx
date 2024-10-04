@@ -17,29 +17,27 @@ export const SupabaseAuthProvider = ({ children }) => {
       setLoading(false);
     };
 
-    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
       setSession(session);
-      queryClient.invalidateQueries('user');
+      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+        // Invalidate and refetch queries when the token is refreshed
+        queryClient.invalidateQueries();
+      }
     });
 
     getSession();
 
     return () => {
-      authListener.subscription.unsubscribe();
-      setLoading(false);
+      if (authListener && typeof authListener.unsubscribe === 'function') {
+        authListener.unsubscribe();
+      }
     };
   }, [queryClient]);
 
   const login = async (email, password) => {
     try {
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) {
-        if (error.message === 'Invalid login credentials') {
-          throw new Error('Email ou senha incorretos. Por favor, tente novamente.');
-        }
-        throw error;
-      }
-      setSession(data.session);
+      if (error) throw error;
       return { data, error: null };
     } catch (error) {
       console.error('Login error:', error);
@@ -72,46 +70,9 @@ export const SupabaseAuthProvider = ({ children }) => {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
       setSession(null);
-      queryClient.invalidateQueries('user');
+      queryClient.clear();
     } catch (error) {
       console.error('Logout error:', error);
-    }
-  };
-
-  const resetPassword = async (email) => {
-    try {
-      const { data, error } = await supabase.auth.resetPasswordForEmail(email);
-      if (error) throw error;
-      return { data, error: null };
-    } catch (error) {
-      console.error('Reset password error:', error);
-      return { data: null, error };
-    }
-  };
-
-  const loginWithGoogle = async () => {
-    try {
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-      });
-      if (error) throw error;
-      return { data, error: null };
-    } catch (error) {
-      console.error('Google login error:', error);
-      return { data: null, error };
-    }
-  };
-
-  const loginWithFacebook = async () => {
-    try {
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: 'facebook',
-      });
-      if (error) throw error;
-      return { data, error: null };
-    } catch (error) {
-      console.error('Facebook login error:', error);
-      return { data: null, error };
     }
   };
 
@@ -121,14 +82,11 @@ export const SupabaseAuthProvider = ({ children }) => {
     login,
     register,
     logout,
-    resetPassword,
-    loginWithGoogle,
-    loginWithFacebook,
   };
 
   return (
     <SupabaseAuthContext.Provider value={value}>
-      {children}
+      {!loading && children}
     </SupabaseAuthContext.Provider>
   );
 };

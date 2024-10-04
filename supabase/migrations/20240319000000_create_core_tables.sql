@@ -1,62 +1,7 @@
 -- Enable UUID extension if not already enabled
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
--- Products table
-CREATE TABLE IF NOT EXISTS products (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    name TEXT NOT NULL,
-    description TEXT,
-    price NUMERIC(10, 2) NOT NULL,
-    stock_quantity INTEGER NOT NULL DEFAULT 0,
-    sku TEXT,
-    category TEXT,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    user_id UUID REFERENCES auth.users(id),
-    image_url TEXT,
-    supplier_price NUMERIC(10, 2),
-    sale_price NUMERIC(10, 2),
-    variations JSONB,
-    exported_platforms TEXT[]
-);
-
--- Add RLS policies for products
-ALTER TABLE products ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "Users can view all products" ON products
-    FOR SELECT
-    TO authenticated
-    USING (true);
-
-CREATE POLICY "Users can insert their own products" ON products
-    FOR INSERT
-    TO authenticated
-    WITH CHECK (auth.uid() = user_id);
-
-CREATE POLICY "Users can update their own products" ON products
-    FOR UPDATE
-    TO authenticated
-    USING (auth.uid() = user_id);
-
-CREATE POLICY "Users can delete their own products" ON products
-    FOR DELETE
-    TO authenticated
-    USING (auth.uid() = user_id);
-
--- Create a trigger to update the updated_at column
-CREATE OR REPLACE FUNCTION update_updated_at_column()
-RETURNS TRIGGER AS $$
-BEGIN
-   NEW.updated_at = NOW();
-   RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER update_products_updated_at
-BEFORE UPDATE ON products
-FOR EACH ROW
-EXECUTE FUNCTION update_updated_at_column();
-
+-- Users table
 CREATE TABLE IF NOT EXISTS users (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     email TEXT UNIQUE NOT NULL,

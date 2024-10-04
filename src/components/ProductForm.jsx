@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,6 +13,23 @@ const ProductForm = ({ onSuccess }) => {
   const [coverIndex, setCoverIndex] = useState(0);
   const addProduct = useAddProduct();
 
+  useEffect(() => {
+    createBucketIfNotExists();
+  }, []);
+
+  const createBucketIfNotExists = async () => {
+    const { data, error } = await supabase.storage.getBucket('products');
+    if (error && error.message.includes('not found')) {
+      const { data, error: createError } = await supabase.storage.createBucket('products', {
+        public: true
+      });
+      if (createError) {
+        console.error('Error creating bucket:', createError);
+        toast.error('Failed to create storage bucket');
+      }
+    }
+  };
+
   const uploadImage = async (file) => {
     const fileExt = file.name.split('.').pop();
     const fileName = `${Math.random()}.${fileExt}`;
@@ -23,6 +40,7 @@ const ProductForm = ({ onSuccess }) => {
       .upload(filePath, file);
 
     if (error) {
+      console.error('Error uploading file:', error);
       throw error;
     }
 
@@ -47,6 +65,7 @@ const ProductForm = ({ onSuccess }) => {
       toast.success('Produto adicionado com sucesso!');
       onSuccess();
     } catch (error) {
+      console.error('Error adding product:', error);
       toast.error(`Erro ao adicionar produto: ${error.message}`);
     }
   };

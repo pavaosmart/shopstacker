@@ -4,7 +4,6 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useNavigate } from 'react-router-dom';
-import ExportToStoresModal from '../components/ExportToStoresModal';
 import ProductForm from '../components/ProductForm';
 import ConfirmDeleteDialog from '../components/ConfirmDeleteDialog';
 
@@ -12,9 +11,8 @@ const MeusProdutos = () => {
   const { data: userProducts, isLoading, error } = useUserProducts();
   const deleteUserProductMutation = useDeleteUserProduct();
   const navigate = useNavigate();
-  const [exportModalOpen, setExportModalOpen] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState(null);
   const [editModalOpen, setEditModalOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [productToDelete, setProductToDelete] = useState(null);
 
@@ -27,11 +25,6 @@ const MeusProdutos = () => {
     } catch (error) {
       toast.error(`Erro ao excluir produto: ${error.message}`);
     }
-  };
-
-  const handleExport = (product) => {
-    setSelectedProduct(product);
-    setExportModalOpen(true);
   };
 
   const handleEdit = (product) => {
@@ -86,7 +79,6 @@ const MeusProdutos = () => {
               </CardContent>
               <CardFooter className="flex justify-between">
                 <Button onClick={() => handleManage(product)}>Gerenciar</Button>
-                <Button onClick={() => handleExport(product)}>Enviar para Marketplace</Button>
                 <Button onClick={() => openDeleteDialog(product)} variant="destructive">Excluir</Button>
               </CardFooter>
             </Card>
@@ -95,11 +87,6 @@ const MeusProdutos = () => {
       ) : (
         <p>Você ainda não adicionou nenhum produto.</p>
       )}
-      <ExportToStoresModal
-        isOpen={exportModalOpen}
-        onClose={() => setExportModalOpen(false)}
-        product={selectedProduct}
-      />
       {editModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg w-full max-w-2xl">

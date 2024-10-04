@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,30 +6,38 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { useAddProduct } from '../hooks/useProducts';
+import { initializeStorage, uploadImage } from '../utils/supabaseStorage';
 import { supabase } from '../supabaseClient';
 
 const ProductForm = ({ onSuccess }) => {
   const { register, handleSubmit, formState: { errors } } = useForm();
   const [image, setImage] = useState(null);
+  const [isStorageReady, setIsStorageReady] = useState(false);
   const addProduct = useAddProduct();
 
+  useEffect(() => {
+    const prepareStorage = async () => {
+      const initialized = await initializeStorage();
+      setIsStorageReady(initialized);
+    };
+    prepareStorage();
+  }, []);
+
   const onSubmit = async (data) => {
+    if (!isStorageReady) {
+      toast.error('Storage is not ready. Please try again in a moment.');
+      return;
+    }
+
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error('User not authenticated');
+      }
+
       let imageUrl = null;
       if (image) {
-        const fileExt = image.name.split('.').pop();
-        const fileName = `${Math.random()}.${fileExt}`;
-        const { data: uploadData, error: uploadError } = await supabase.storage
-          .from('products')
-          .upload(fileName, image);
-
-        if (uploadError) throw uploadError;
-
-        const { data: { publicUrl } } = supabase.storage
-          .from('products')
-          .getPublicUrl(fileName);
-
-        imageUrl = publicUrl;
+        imageUrl = await uploadImage(image, user.id, data.sku, 0);
       }
 
       const productData = {
@@ -94,10 +102,19 @@ const ProductForm = ({ onSuccess }) => {
 
       <div>
         <Label htmlFor="image">Imagem do Produto</Label>
-        <Input id="image" type="file" onChange={(e) => setImage(e.target.files[0])} accept="image/*" />
+        <Input 
+          id="image" 
+          type="file" 
+          onChange={(e) => setImage(e.target.files[0])} 
+          accept="image/*" 
+          disabled={!isStorageReady}
+        />
+        {!isStorageReady && (
+          <p className="text-sm text-yellow-600">Aguarde, preparando sistema de armazenamento...</p>
+        )}
       </div>
 
-      <Button type="submit">Adicionar Produto</Button>
+      <Button type="submit" disabled={!isStorageReady}>Adicionar Produto</Button>
     </form>
   );
 };

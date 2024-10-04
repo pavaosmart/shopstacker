@@ -2,11 +2,9 @@ import { supabase } from '../integrations/supabase/supabase';
 
 export const ensureProductsBucket = async () => {
   try {
-    // Check if the bucket exists
     const { data, error } = await supabase.storage.getBucket('products');
     
     if (error && error.statusCode === '404') {
-      // Bucket doesn't exist, so create it
       const { data: createdBucket, error: createError } = await supabase.storage.createBucket('products', {
         public: true,
         allowedMimeTypes: ['image/png', 'image/jpeg', 'image/gif'],
@@ -19,7 +17,6 @@ export const ensureProductsBucket = async () => {
       }
       console.log('Bucket created successfully:', createdBucket);
       
-      // Set up policies for the new bucket
       await updateBucketPolicies();
     } else if (error) {
       console.error('Error checking bucket:', error);
@@ -35,7 +32,6 @@ export const ensureProductsBucket = async () => {
 
 export const updateBucketPolicies = async () => {
   try {
-    // Update read policy
     await supabase.storage.from('products').updateBucketPolicy({
       type: 'READ',
       definition: {
@@ -44,7 +40,6 @@ export const updateBucketPolicies = async () => {
       },
     });
 
-    // Update write policy
     await supabase.storage.from('products').updateBucketPolicy({
       type: 'WRITE',
       definition: {
@@ -63,11 +58,16 @@ export const updateBucketPolicies = async () => {
 
 export const uploadImage = async (file, userId, sku, index) => {
   try {
-    const fileName = `${userId}/${sku}_${index}.jpg`;
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      throw new Error('User not authenticated');
+    }
+
+    const fileName = `${userId}/${sku}_${index}.${file.name.split('.').pop()}`;
     const { data, error } = await supabase.storage
       .from('products')
       .upload(fileName, file, {
-        contentType: 'image/jpeg',
+        cacheControl: '3600',
         upsert: true
       });
 
@@ -82,4 +82,13 @@ export const uploadImage = async (file, userId, sku, index) => {
     console.error('Error uploading image:', error);
     throw error;
   }
+};
+
+export const initializeStorage = async () => {
+  const bucketCreated = await ensureProductsBucket();
+  if (!bucketCreated) {
+    console.error('Failed to initialize storage');
+    return false;
+  }
+  return true;
 };

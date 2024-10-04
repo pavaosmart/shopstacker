@@ -19,6 +19,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { SupabaseAuthProvider } from './integrations/supabase/auth';
 
+// Create a client
 const queryClient = new QueryClient();
 
 function App() {

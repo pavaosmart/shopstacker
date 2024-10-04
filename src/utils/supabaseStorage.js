@@ -2,11 +2,9 @@ import { supabase } from '../supabaseClient';
 
 export const ensureProductsBucket = async () => {
   try {
-    // Check if the bucket exists
     const { data, error } = await supabase.storage.getBucket('products');
     
     if (error && error.statusCode === '404') {
-      // Bucket doesn't exist, so create it
       const { data: createdBucket, error: createError } = await supabase.storage.createBucket('products', {
         public: true,
         fileSizeLimit: 10 * 1024 * 1024, // 10MB
@@ -18,14 +16,12 @@ export const ensureProductsBucket = async () => {
       }
       console.log('Bucket created successfully:', createdBucket);
       
-      // Set up bucket policies after creation
       await updateBucketPolicies();
     } else if (error) {
       console.error('Error checking bucket:', error);
       return false;
     } else {
       console.log('Bucket already exists:', data);
-      // Update policies even if the bucket already exists
       await updateBucketPolicies();
     }
     
@@ -38,24 +34,9 @@ export const ensureProductsBucket = async () => {
 
 const updateBucketPolicies = async () => {
   try {
-    // Set public read access
-    const { data: policyData, error: policyError } = await supabase.storage.from('products').getPublicUrl('dummy.txt');
-    if (policyError) {
-      console.error('Error setting read policy:', policyError);
-    }
-
-    // Set write access for authenticated users
-    const { data: userData } = await supabase.auth.getUser();
-    if (userData && userData.user) {
-      const { error: writeError } = await supabase.storage.from('products').upload('dummy.txt', 'test');
-      if (writeError) {
-        console.error('Error setting write policy:', writeError);
-      } else {
-        await supabase.storage.from('products').remove(['dummy.txt']);
-      }
-    }
-
-    console.log('Bucket policies updated successfully');
+    const { data, error } = await supabase.rpc('apply_storage_policies');
+    if (error) throw error;
+    console.log('Bucket policies updated successfully:', data);
     return true;
   } catch (error) {
     console.error('Error updating bucket policies:', error);
@@ -63,17 +44,17 @@ const updateBucketPolicies = async () => {
   }
 };
 
-export const uploadImage = async (file, userId, sku, index) => {
+export const uploadImage = async (fileObject, userId, sku) => {
   try {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
       throw new Error('User not authenticated');
     }
 
-    const fileName = `${userId}/${sku}_${index}.${file.name.split('.').pop()}`;
+    const filePath = `${userId}/${sku}/${fileObject.name}`;
     const { data, error } = await supabase.storage
       .from('products')
-      .upload(fileName, file, {
+      .upload(filePath, fileObject, {
         cacheControl: '3600',
         upsert: true
       });
@@ -82,12 +63,27 @@ export const uploadImage = async (file, userId, sku, index) => {
 
     const { data: publicUrlData } = supabase.storage
       .from('products')
-      .getPublicUrl(fileName);
+      .getPublicUrl(filePath);
 
-    return publicUrlData.publicUrl;
+    console.log('File uploaded successfully:', data);
+    return { success: true, publicUrl: publicUrlData.publicUrl };
   } catch (error) {
     console.error('Error uploading image:', error);
-    throw error;
+    return { success: false, message: error.message };
+  }
+};
+
+export const getImageUrl = async (userId, sku, fileName) => {
+  try {
+    const filePath = `${userId}/${sku}/${fileName}`;
+    const { data } = supabase.storage
+      .from('products')
+      .getPublicUrl(filePath);
+
+    return data.publicUrl;
+  } catch (error) {
+    console.error('Error generating URL:', error.message);
+    return null;
   }
 };
 

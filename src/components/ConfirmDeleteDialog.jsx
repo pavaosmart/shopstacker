@@ -9,7 +9,7 @@ const ConfirmDeleteDialog = ({ isOpen, onClose, onConfirm, productName }) => {
         <DialogHeader>
           <DialogTitle>Confirmar Exclusão</DialogTitle>
           <DialogDescription>
-            Tem certeza que deseja excluir o produto "{productName}"? Esta ação não pode ser desfeita.
+            Tem certeza que deseja excluir o produto "{productName}"? Esta ação não pode ser desfeita e o produto será removido de todos os marketplaces.
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>

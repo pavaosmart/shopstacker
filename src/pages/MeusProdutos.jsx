@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useUserProducts, useDeleteUserProduct } from '../hooks/useUserProducts';
+import { useUserProducts, useHideUserProduct, useDeleteUserProduct } from '../hooks/useUserProducts';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -8,15 +8,25 @@ import ConfirmDeleteDialog from '../components/ConfirmDeleteDialog';
 
 const MeusProdutos = () => {
   const { data: userProducts, isLoading, error } = useUserProducts();
+  const hideUserProductMutation = useHideUserProduct();
   const deleteUserProductMutation = useDeleteUserProduct();
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [productToDelete, setProductToDelete] = useState(null);
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
 
-  const handleDelete = async (id) => {
+  const handleHide = async (sku) => {
     try {
-      await deleteUserProductMutation.mutateAsync(id);
+      await hideUserProductMutation.mutateAsync(sku);
+      toast.success('Produto ocultado com sucesso!');
+    } catch (error) {
+      toast.error(`Erro ao ocultar produto: ${error.message}`);
+    }
+  };
+
+  const handleDelete = async (sku) => {
+    try {
+      await deleteUserProductMutation.mutateAsync(sku);
       toast.success('Produto excluído com sucesso!');
       setDeleteDialogOpen(false);
       setProductToDelete(null);
@@ -44,7 +54,7 @@ const MeusProdutos = () => {
       {userProducts && userProducts.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {userProducts.map((product) => (
-            <Card key={product.id} className="w-full h-full flex flex-col">
+            <Card key={product.sku} className="w-full h-full flex flex-col">
               <CardHeader>
                 <CardTitle className="text-xl truncate">{product.name}</CardTitle>
               </CardHeader>
@@ -62,7 +72,7 @@ const MeusProdutos = () => {
               </CardContent>
               <CardFooter className="flex justify-between">
                 <Button onClick={() => handleManage(product)}>Gerenciar</Button>
-                <Button onClick={() => openDeleteDialog(product)} variant="destructive">Excluir</Button>
+                <Button onClick={() => handleHide(product.sku)} variant="secondary">Ocultar</Button>
               </CardFooter>
             </Card>
           ))}
@@ -73,7 +83,7 @@ const MeusProdutos = () => {
       <ConfirmDeleteDialog
         isOpen={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}
-        onConfirm={() => handleDelete(productToDelete.id)}
+        onConfirm={() => handleDelete(productToDelete.sku)}
         productName={productToDelete?.name}
       />
       {detailsModalOpen && (

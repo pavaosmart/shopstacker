@@ -20,7 +20,6 @@ const Market = () => {
         stock_quantity: product.stock_quantity,
         suggested_price: product.suggested_price,
         cover_image: product.cover_image,
-        additional_images: product.additional_images,
         variations: product.variations
       });
       toast.success(`Produto ${product.name} importado com sucesso!`);
@@ -48,16 +47,6 @@ const Market = () => {
                   alt={product.name} 
                   className="w-full h-48 object-cover mb-4 rounded-md"
                 />
-                <div className="flex mb-4">
-                  {product.additional_images?.slice(0, 3).map((img, index) => (
-                    <img 
-                      key={index}
-                      src={img}
-                      alt={`${product.name} - ${index + 2}`}
-                      className="w-1/3 h-16 object-cover mr-2 rounded-md"
-                    />
-                  ))}
-                </div>
                 <div className="space-y-2">
                   <p className="text-2xl font-bold">R$ {product.price.toFixed(2)}</p>
                   <p className="text-sm text-gray-600">Estoque: {product.stock_quantity}</p>

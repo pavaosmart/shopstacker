@@ -30,7 +30,10 @@ export const useProduct = (id) => useQuery({
 
 export const useProducts = () => useQuery({
   queryKey: ['products'],
-  queryFn: () => fromSupabase(supabase.from('products').select('*')),
+  queryFn: () => fromSupabase(supabase
+    .from('products')
+    .select('name, description, price, stock_quantity, suggested_price, cover_image, variations')
+  ),
 });
 
 export const useAddProduct = () => {

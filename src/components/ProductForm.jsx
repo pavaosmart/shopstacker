@@ -18,15 +18,25 @@ const ProductForm = ({ onSuccess }) => {
   }, []);
 
   const createBucketIfNotExists = async () => {
-    const { data, error } = await supabase.storage.getBucket('products');
-    if (error && error.message.includes('not found')) {
-      const { data, error: createError } = await supabase.storage.createBucket('products', {
-        public: true
-      });
-      if (createError) {
-        console.error('Error creating bucket:', createError);
-        toast.error('Failed to create storage bucket');
+    try {
+      const { data, error } = await supabase.storage.getBucket('products');
+      if (error && error.message.includes('not found')) {
+        const { data: createdBucket, error: createError } = await supabase.storage.createBucket('products', {
+          public: true
+        });
+        if (createError) {
+          console.error('Error creating bucket:', createError);
+          toast.error('Failed to create storage bucket');
+        } else {
+          toast.success('Storage bucket created successfully');
+        }
+      } else if (error) {
+        console.error('Error checking bucket:', error);
+        toast.error('Failed to check storage bucket');
       }
+    } catch (error) {
+      console.error('Unexpected error:', error);
+      toast.error('An unexpected error occurred');
     }
   };
 

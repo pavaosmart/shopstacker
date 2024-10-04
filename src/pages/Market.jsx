@@ -19,7 +19,10 @@ const Market = () => {
         price: product.price,
         stock_quantity: product.stock_quantity,
         suggested_price: product.suggested_price,
-        variations: product.variations
+        images: product.images,
+        cover_image_index: product.cover_image_index,
+        sku: product.sku,
+        cost_price: product.cost_price
       });
       toast.success(`Produto ${product.name} importado com sucesso!`);
     } catch (error) {
@@ -42,7 +45,15 @@ const Market = () => {
               </CardHeader>
               <CardContent className="flex-grow">
                 <div className="w-full h-48 bg-gray-200 flex items-center justify-center mb-4 rounded-md">
-                  <span className="text-gray-500">No Image</span>
+                  {product.images && product.images.length > 0 ? (
+                    <img
+                      src={product.images[product.cover_image_index || 0]}
+                      alt={product.name}
+                      className="w-full h-full object-cover rounded-md"
+                    />
+                  ) : (
+                    <span className="text-gray-500">No Image</span>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <p className="text-2xl font-bold">R$ {product.price.toFixed(2)}</p>

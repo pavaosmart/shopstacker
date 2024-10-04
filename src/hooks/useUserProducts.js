@@ -8,7 +8,8 @@ export const useUserProducts = () => useQuery({
     const { data, error } = await supabase
       .from('user_products')
       .select('*')
-      .eq('user_id', user.id);
+      .eq('user_id', user.id)
+      .eq('is_imported', true); // Only fetch imported products
     if (error) throw error;
     return data;
   },
@@ -20,21 +21,9 @@ export const useAddUserProduct = () => {
     mutationFn: async (newProduct) => {
       const { data: { user } } = await supabase.auth.getUser();
       
-      // Check if the product already exists
-      const { data: existingProduct } = await supabase
-        .from('user_products')
-        .select('id')
-        .eq('user_id', user.id)
-        .eq('sku', newProduct.sku)
-        .single();
-
-      if (existingProduct) {
-        throw new Error('Um produto com este SKU já existe.');
-      }
-
       const { data, error } = await supabase
         .from('user_products')
-        .insert([{ ...newProduct, user_id: user.id }]);
+        .insert([{ ...newProduct, user_id: user.id, is_imported: true }]);
       if (error) throw error;
       return data;
     },
@@ -84,7 +73,7 @@ export const useImportUserProduct = () => {
       const { data: { user } } = await supabase.auth.getUser();
       const { data, error } = await supabase
         .from('user_products')
-        .insert([{ ...productData, user_id: user.id }]);
+        .insert([{ ...productData, user_id: user.id, is_imported: true }]);
       if (error) throw error;
       return data;
     },

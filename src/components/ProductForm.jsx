@@ -16,6 +16,7 @@ const ProductForm = ({ onSuccess }) => {
     try {
       const productData = {
         ...data,
+        cost_price: data.price, // Usando o mesmo valor para preço e preço de custo
         images,
         cover_image_index: coverIndex
       };
@@ -59,11 +60,8 @@ const ProductForm = ({ onSuccess }) => {
 
       <Textarea {...register("description")} placeholder="Descrição do Produto" />
 
-      <Input {...register("price", { required: "Preço é obrigatório", min: 0 })} type="number" step="0.01" placeholder="Preço" />
+      <Input {...register("price", { required: "Preço é obrigatório", min: 0 })} type="number" step="0.01" placeholder="Preço (também será usado como preço de custo)" />
       {errors.price && <p className="text-red-500">{errors.price.message}</p>}
-
-      <Input {...register("cost_price", { required: "Preço de custo é obrigatório", min: 0 })} type="number" step="0.01" placeholder="Preço de Custo" />
-      {errors.cost_price && <p className="text-red-500">{errors.cost_price.message}</p>}
 
       <Input {...register("stock_quantity", { required: "Quantidade em estoque é obrigatória", min: 0 })} type="number" placeholder="Quantidade em Estoque" />
       {errors.stock_quantity && <p className="text-red-500">{errors.stock_quantity.message}</p>}

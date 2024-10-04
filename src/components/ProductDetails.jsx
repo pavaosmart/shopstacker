@@ -20,6 +20,11 @@ const MarketplaceTab = ({ marketplace, product, onUpdate }) => {
     onUpdate(marketplace, marketplaceData);
   };
 
+  const handleToggleListing = () => {
+    setMarketplaceData(prev => ({ ...prev, isListed: !prev.isListed }));
+    onUpdate(marketplace, { ...marketplaceData, isListed: !marketplaceData.isListed });
+  };
+
   return (
     <div className="space-y-4">
       <Input
@@ -41,9 +46,8 @@ const MarketplaceTab = ({ marketplace, product, onUpdate }) => {
         onChange={handleChange}
         placeholder="Preço de Venda"
       />
-      {/* Adicione mais campos conforme necessário */}
       <Button onClick={handleSave}>Salvar Alterações</Button>
-      <Button variant={marketplaceData.isListed ? "secondary" : "default"}>
+      <Button onClick={handleToggleListing} variant={marketplaceData.isListed ? "secondary" : "default"}>
         {marketplaceData.isListed ? "Vendendo" : "Vender"}
       </Button>
     </div>

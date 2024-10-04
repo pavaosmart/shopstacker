@@ -23,6 +23,8 @@ const ProductForm = ({ onSuccess }) => {
       if (bucketCreated) {
         const policiesUpdated = await updateBucketPolicies();
         setIsBucketReady(policiesUpdated);
+      } else {
+        toast.error('Failed to initialize storage. Please try again later.');
       }
     };
     initializeBucket();

@@ -13,13 +13,17 @@ export const ensureProductsBucket = async () => {
         fileSizeLimit: 10 * 1024 * 1024, // 10MB
       });
       
-      if (createError) throw createError;
+      if (createError) {
+        console.error('Error creating bucket:', createError);
+        return false;
+      }
       console.log('Bucket created successfully:', createdBucket);
       
       // Set up policies for the new bucket
       await updateBucketPolicies();
     } else if (error) {
-      throw error;
+      console.error('Error checking bucket:', error);
+      return false;
     }
     
     return true;

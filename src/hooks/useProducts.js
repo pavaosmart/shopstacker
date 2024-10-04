@@ -11,7 +11,7 @@ export const useProducts = () => useQuery({
   queryKey: ['products'],
   queryFn: () => fromSupabase(supabase
     .from('user_products')
-    .select('id, name, description, price, stock_quantity, suggested_price, images, cover_image_index, sku')
+    .select('sku, name, description, price, cost_price, stock_quantity, suggested_price, images, cover_image_index')
   ),
 });
 
@@ -28,7 +28,17 @@ export const useAddProduct = () => {
 export const useDeleteProduct = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (id) => fromSupabase(supabase.from('user_products').delete().eq('id', id)),
+    mutationFn: (sku) => fromSupabase(supabase.from('user_products').delete().eq('sku', sku)),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+    },
+  });
+};
+
+export const useUpdateProduct = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ sku, ...updateData }) => fromSupabase(supabase.from('user_products').update(updateData).eq('sku', sku)),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
     },

@@ -30,6 +30,13 @@ WHERE image IS NOT NULL;
 ALTER TABLE public.user_products
 DROP COLUMN IF EXISTS image;
 
+-- Altera a chave primária para usar o SKU
+ALTER TABLE public.user_products
+DROP CONSTRAINT IF EXISTS user_products_pkey;
+
+ALTER TABLE public.user_products
+ADD PRIMARY KEY (sku);
+
 -- Atualiza as políticas de segurança para incluir as novas colunas
 DROP POLICY IF EXISTS "Users can view their own products" ON public.user_products;
 CREATE POLICY "Users can view their own products" 

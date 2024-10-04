@@ -42,7 +42,7 @@ const Estoque = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {products?.map((product) => (
-          <Card key={product.id}>
+          <Card key={product.sku}>
             <CardHeader>
               <CardTitle>{product.name}</CardTitle>
             </CardHeader>
@@ -54,12 +54,13 @@ const Estoque = () => {
                   className="w-full h-48 object-cover mb-4"
                 />
               )}
+              <p>SKU: {product.sku}</p>
               <p>{product.description}</p>
               <p>Preço: R$ {product.price.toFixed(2)}</p>
+              <p>Preço de Custo: R$ {product.cost_price.toFixed(2)}</p>
               <p>Estoque: {product.stock_quantity}</p>
-              <p>SKU: {product.sku}</p>
               <p>Preço Sugerido: R$ {product.suggested_price?.toFixed(2)}</p>
-              <Button onClick={() => handleDelete(product.id)} variant="destructive" className="mt-2">Excluir</Button>
+              <Button onClick={() => handleDelete(product.sku)} variant="destructive" className="mt-2">Excluir</Button>
             </CardContent>
           </Card>
         ))}

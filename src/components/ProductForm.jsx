@@ -51,6 +51,9 @@ const ProductForm = ({ onSuccess }) => {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <Input {...register("sku", { required: "SKU é obrigatório" })} placeholder="SKU" />
+      {errors.sku && <p className="text-red-500">{errors.sku.message}</p>}
+
       <Input {...register("name", { required: "Nome é obrigatório" })} placeholder="Título do Produto" />
       {errors.name && <p className="text-red-500">{errors.name.message}</p>}
 
@@ -59,8 +62,8 @@ const ProductForm = ({ onSuccess }) => {
       <Input {...register("price", { required: "Preço é obrigatório", min: 0 })} type="number" step="0.01" placeholder="Preço" />
       {errors.price && <p className="text-red-500">{errors.price.message}</p>}
 
-      <Input {...register("sku", { required: "SKU é obrigatório" })} placeholder="SKU" />
-      {errors.sku && <p className="text-red-500">{errors.sku.message}</p>}
+      <Input {...register("cost_price", { required: "Preço de custo é obrigatório", min: 0 })} type="number" step="0.01" placeholder="Preço de Custo" />
+      {errors.cost_price && <p className="text-red-500">{errors.cost_price.message}</p>}
 
       <Input {...register("stock_quantity", { required: "Quantidade em estoque é obrigatória", min: 0 })} type="number" placeholder="Quantidade em Estoque" />
       {errors.stock_quantity && <p className="text-red-500">{errors.stock_quantity.message}</p>}

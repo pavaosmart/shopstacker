@@ -22,11 +22,12 @@ const OpenAISettings = () => {
         .from('user_settings')
         .select('openai_api_key')
         .eq('user_id', session.user.id)
-        .single();
+        .order('created_at', { ascending: false })
+        .limit(1);
 
       if (error) throw error;
-      if (data?.openai_api_key) {
-        setApiKey(data.openai_api_key);
+      if (data && data.length > 0) {
+        setApiKey(data[0].openai_api_key || '');
       }
     } catch (error) {
       console.error('Erro ao buscar chave da API:', error);

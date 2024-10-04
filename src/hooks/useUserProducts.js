@@ -4,9 +4,11 @@ import { supabase } from '../integrations/supabase/supabase';
 export const useUserProducts = () => useQuery({
   queryKey: ['userProducts'],
   queryFn: async () => {
+    const { data: { user } } = await supabase.auth.getUser();
     const { data, error } = await supabase
       .from('user_products')
-      .select('id, name, description, price, stock_quantity, image');
+      .select('id, name, description, price, stock_quantity, image')
+      .eq('user_id', user.id);
     if (error) throw error;
     return data;
   },

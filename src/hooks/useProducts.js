@@ -32,7 +32,7 @@ export const useProducts = () => useQuery({
   queryKey: ['products'],
   queryFn: () => fromSupabase(supabase
     .from('products')
-    .select('name, description, price, stock_quantity, suggested_price, cover_image, variations')
+    .select('name, description, price, stock_quantity, suggested_price, variations')
   ),
 });
 

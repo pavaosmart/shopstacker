@@ -19,7 +19,6 @@ const Market = () => {
         price: product.price,
         stock_quantity: product.stock_quantity,
         suggested_price: product.suggested_price,
-        cover_image: product.cover_image,
         variations: product.variations
       });
       toast.success(`Produto ${product.name} importado com sucesso!`);
@@ -42,11 +41,9 @@ const Market = () => {
                 <CardTitle className="text-xl truncate">{product.name}</CardTitle>
               </CardHeader>
               <CardContent className="flex-grow">
-                <img 
-                  src={product.cover_image || '/placeholder.svg'}
-                  alt={product.name} 
-                  className="w-full h-48 object-cover mb-4 rounded-md"
-                />
+                <div className="w-full h-48 bg-gray-200 flex items-center justify-center mb-4 rounded-md">
+                  <span className="text-gray-500">No Image</span>
+                </div>
                 <div className="space-y-2">
                   <p className="text-2xl font-bold">R$ {product.price.toFixed(2)}</p>
                   <p className="text-sm text-gray-600">Estoque: {product.stock_quantity}</p>

@@ -9,16 +9,24 @@ const fromSupabase = async (query) => {
 
 export const useProduct = (sku) => useQuery({
   queryKey: ['products', sku],
-  queryFn: () => {
+  queryFn: async () => {
     if (!sku) {
-      return Promise.resolve(null); // Return null if sku is undefined
+      return null; // Return null if sku is undefined
     }
-    return fromSupabase(supabase
+    const { data, error } = await supabase
       .from('user_products')
       .select('*')
       .eq('sku', sku)
-      .single()
-    );
+      .single();
+    
+    if (error) {
+      if (error.code === 'PGRST116') {
+        // No rows returned, which is fine, just return null
+        return null;
+      }
+      throw new Error(error.message);
+    }
+    return data;
   },
   enabled: !!sku, // Only run the query if sku is truthy
 });

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,10 +9,21 @@ import { toast } from "sonner";
 
 const EditProductModal = ({ isOpen, onClose, product }) => {
   const [editedProduct, setEditedProduct] = useState({
-    ...product,
-    salePrice: product.salePrice || product.price,
+    name: '',
+    salePrice: '',
+    description: '',
+    images: []
   });
   const updateProductMutation = useUpdateUserProduct();
+
+  useEffect(() => {
+    if (product) {
+      setEditedProduct({
+        ...product,
+        salePrice: product.salePrice || product.price,
+      });
+    }
+  }, [product]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -34,6 +45,10 @@ const EditProductModal = ({ isOpen, onClose, product }) => {
       toast.error('Erro ao atualizar produto: ' + error.message);
     }
   };
+
+  if (!product) {
+    return null;
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>

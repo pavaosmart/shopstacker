@@ -7,9 +7,18 @@ export const useProduct = (id) => useQuery({
     // Check if id is a valid UUID
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
     if (!uuidRegex.test(id)) {
-      throw new Error('Invalid product ID');
+      // If not a UUID, try to fetch by SKU
+      const { data, error } = await supabase
+        .from('user_products')
+        .select('*')
+        .eq('sku', id)
+        .single();
+      
+      if (error) throw error;
+      return data;
     }
 
+    // If it's a UUID, proceed with the original query
     const { data, error } = await supabase
       .from('user_products')
       .select('*')

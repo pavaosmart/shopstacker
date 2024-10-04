@@ -10,7 +10,7 @@ import { toast } from "sonner";
 const EditProductModal = ({ isOpen, onClose, product }) => {
   const [editedProduct, setEditedProduct] = useState({
     name: '',
-    salePrice: '',
+    price: '',
     description: '',
     images: []
   });
@@ -20,7 +20,7 @@ const EditProductModal = ({ isOpen, onClose, product }) => {
     if (product) {
       setEditedProduct({
         ...product,
-        salePrice: product.salePrice || product.price,
+        price: product.price || '',
       });
     }
   }, [product]);
@@ -59,11 +59,11 @@ const EditProductModal = ({ isOpen, onClose, product }) => {
         <form onSubmit={handleSubmit}>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="title" className="text-right">
-                Título
+              <Label htmlFor="name" className="text-right">
+                Nome
               </Label>
               <Input
-                id="title"
+                id="name"
                 name="name"
                 value={editedProduct.name}
                 onChange={handleChange}
@@ -71,14 +71,14 @@ const EditProductModal = ({ isOpen, onClose, product }) => {
               />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="salePrice" className="text-right">
-                Preço de Venda
+              <Label htmlFor="price" className="text-right">
+                Preço
               </Label>
               <Input
-                id="salePrice"
-                name="salePrice"
+                id="price"
+                name="price"
                 type="number"
-                value={editedProduct.salePrice}
+                value={editedProduct.price}
                 onChange={handleChange}
                 className="col-span-3"
               />

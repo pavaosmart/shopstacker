@@ -13,11 +13,14 @@ export const useProducts = () => useQuery({
   queryKey: ['products'],
   queryFn: async () => {
     try {
-      const { data, error } = await supabase.from('products').select('*');
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .filter('name', 'not.is', null);
       
       if (error) throw new Error(error.message);
       
-      // If no products in the database, return default products
+      // If no products in the database or all products have null names, return default products
       return data.length > 0 ? data : defaultProducts;
     } catch (error) {
       console.error('Error fetching products:', error);

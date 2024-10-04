@@ -15,6 +15,19 @@ BEGIN
   IF NOT bucket_exists THEN
     INSERT INTO storage.buckets (id, name, public)
     VALUES ('products', 'products', true);
+    
+    -- Grant access to authenticated users
+    GRANT ALL ON BUCKET products TO authenticated;
+    
+    -- Allow public read access
+    CREATE POLICY "Allow public read access on products bucket" ON storage.objects
+      FOR SELECT
+      USING (bucket_id = 'products');
+      
+    -- Allow authenticated users to insert objects
+    CREATE POLICY "Allow authenticated users to upload to products bucket" ON storage.objects
+      FOR INSERT
+      WITH CHECK (bucket_id = 'products' AND auth.role() = 'authenticated');
   END IF;
 END;
 $$ LANGUAGE plpgsql;

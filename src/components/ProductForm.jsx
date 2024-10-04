@@ -19,8 +19,10 @@ const ProductForm = ({ onSuccess }) => {
 
   const createBucketIfNotExists = async () => {
     try {
+      console.log('Checking if products bucket exists...');
       const { data, error } = await supabase.storage.getBucket('products');
       if (error && error.statusCode === '404') {
+        console.log('Products bucket does not exist. Creating...');
         const { data: createdBucket, error: createError } = await supabase.storage.createBucket('products', {
           public: true
         });
@@ -29,10 +31,13 @@ const ProductForm = ({ onSuccess }) => {
           toast.error('Falha ao criar bucket de armazenamento');
         } else {
           console.log('Bucket created successfully:', createdBucket);
+          toast.success('Bucket de produtos criado com sucesso');
         }
       } else if (error) {
         console.error('Error checking bucket:', error);
         toast.error('Falha ao verificar bucket de armazenamento');
+      } else {
+        console.log('Products bucket already exists:', data);
       }
     } catch (error) {
       console.error('Unexpected error:', error);
@@ -41,6 +46,7 @@ const ProductForm = ({ onSuccess }) => {
   };
 
   const uploadImage = async (file) => {
+    console.log('Uploading image:', file.name);
     const fileExt = file.name.split('.').pop();
     const fileName = `${Math.random()}.${fileExt}`;
     const filePath = `product-images/${fileName}`;
@@ -54,16 +60,21 @@ const ProductForm = ({ onSuccess }) => {
       throw error;
     }
 
+    console.log('File uploaded successfully:', data);
+
     const { data: { publicUrl } } = supabase.storage
       .from('products')
       .getPublicUrl(filePath);
 
+    console.log('Public URL:', publicUrl);
     return publicUrl;
   };
 
   const onSubmit = async (data) => {
     try {
+      console.log('Submitting product data:', data);
       const uploadedImageUrls = await Promise.all(images.map(uploadImage));
+      console.log('Uploaded image URLs:', uploadedImageUrls);
 
       const productData = {
         ...data,
@@ -74,6 +85,7 @@ const ProductForm = ({ onSuccess }) => {
         images: uploadedImageUrls,
         cover_image_index: coverIndex
       };
+      console.log('Final product data:', productData);
       await addProduct.mutateAsync(productData);
       toast.success('Produto adicionado com sucesso!');
       onSuccess();
@@ -191,7 +203,7 @@ const ProductForm = ({ onSuccess }) => {
           ))}
         </div>
       </div>
-
+      
       <Button type="submit">Adicionar Produto</Button>
     </form>
   );

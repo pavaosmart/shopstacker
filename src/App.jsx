@@ -6,6 +6,8 @@ import Layout from './components/Layout';
 import Index from './pages/Index';
 import Estoque from './pages/Estoque';
 import MeusProdutos from './pages/MeusProdutos';
+import Market from './pages/Market';
+import ProductDetails from './pages/ProductDetails';
 import Orders from './pages/Orders';
 import ActivityLogs from './pages/ActivityLogs';
 import UsersAndPermissions from './pages/UsersAndPermissions';
@@ -22,9 +24,6 @@ import Profile from './pages/Profile';
 import Documentation from './pages/Documentation';
 import UIComponentsPanel from './components/UIComponentsPanel';
 import ProtectedRoute from './components/ProtectedRoute';
-import Market from './pages/Market';
-import OpenAISettings from './components/OpenAISettings';
-import ChatWithBot from './components/ChatWithBot';
 
 const queryClient = new QueryClient();
 
@@ -41,8 +40,9 @@ function App() {
               <Route index element={<ProtectedRoute><Index /></ProtectedRoute>} />
               <Route path="market" element={<ProtectedRoute><Market /></ProtectedRoute>} />
               <Route path="meus-produtos" element={<ProtectedRoute><MeusProdutos /></ProtectedRoute>} />
-              <Route path="orders" element={<ProtectedRoute><Orders /></ProtectedRoute>} />
               <Route path="estoque" element={<ProtectedRoute><Estoque /></ProtectedRoute>} />
+              <Route path="product/:id" element={<ProtectedRoute><ProductDetails /></ProtectedRoute>} />
+              <Route path="orders" element={<ProtectedRoute><Orders /></ProtectedRoute>} />
               <Route path="activity-logs" element={<ProtectedRoute><ActivityLogs /></ProtectedRoute>} />
               <Route path="users" element={<ProtectedRoute><UsersAndPermissions /></ProtectedRoute>} />
               <Route path="notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
@@ -50,8 +50,6 @@ function App() {
               <Route path="support" element={<ProtectedRoute><Support /></ProtectedRoute>} />
               <Route path="profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
               <Route path="api-integration/openai" element={<ProtectedRoute><OpenAIIntegration /></ProtectedRoute>} />
-              <Route path="/openai-settings" element={<OpenAISettings />} />
-              <Route path="/chat-with-bot" element={<ChatWithBot />} />
             </Route>
           </Routes>
           <UIComponentsPanel />

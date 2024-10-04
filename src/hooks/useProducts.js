@@ -7,7 +7,26 @@ export const useProducts = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('products')
-        .select('id, name, description, price, stock_quantity');
+        .select('id, name, description, price, stock_quantity, suggested_price, cover_image, additional_images, variations');
+      
+      if (error) {
+        throw new Error(error.message);
+      }
+      
+      return data;
+    },
+  });
+};
+
+export const useProduct = (id) => {
+  return useQuery({
+    queryKey: ['product', id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('products')
+        .select('id, name, description, price, stock_quantity, suggested_price, cover_image, additional_images, variations')
+        .eq('id', id)
+        .single();
       
       if (error) {
         throw new Error(error.message);

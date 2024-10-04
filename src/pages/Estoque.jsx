@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { useProducts, useAddProduct, useUpdateProduct, useDeleteProduct } from '../hooks/useProducts';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import CreateProductModal from '../components/CreateProductModal';
 
 const Estoque = () => {
   const { data: products, isLoading, error } = useProducts();
@@ -11,38 +12,44 @@ const Estoque = () => {
   const updateProductMutation = useUpdateProduct();
   const deleteProductMutation = useDeleteProduct();
 
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [editingProduct, setEditingProduct] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentProduct, setCurrentProduct] = useState(null);
 
-  const handleCreateProduct = async (formData) => {
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    const formData = new FormData(event.target);
+    const productData = {
+      name: formData.get('name'),
+      description: formData.get('description'),
+      price: parseFloat(formData.get('price')),
+      stock_quantity: parseInt(formData.get('stock_quantity')),
+      suggested_price: parseFloat(formData.get('suggested_price')),
+      cover_image: formData.get('cover_image'),
+      additional_images: formData.getAll('additional_images'),
+      variations: JSON.parse(formData.get('variations') || '[]'),
+    };
+
     try {
-      await addProductMutation.mutateAsync(formData);
-      toast.success('Produto adicionado com sucesso!');
+      if (currentProduct) {
+        await updateProductMutation.mutateAsync({ id: currentProduct.id, ...productData });
+        toast.success('Produto atualizado com sucesso!');
+      } else {
+        await addProductMutation.mutateAsync(productData);
+        toast.success('Produto adicionado com sucesso!');
+      }
+      setIsModalOpen(false);
+      setCurrentProduct(null);
     } catch (error) {
-      toast.error('Erro ao adicionar produto: ' + error.message);
+      toast.error(`Erro ao ${currentProduct ? 'atualizar' : 'adicionar'} produto: ${error.message}`);
     }
   };
 
-  const handleUpdateProduct = async () => {
-    if (!editingProduct) return;
-    try {
-      await updateProductMutation.mutateAsync({
-        id: editingProduct.id,
-        ...editingProduct,
-      });
-      setEditingProduct(null);
-      toast.success('Produto atualizado com sucesso!');
-    } catch (error) {
-      toast.error('Erro ao atualizar produto: ' + error.message);
-    }
-  };
-
-  const handleDeleteProduct = async (id) => {
+  const handleDelete = async (id) => {
     try {
       await deleteProductMutation.mutateAsync(id);
       toast.success('Produto excluído com sucesso!');
     } catch (error) {
-      toast.error('Erro ao excluir produto: ' + error.message);
+      toast.error(`Erro ao excluir produto: ${error.message}`);
     }
   };
 
@@ -53,15 +60,33 @@ const Estoque = () => {
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Gerenciamento de Estoque</h1>
       
-      <Button onClick={() => setIsCreateModalOpen(true)} className="mb-4">
+      <Button onClick={() => { setIsModalOpen(true); setCurrentProduct(null); }} className="mb-4">
         Adicionar Novo Produto
       </Button>
 
-      <CreateProductModal
-        isOpen={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
-        onCreateProduct={handleCreateProduct}
-      />
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <Card className="w-full max-w-2xl">
+            <CardHeader>
+              <CardTitle>{currentProduct ? 'Editar Produto' : 'Adicionar Novo Produto'}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <Input name="name" placeholder="Título" defaultValue={currentProduct?.name} required />
+                <Textarea name="description" placeholder="Descrição" defaultValue={currentProduct?.description} required />
+                <Input name="price" type="number" step="0.01" placeholder="Preço" defaultValue={currentProduct?.price} required />
+                <Input name="stock_quantity" type="number" placeholder="Quantidade em Estoque" defaultValue={currentProduct?.stock_quantity} required />
+                <Input name="suggested_price" type="number" step="0.01" placeholder="Preço Sugerido para Venda" defaultValue={currentProduct?.suggested_price} required />
+                <Input name="cover_image" placeholder="URL da Imagem de Capa" defaultValue={currentProduct?.cover_image} required />
+                <Input name="additional_images" placeholder="URLs das Imagens Adicionais (separadas por vírgula)" defaultValue={currentProduct?.additional_images?.join(',')} />
+                <Textarea name="variations" placeholder="Variações (JSON)" defaultValue={JSON.stringify(currentProduct?.variations || [])} />
+                <Button type="submit">Salvar</Button>
+                <Button type="button" onClick={() => setIsModalOpen(false)} variant="outline">Cancelar</Button>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {products?.map((product) => (
@@ -73,26 +98,15 @@ const Estoque = () => {
               <p>{product.description}</p>
               <p>Preço: R$ {product.price.toFixed(2)}</p>
               <p>Estoque: {product.stock_quantity}</p>
+              <p>Preço Sugerido: R$ {product.suggested_price?.toFixed(2)}</p>
               <div className="mt-4">
-                <Button onClick={() => setEditingProduct(product)} className="mr-2">Editar</Button>
-                <Button onClick={() => handleDeleteProduct(product.id)} variant="destructive">Excluir</Button>
+                <Button onClick={() => { setCurrentProduct(product); setIsModalOpen(true); }} className="mr-2">Editar</Button>
+                <Button onClick={() => handleDelete(product.id)} variant="destructive">Excluir</Button>
               </div>
             </CardContent>
           </Card>
         ))}
       </div>
-
-      {editingProduct && (
-        <Card className="mt-4">
-          <CardHeader>
-            <CardTitle>Editar Produto</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {/* Adicione aqui os campos para edição do produto */}
-            <Button onClick={handleUpdateProduct}>Atualizar Produto</Button>
-          </CardContent>
-        </Card>
-      )}
     </div>
   );
 };

@@ -87,27 +87,27 @@ export const useImportUserProduct = () => {
       const { data: { user } } = await supabase.auth.getUser();
       const { data, error } = await supabase
         .from('user_products')
-        .upsert([
+        .upsert(
           { 
             ...productData, 
             user_id: user.id, 
             is_imported: true 
+          },
+          {
+            onConflict: 'user_id,sku',
+            update: {
+              name: productData.name,
+              description: productData.description,
+              price: productData.price,
+              stock_quantity: productData.stock_quantity,
+              suggested_price: productData.suggested_price,
+              images: productData.images,
+              cover_image_index: productData.cover_image_index,
+              cost_price: productData.cost_price,
+              is_imported: true
+            }
           }
-        ], 
-        { 
-          onConflict: 'sku',
-          update: { 
-            name: productData.name,
-            description: productData.description,
-            price: productData.price,
-            stock_quantity: productData.stock_quantity,
-            suggested_price: productData.suggested_price,
-            images: productData.images,
-            cover_image_index: productData.cover_image_index,
-            cost_price: productData.cost_price,
-            is_imported: true
-          }
-        });
+        );
       if (error) throw error;
       return data;
     },
@@ -116,3 +116,5 @@ export const useImportUserProduct = () => {
     },
   });
 };
+
+// ... keep existing code for other hooks

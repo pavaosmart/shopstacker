@@ -1,4 +1,4 @@
-import { supabase } from '../integrations/supabase/supabase';
+import { supabase } from '../supabaseClient';
 
 export const ensureProductsBucket = async () => {
   try {

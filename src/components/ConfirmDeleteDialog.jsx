@@ -7,14 +7,15 @@ const ConfirmDeleteDialog = ({ isOpen, onClose, onConfirm, productName }) => {
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Confirmar Exclusão</DialogTitle>
+          <DialogTitle>Confirmar Remoção</DialogTitle>
           <DialogDescription>
-            Tem certeza que deseja excluir o produto "{productName}"? Esta ação não pode ser desfeita e o produto será removido de todos os marketplaces.
+            Tem certeza que deseja remover o produto "{productName}" da sua lista de produtos importados? 
+            O produto voltará para a aba Mercado como não importado.
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>Cancelar</Button>
-          <Button variant="destructive" onClick={onConfirm}>Excluir</Button>
+          <Button variant="destructive" onClick={onConfirm}>Remover</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

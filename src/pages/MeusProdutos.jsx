@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useUserProducts, useHideUserProduct, useDeleteUserProduct } from '../hooks/useUserProducts';
+import { useUserProducts, useUnimportUserProduct } from '../hooks/useUserProducts';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -8,30 +8,18 @@ import ConfirmDeleteDialog from '../components/ConfirmDeleteDialog';
 
 const MeusProdutos = () => {
   const { data: userProducts, isLoading, error } = useUserProducts();
-  const hideUserProductMutation = useHideUserProduct();
-  const deleteUserProductMutation = useDeleteUserProduct();
+  const unimportUserProductMutation = useUnimportUserProduct();
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [productToDelete, setProductToDelete] = useState(null);
+  const [productToUnimport, setProductToUnimport] = useState(null);
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
 
-  const handleHide = async (sku) => {
+  const handleUnimport = async (sku) => {
     try {
-      await hideUserProductMutation.mutateAsync(sku);
-      toast.success('Produto ocultado com sucesso!');
+      await unimportUserProductMutation.mutateAsync(sku);
+      toast.success('Produto removido da lista de importados com sucesso!');
     } catch (error) {
-      toast.error(`Erro ao ocultar produto: ${error.message}`);
-    }
-  };
-
-  const handleDelete = async (sku) => {
-    try {
-      await deleteUserProductMutation.mutateAsync(sku);
-      toast.success('Produto excluído com sucesso!');
-      setDeleteDialogOpen(false);
-      setProductToDelete(null);
-    } catch (error) {
-      toast.error(`Erro ao excluir produto: ${error.message}`);
+      toast.error(`Erro ao remover produto da lista de importados: ${error.message}`);
     }
   };
 
@@ -41,7 +29,7 @@ const MeusProdutos = () => {
   };
 
   const openDeleteDialog = (product) => {
-    setProductToDelete(product);
+    setProductToUnimport(product);
     setDeleteDialogOpen(true);
   };
 
@@ -72,7 +60,7 @@ const MeusProdutos = () => {
               </CardContent>
               <CardFooter className="flex justify-between">
                 <Button onClick={() => handleManage(product)}>Gerenciar</Button>
-                <Button onClick={() => handleHide(product.sku)} variant="secondary">Ocultar</Button>
+                <Button onClick={() => openDeleteDialog(product)} variant="destructive">Excluir</Button>
               </CardFooter>
             </Card>
           ))}
@@ -83,8 +71,8 @@ const MeusProdutos = () => {
       <ConfirmDeleteDialog
         isOpen={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}
-        onConfirm={() => handleDelete(productToDelete.sku)}
-        productName={productToDelete?.name}
+        onConfirm={() => handleUnimport(productToUnimport.sku)}
+        productName={productToUnimport?.name}
       />
       {detailsModalOpen && (
         <ProductDetails

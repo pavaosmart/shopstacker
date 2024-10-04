@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useProducts, useDeleteProduct } from '../hooks/useProducts';
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
 import ProductForm from '../components/ProductForm';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -40,27 +40,28 @@ const Estoque = () => {
         </DialogContent>
       </Dialog>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="space-y-4">
         {products?.map((product) => (
-          <Card key={product.sku}>
-            <CardHeader>
-              <CardTitle>{product.name}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {product.images && product.images.length > 0 && (
-                <img 
-                  src={product.images[product.cover_image_index || 0]} 
-                  alt={product.name} 
-                  className="w-full h-48 object-cover mb-4"
-                />
-              )}
-              <p>SKU: {product.sku}</p>
-              <p>{product.description}</p>
-              <p>Preço: R$ {product.price.toFixed(2)}</p>
-              <p>Preço de Custo: R$ {product.cost_price.toFixed(2)}</p>
-              <p>Estoque: {product.stock_quantity}</p>
-              <p>Preço Sugerido: R$ {product.suggested_price?.toFixed(2)}</p>
-              <Button onClick={() => handleDelete(product.sku)} variant="destructive" className="mt-2">Excluir</Button>
+          <Card key={product.sku} className="w-full">
+            <CardContent className="p-4">
+              <div className="flex items-center space-x-4">
+                <div className="w-16 h-16 flex-shrink-0">
+                  <img 
+                    src={product.images[product.cover_image_index || 0] || '/placeholder.svg'} 
+                    alt={product.name} 
+                    className="w-full h-full object-cover rounded-md"
+                  />
+                </div>
+                <div className="flex-grow grid grid-cols-5 gap-4 items-center">
+                  <div className="font-semibold">{product.name}</div>
+                  <div>SKU: {product.sku}</div>
+                  <div>R$ {product.price.toFixed(2)}</div>
+                  <div>Estoque: {product.stock_quantity}</div>
+                  <div className="flex justify-end">
+                    <Button onClick={() => handleDelete(product.sku)} variant="destructive" size="sm">Excluir</Button>
+                  </div>
+                </div>
+              </div>
             </CardContent>
           </Card>
         ))}

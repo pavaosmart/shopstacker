@@ -8,30 +8,62 @@ import { useAddProduct } from '../hooks/useProducts';
 import { supabase } from '../integrations/supabase/supabase';
 import ImageUploader from './ImageUploader';
 
-const createBucketIfNotExists = async (bucketName) => {
+const ensureProductsBucket = async () => {
   try {
-    const { data, error } = await supabase.storage.getBucket(bucketName);
-    
-    if (error && error.status === 404) {
-      console.log(`Bucket '${bucketName}' not found. Attempting to create it.`);
-      const { data: createdBucket, error: createError } = await supabase.storage.createBucket(bucketName, { public: true });
-      if (createError) {
-        console.error('Error creating bucket:', createError);
-        throw createError;
-      }
-      console.log(`Bucket '${bucketName}' created successfully:`, createdBucket);
-      return true;
+    // Tenta obter o bucket
+    let { data: bucket, error } = await supabase.storage.getBucket('products');
+
+    // Se o bucket não existir, cria-o
+    if (error && error.statusCode === 404) {
+      const { data, error: createError } = await supabase.storage.createBucket('products', { public: true });
+      if (createError) throw createError;
+      bucket = data;
     } else if (error) {
-      console.error('Error checking bucket:', error);
       throw error;
-    } else {
-      console.log(`Bucket '${bucketName}' already exists:`, data);
-      return true;
     }
+
+    // Verifica e atualiza as políticas do bucket
+    await updateBucketPolicies();
+
+    console.log('Products bucket is ready:', bucket);
+    return true;
   } catch (error) {
-    console.error('Error in createBucketIfNotExists:', error);
+    console.error('Error ensuring products bucket:', error);
     toast.error(`Failed to initialize storage: ${error.message}`);
     return false;
+  }
+};
+
+const updateBucketPolicies = async () => {
+  const policies = [
+    {
+      name: 'Allow public read access on products bucket',
+      definition: {
+        bucket_id: 'products',
+        operation: 'SELECT',
+        condition: null
+      }
+    },
+    {
+      name: 'Allow authenticated users to upload to products bucket',
+      definition: {
+        bucket_id: 'products',
+        operation: 'INSERT',
+        condition: "auth.role() = 'authenticated' AND (storage.foldername(name))[1] = auth.uid()::text"
+      }
+    },
+    {
+      name: 'Allow users to update and delete their own objects',
+      definition: {
+        bucket_id: 'products',
+        operation: 'ALL',
+        condition: "auth.role() = 'authenticated' AND (storage.foldername(name))[1] = auth.uid()::text"
+      }
+    }
+  ];
+
+  for (const policy of policies) {
+    await supabase.storage.from('products').updateBucketPolicy(policy.name, policy.definition);
   }
 };
 
@@ -44,8 +76,8 @@ const ProductForm = ({ onSuccess }) => {
 
   useEffect(() => {
     const initializeBucket = async () => {
-      const bucketCreated = await createBucketIfNotExists('products');
-      setIsBucketReady(bucketCreated);
+      const bucketReady = await ensureProductsBucket();
+      setIsBucketReady(bucketReady);
     };
     initializeBucket();
   }, []);

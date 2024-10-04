@@ -1,256 +1,137 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSupabaseAuth } from '../integrations/supabase/auth';
-import { getOpenAIInstance, getZildaAssistant } from '../utils/openai';
+import { listAssistants, getOpenAIInstance } from '../utils/openai';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
-import { Bot, Image as ImageIcon, Mic, Send } from 'lucide-react';
-import ConversationHistory from './ConversationHistory';
+import { Bot } from 'lucide-react';
 
 const ChatWithBot = () => {
+  const [assistants, setAssistants] = useState([]);
+  const [selectedAssistant, setSelectedAssistant] = useState(null);
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [threadId, setThreadId] = useState(null);
-  const [zildaAssistant, setZildaAssistant] = useState(null);
+  const [isTyping, setIsTyping] = useState(false);
   const { session } = useSupabaseAuth();
-  const [isRecording, setIsRecording] = useState(false);
-  const mediaRecorderRef = useRef(null);
-  const audioChunksRef = useRef([]);
-  const messagesEndRef = useRef(null);
-  const [conversations, setConversations] = useState([]);
 
   useEffect(() => {
-    const initializeChat = async () => {
-      try {
-        const openai = await getOpenAIInstance();
-        const assistant = await getZildaAssistant();
-        setZildaAssistant(assistant);
-        const thread = await openai.beta.threads.create();
-        setThreadId(thread.id);
-      } catch (error) {
-        console.error('Error initializing chat:', error);
-        toast.error('Failed to initialize chat');
-      }
-    };
-
-    initializeChat();
+    fetchAssistants();
   }, []);
 
-  const handleSendMessage = async (content, type = 'text') => {
-    if ((!content.trim() && type === 'text') || !threadId || !zildaAssistant) return;
-
-    let newMessage;
-    if (type === 'text') {
-      newMessage = { role: 'user', content: content, type };
-    } else if (type === 'image') {
-      newMessage = { role: 'user', content: 'Imagem enviada', type, url: content };
-    } else if (type === 'audio') {
-      newMessage = { role: 'user', content: 'Áudio enviado', type, url: content };
+  const fetchAssistants = async () => {
+    try {
+      const fetchedAssistants = await listAssistants();
+      setAssistants(fetchedAssistants);
+      if (fetchedAssistants.length > 0) {
+        setSelectedAssistant(fetchedAssistants[0]);
+      }
+    } catch (error) {
+      console.error('Erro ao buscar assistentes:', error);
+      toast.error('Falha ao carregar assistentes');
     }
+  };
 
+  const handleSendMessage = async () => {
+    if (!inputMessage.trim() || !selectedAssistant) return;
+
+    const newMessage = { role: 'user', content: inputMessage, sender: 'Você' };
     setMessages(prevMessages => [...prevMessages, newMessage]);
     setInputMessage('');
     setIsLoading(true);
+    setIsTyping(true);
 
     try {
       const openai = await getOpenAIInstance();
       
-      let messageContent;
-      if (type === 'text') {
-        messageContent = { type: 'text', text: content };
-      } else if (type === 'image') {
-        messageContent = { type: 'image_url', image_url: { url: content } };
-      } else if (type === 'audio') {
-        const base64Audio = await convertAudioToBase64(content);
-        const fileId = await uploadAudioFile(openai, base64Audio);
-        messageContent = { type: 'file_id', file_id: fileId };
-      }
-
-      await openai.beta.threads.messages.create(threadId, {
-        role: 'user',
-        content: [messageContent]
+      const response = await openai.chat.completions.create({
+        model: selectedAssistant.model || "gpt-3.5-turbo",
+        messages: [
+          { role: "system", content: `You are an AI assistant named ${selectedAssistant.name}.` },
+          ...messages,
+          newMessage
+        ],
       });
 
-      const run = await openai.beta.threads.runs.create(threadId, {
-        assistant_id: zildaAssistant.id
-      });
-
-      let runStatus = await openai.beta.threads.runs.retrieve(threadId, run.id);
-      while (runStatus.status !== 'completed') {
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        runStatus = await openai.beta.threads.runs.retrieve(threadId, run.id);
-      }
-
-      const messages = await openai.beta.threads.messages.list(threadId);
-
-      const assistantMessage = messages.data[0];
-      setMessages(prevMessages => [...prevMessages, {
-        role: 'assistant',
-        content: assistantMessage.content[0].text.value,
-        type: 'text'
-      }]);
+      const botResponse = { role: 'assistant', content: response.choices[0].message.content, sender: selectedAssistant.name };
+      setMessages(prevMessages => [...prevMessages, botResponse]);
     } catch (error) {
       console.error('Erro ao enviar mensagem:', error);
       toast.error('Falha ao enviar mensagem: ' + error.message);
     } finally {
       setIsLoading(false);
+      setIsTyping(false);
     }
-  };
-
-  const convertAudioToBase64 = (audioUrl) => {
-    return new Promise((resolve, reject) => {
-      fetch(audioUrl)
-        .then(response => response.blob())
-        .then(blob => {
-          const reader = new FileReader();
-          reader.onloadend = () => resolve(reader.result.split(',')[1]);
-          reader.onerror = reject;
-          reader.readAsDataURL(blob);
-        })
-        .catch(reject);
-    });
-  };
-
-  const uploadAudioFile = async (openai, base64Audio) => {
-    const response = await openai.files.create({
-      file: new Blob([Buffer.from(base64Audio, 'base64')], { type: 'audio/wav' }),
-      purpose: 'assistants'
-    });
-    return response.id;
-  };
-
-  const handleFileUpload = async (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = async (e) => {
-        const base64 = e.target.result;
-        await handleSendMessage(base64, file.type.startsWith('image/') ? 'image' : 'audio');
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const startRecording = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      mediaRecorderRef.current = new MediaRecorder(stream);
-      audioChunksRef.current = [];
-
-      mediaRecorderRef.current.ondataavailable = (event) => {
-        audioChunksRef.current.push(event.data);
-      };
-
-      mediaRecorderRef.current.onstop = async () => {
-        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
-        const audioUrl = URL.createObjectURL(audioBlob);
-        await handleSendMessage(audioUrl, 'audio');
-      };
-
-      mediaRecorderRef.current.start();
-      setIsRecording(true);
-    } catch (error) {
-      console.error('Erro ao iniciar gravação:', error);
-      toast.error('Falha ao iniciar gravação de áudio');
-    }
-  };
-
-  const stopRecording = () => {
-    if (mediaRecorderRef.current && isRecording) {
-      mediaRecorderRef.current.stop();
-      setIsRecording(false);
-    }
-  };
-
-  const handleSelectConversation = (conversation) => {
-    // Implement logic to load selected conversation
-    console.log('Selected conversation:', conversation);
   };
 
   return (
-    <div className="flex h-full">
-      <ConversationHistory 
-        conversations={conversations} 
-        onSelectConversation={handleSelectConversation} 
-      />
-      <Card className="flex-grow mx-4">
-        <CardHeader>
-          <CardTitle>Chat com Zilda</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4 mb-4 h-[calc(100vh-16rem)] overflow-y-auto p-4 bg-gray-50 rounded-lg">
-            {messages.map((message, index) => (
-              <div key={index} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                <div className={`flex flex-col items-${message.role === 'user' ? 'end' : 'start'} max-w-[70%]`}>
-                  <div className="flex items-center mb-1">
-                    <Avatar className="w-6 h-6 mr-2">
-                      {message.role === 'user' ? (
-                        <AvatarImage src={session?.user?.user_metadata?.avatar_url} />
-                      ) : (
-                        <AvatarFallback className="bg-blue-500 text-white">
-                          <Bot size={16} />
-                        </AvatarFallback>
-                      )}
-                      <AvatarFallback>{message.role === 'user' ? 'U' : 'Z'}</AvatarFallback>
-                    </Avatar>
-                    <span className="text-xs font-semibold">{message.role === 'user' ? 'Você' : 'Zilda'}</span>
-                  </div>
-                  <div className={`p-3 rounded-lg ${
-                    message.role === 'user' 
-                      ? 'bg-blue-500 text-white rounded-br-none' 
-                      : 'bg-gray-200 text-gray-800 rounded-bl-none'
-                  }`}>
-                    {message.type === 'text' && message.content}
-                    {message.type === 'image' && <img src={message.url} alt="Imagem enviada" className="max-w-full h-auto rounded" />}
-                    {message.type === 'audio' && <audio src={message.url} controls className="max-w-full" />}
-                  </div>
-                </div>
-              </div>
+    <Card className="w-full max-w-2xl mx-auto mt-8">
+      <CardHeader>
+        <CardTitle>Chat com Bot</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="mb-4">
+          <select
+            value={selectedAssistant?.id || ''}
+            onChange={(e) => setSelectedAssistant(assistants.find(a => a.id === e.target.value))}
+            className="w-full p-2 border rounded"
+          >
+            {assistants.map((assistant) => (
+              <option key={assistant.id} value={assistant.id}>{assistant.name}</option>
             ))}
-            {isLoading && (
-              <div className="flex justify-start">
-                <div className="bg-gray-200 text-gray-800 p-3 rounded-lg rounded-bl-none max-w-[70%]">
-                  <span className="animate-pulse">Zilda está digitando...</span>
+          </select>
+        </div>
+        <div className="space-y-4 mb-4 h-80 overflow-y-auto p-4 bg-gray-50 rounded-lg">
+          {messages.map((message, index) => (
+            <div key={index} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+              <div className={`flex flex-col items-${message.role === 'user' ? 'end' : 'start'} max-w-[70%]`}>
+                <div className="flex items-center mb-1">
+                  <Avatar className="w-6 h-6 mr-2">
+                    {message.role === 'user' ? (
+                      <AvatarImage src={session?.user?.user_metadata?.avatar_url} />
+                    ) : (
+                      <AvatarFallback className="bg-blue-500 text-white">
+                        <Bot size={16} />
+                      </AvatarFallback>
+                    )}
+                    <AvatarFallback>{message.role === 'user' ? 'U' : 'B'}</AvatarFallback>
+                  </Avatar>
+                  <span className="text-xs font-semibold">{message.sender}</span>
+                </div>
+                <div className={`p-3 rounded-lg ${
+                  message.role === 'user' 
+                    ? 'bg-blue-500 text-white rounded-br-none' 
+                    : 'bg-gray-200 text-gray-800 rounded-bl-none'
+                }`}>
+                  {message.content}
                 </div>
               </div>
-            )}
-            <div ref={messagesEndRef} />
-          </div>
-          <div className="flex space-x-2">
-            <Input
-              value={inputMessage}
-              onChange={(e) => setInputMessage(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleSendMessage(inputMessage)}
-              placeholder="Digite sua mensagem..."
-              className="flex-grow"
-            />
-            <Button onClick={() => handleSendMessage(inputMessage)} disabled={isLoading}>
-              <Send size={20} />
-            </Button>
-            <label className="cursor-pointer">
-              <input
-                type="file"
-                accept="image/*,audio/*"
-                className="hidden"
-                onChange={handleFileUpload}
-              />
-              <Button as="span" variant="outline">
-                <ImageIcon size={20} />
-              </Button>
-            </label>
-            <Button
-              variant="outline"
-              onClick={isRecording ? stopRecording : startRecording}
-            >
-              <Mic size={20} color={isRecording ? 'red' : 'currentColor'} />
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+            </div>
+          ))}
+          {isTyping && (
+            <div className="flex justify-start">
+              <div className="bg-gray-200 text-gray-800 p-3 rounded-lg rounded-bl-none max-w-[70%]">
+                <span className="animate-pulse">Digitando...</span>
+              </div>
+            </div>
+          )}
+        </div>
+        <div className="flex space-x-2">
+          <Input
+            value={inputMessage}
+            onChange={(e) => setInputMessage(e.target.value)}
+            onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+            placeholder="Digite sua mensagem..."
+            className="flex-grow"
+          />
+          <Button onClick={handleSendMessage} disabled={isLoading}>
+            {isLoading ? 'Enviando...' : 'Enviar'}
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 

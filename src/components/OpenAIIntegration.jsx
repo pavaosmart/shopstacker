@@ -119,7 +119,9 @@ const OpenAIIntegration = () => {
   const handleCreateBot = async () => {
     setIsLoading(true);
     try {
-      const assistant = await createAssistant(newBot.name, newBot.instructions);
+      const assistant = await createAssistant(newBot.name, newBot.instructions, newBot.model, {
+        temperature: newBot.temperature,
+      });
       
       const { data, error } = await supabase
         .from('bots')
@@ -161,11 +163,11 @@ const OpenAIIntegration = () => {
   const handleUpdateBot = async () => {
     setIsLoading(true);
     try {
-      if (!editingBot.id) {
+      if (!editingBot.openai_assistant_id) {
         throw new Error('Assistant ID is undefined');
       }
 
-      const updatedAssistant = await updateAssistant(editingBot.id, {
+      const updatedAssistant = await updateAssistant(editingBot.openai_assistant_id, {
         name: newBot.name,
         instructions: newBot.instructions,
         model: newBot.model,
@@ -200,12 +202,12 @@ const OpenAIIntegration = () => {
   const handleDeleteBot = async () => {
     setIsLoading(true);
     try {
-      if (!editingBot.id) {
+      if (!editingBot.openai_assistant_id) {
         throw new Error('Assistant ID is undefined');
       }
 
       // Delete from OpenAI
-      await deleteAssistant(editingBot.id);
+      await deleteAssistant(editingBot.openai_assistant_id);
 
       // Delete from Supabase
       const { error } = await supabase
@@ -242,11 +244,152 @@ const OpenAIIntegration = () => {
     return isValid(date) ? format(date, "dd/MM/yyyy HH:mm", { locale: ptBR }) : 'Data inválida';
   };
 
-  // Render component JSX here (omitted for brevity)
-  
   return (
-    <div>
-      {/* Component JSX */}
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>Configuração da Chave de API</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Input
+            type="password"
+            value={openaiApiKey}
+            onChange={(e) => setOpenaiApiKey(e.target.value)}
+            placeholder="Digite sua Chave de API OpenAI"
+            className="mb-2"
+          />
+          <Button onClick={handleSaveApiKey} disabled={isLoading}>
+            {isLoading ? 'Salvando...' : 'Salvar e Testar Chave'}
+          </Button>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Criar Novo Bot</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Button onClick={() => { setEditingBot(null); setIsModalOpen(true); }}>Criar Novo Bot</Button>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Bots Existentes</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {bots.map((bot) => (
+              <Card key={bot.id}>
+                <CardHeader>
+                  <CardTitle>{bot.name}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p>Criado em: {formatDate(bot.created_at)}</p>
+                  <p>Última edição: {formatDate(bot.updated_at)}</p>
+                  <p>Modelo: {bot.model}</p>
+                  <Button onClick={() => handleEditBot(bot)} className="mt-2">Editar</Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>{editingBot ? 'Editar Bot' : 'Criar Novo Bot'}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="name">Nome do Bot</Label>
+              <Input 
+                id="name" 
+                value={newBot.name} 
+                onChange={(e) => setNewBot({...newBot, name: e.target.value})}
+              />
+            </div>
+            <div>
+              <Label htmlFor="instructions">Instruções do Sistema</Label>
+              <Textarea 
+                id="instructions" 
+                value={newBot.instructions} 
+                onChange={(e) => setNewBot({...newBot, instructions: e.target.value})}
+              />
+            </div>
+            <div>
+              <Label htmlFor="model">Modelo</Label>
+              <Select 
+                value={newBot.model} 
+                onValueChange={(value) => setNewBot({...newBot, model: value})}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione o modelo" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="gpt-3.5-turbo">GPT-3.5 Turbo</SelectItem>
+                  <SelectItem value="gpt-4">GPT-4</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="temperature">Temperatura: {newBot.temperature}</Label>
+              <Slider
+                id="temperature"
+                min={0}
+                max={1}
+                step={0.1}
+                value={[newBot.temperature]}
+                onValueChange={(value) => setNewBot({...newBot, temperature: value[0]})}
+              />
+            </div>
+            <div>
+              <Label htmlFor="documents">Adicionar Documentos à Base de Conhecimento</Label>
+              <Input
+                id="documents"
+                type="file"
+                multiple
+                accept=".txt,.pdf,.doc,.docx,.csv"
+                onChange={handleFileUpload}
+              />
+              <p className="text-sm text-gray-500 mt-1">
+                Formatos permitidos: .txt, .pdf, .doc, .docx, .csv
+              </p>
+              <div className="mt-2">
+                {newBot.documents.map((doc, index) => (
+                  <div key={index} className="text-sm text-gray-600">{doc.name}</div>
+                ))}
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            {editingBot && (
+              <Button variant="destructive" onClick={() => setIsDeleteDialogOpen(true)}>
+                Excluir Bot
+              </Button>
+            )}
+            <Button onClick={editingBot ? handleUpdateBot : handleCreateBot} disabled={isLoading}>
+              {isLoading ? 'Processando...' : (editingBot ? 'Atualizar Bot' : 'Criar Bot')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirmar Exclusão</DialogTitle>
+          </DialogHeader>
+          <p>Tem certeza que deseja excluir este bot? Esta ação não pode ser desfeita.</p>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>Cancelar</Button>
+            <Button variant="destructive" onClick={handleDeleteBot} disabled={isLoading}>
+              {isLoading ? 'Excluindo...' : 'Confirmar Exclusão'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

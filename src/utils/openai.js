@@ -42,45 +42,54 @@ export const testConnection = async () => {
   }
 };
 
-export const getZildaAssistant = async () => {
-  const openai = await getOpenAIInstance();
-  const assistants = await openai.beta.assistants.list();
-  const zilda = assistants.data.find(assistant => assistant.name.toLowerCase().includes('zilda'));
-  if (!zilda) {
-    throw new Error("Assistente Zilda não encontrado");
+export const listAssistants = async () => {
+  try {
+    const openai = await getOpenAIInstance();
+    const assistants = await openai.beta.assistants.list();
+    return assistants.data;
+  } catch (error) {
+    console.error('Erro ao listar assistentes:', error);
+    throw error;
   }
-  return zilda;
 };
 
-export const createAssistant = async (name, instructions) => {
-  const openai = await getOpenAIInstance();
-  const assistant = await openai.beta.assistants.create({
-    name: name,
-    instructions: instructions,
-    model: "gpt-3.5-turbo",
-  });
-  return assistant;
+export const createAssistant = async (name, instructions, model = 'gpt-3.5-turbo', options = {}) => {
+  try {
+    const openai = await getOpenAIInstance();
+    const assistant = await openai.beta.assistants.create({
+      name,
+      instructions,
+      model,
+      ...options
+    });
+    return assistant;
+  } catch (error) {
+    console.error('Erro ao criar assistente:', error);
+    throw error;
+  }
 };
 
 export const updateAssistant = async (assistantId, updates) => {
-  const openai = await getOpenAIInstance();
-  const updatedAssistant = await openai.beta.assistants.update(assistantId, updates);
-  return updatedAssistant;
+  try {
+    const openai = await getOpenAIInstance();
+    const updatedAssistant = await openai.beta.assistants.update(
+      assistantId,
+      updates
+    );
+    return updatedAssistant;
+  } catch (error) {
+    console.error('Erro ao atualizar assistente:', error);
+    throw error;
+  }
 };
 
 export const deleteAssistant = async (assistantId) => {
-  const openai = await getOpenAIInstance();
-  await openai.beta.assistants.del(assistantId);
-};
-
-export const listAssistants = async () => {
-  const openai = await getOpenAIInstance();
-  const assistants = await openai.beta.assistants.list();
-  return assistants.data;
-};
-
-export const uploadFile = async (file, purpose) => {
-  const openai = await getOpenAIInstance();
-  const response = await openai.files.create({ file, purpose });
-  return response.id;
+  try {
+    const openai = await getOpenAIInstance();
+    await openai.beta.assistants.del(assistantId);
+    console.log('Assistente excluído com sucesso:', assistantId);
+  } catch (error) {
+    console.error('Erro ao excluir assistente:', error);
+    throw error;
+  }
 };

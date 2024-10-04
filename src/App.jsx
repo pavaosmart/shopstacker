@@ -2,7 +2,6 @@ import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { SupabaseAuthProvider } from './integrations/supabase/auth';
-import { AuthProvider } from './contexts/AuthContext';
 import Layout from './components/Layout';
 import Index from './pages/Index';
 import Estoque from './pages/Estoque';
@@ -32,31 +31,29 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <SupabaseAuthProvider>
-        <AuthProvider>
-          <Router>
-            <Routes>
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/forgot-password" element={<ForgotPassword />} />
-              <Route path="/" element={<Layout />}>
-                <Route index element={<ProtectedRoute><Index /></ProtectedRoute>} />
-                <Route path="market" element={<ProtectedRoute><Market /></ProtectedRoute>} />
-                <Route path="meus-produtos" element={<ProtectedRoute><MeusProdutos /></ProtectedRoute>} />
-                <Route path="estoque" element={<ProtectedRoute><Estoque /></ProtectedRoute>} />
-                <Route path="product/:id" element={<ProtectedRoute><ProductDetails /></ProtectedRoute>} />
-                <Route path="orders" element={<ProtectedRoute><Orders /></ProtectedRoute>} />
-                <Route path="activity-logs" element={<ProtectedRoute><ActivityLogs /></ProtectedRoute>} />
-                <Route path="users" element={<ProtectedRoute><UsersAndPermissions /></ProtectedRoute>} />
-                <Route path="notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
-                <Route path="integrations" element={<ProtectedRoute><Integrations /></ProtectedRoute>} />
-                <Route path="support" element={<ProtectedRoute><Support /></ProtectedRoute>} />
-                <Route path="profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-                <Route path="api-integration/openai" element={<ProtectedRoute><OpenAIIntegration /></ProtectedRoute>} />
-              </Route>
-            </Routes>
-            <UIComponentsPanel />
-          </Router>
-        </AuthProvider>
+        <Router>
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/" element={<Layout />}>
+              <Route index element={<ProtectedRoute><Index /></ProtectedRoute>} />
+              <Route path="market" element={<ProtectedRoute><Market /></ProtectedRoute>} />
+              <Route path="meus-produtos" element={<ProtectedRoute><MeusProdutos /></ProtectedRoute>} />
+              <Route path="estoque" element={<ProtectedRoute><Estoque /></ProtectedRoute>} />
+              <Route path="product/:id" element={<ProtectedRoute><ProductDetails /></ProtectedRoute>} />
+              <Route path="orders" element={<ProtectedRoute><Orders /></ProtectedRoute>} />
+              <Route path="activity-logs" element={<ProtectedRoute><ActivityLogs /></ProtectedRoute>} />
+              <Route path="users" element={<ProtectedRoute><UsersAndPermissions /></ProtectedRoute>} />
+              <Route path="notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
+              <Route path="integrations" element={<ProtectedRoute><Integrations /></ProtectedRoute>} />
+              <Route path="support" element={<ProtectedRoute><Support /></ProtectedRoute>} />
+              <Route path="profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+              <Route path="api-integration/openai" element={<ProtectedRoute><OpenAIIntegration /></ProtectedRoute>} />
+            </Route>
+          </Routes>
+          <UIComponentsPanel />
+        </Router>
       </SupabaseAuthProvider>
     </QueryClientProvider>
   );

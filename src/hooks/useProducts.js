@@ -14,12 +14,18 @@ const defaultProducts = [
 export const useProducts = () => useQuery({
   queryKey: ['products'],
   queryFn: async () => {
-    const { data, error } = await supabase.from('products').select('*');
-    
-    if (error) throw new Error(error.message);
-    
-    // If no products in the database, return default products
-    return data.length > 0 ? data : defaultProducts;
+    try {
+      const { data, error } = await supabase.from('products').select('*');
+      
+      if (error) throw new Error(error.message);
+      
+      // If no products in the database, return default products
+      return data.length > 0 ? data : defaultProducts;
+    } catch (error) {
+      console.error('Error fetching products:', error);
+      // Return default products if there's an error
+      return defaultProducts;
+    }
   },
 });
 

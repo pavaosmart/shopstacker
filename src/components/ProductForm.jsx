@@ -10,23 +10,32 @@ import ImageUploader from './ImageUploader';
 
 const createBucketIfNotExists = async (bucketName) => {
   try {
+    // First, try to get the bucket
     const { data, error } = await supabase.storage.getBucket(bucketName);
     
-    if (error && error.statusCode === '404') {
-      // Bucket doesn't exist, so create it
-      const { data, error: createError } = await supabase.storage.createBucket(bucketName, { public: true });
-      if (createError) {
-        throw createError;
+    if (error) {
+      if (error.statusCode === '404') {
+        console.log(`Bucket '${bucketName}' not found. Attempting to create it.`);
+        // Bucket doesn't exist, so create it
+        const { data: createdBucket, error: createError } = await supabase.storage.createBucket(bucketName, { public: true });
+        if (createError) {
+          console.error('Error creating bucket:', createError);
+          throw createError;
+        }
+        console.log(`Bucket '${bucketName}' created successfully:`, createdBucket);
+        return true;
+      } else {
+        console.error('Error checking bucket:', error);
+        throw error;
       }
-      console.log(`Bucket '${bucketName}' created successfully.`);
-    } else if (error) {
-      throw error;
     } else {
-      console.log(`Bucket '${bucketName}' already exists.`);
+      console.log(`Bucket '${bucketName}' already exists:`, data);
+      return true;
     }
   } catch (error) {
-    console.error('Error checking/creating bucket:', error);
+    console.error('Error in createBucketIfNotExists:', error);
     toast.error(`Failed to initialize storage: ${error.message}`);
+    return false;
   }
 };
 
@@ -39,8 +48,8 @@ const ProductForm = ({ onSuccess }) => {
 
   useEffect(() => {
     const initializeBucket = async () => {
-      await createBucketIfNotExists('products');
-      setIsBucketReady(true);
+      const bucketCreated = await createBucketIfNotExists('products');
+      setIsBucketReady(bucketCreated);
     };
     initializeBucket();
   }, []);
@@ -94,7 +103,9 @@ const ProductForm = ({ onSuccess }) => {
         isBucketReady={isBucketReady}
       />
 
-      <Button type="submit" disabled={!isBucketReady}>Adicionar Produto</Button>
+      <Button type="submit" disabled={!isBucketReady}>
+        {isBucketReady ? 'Adicionar Produto' : 'Aguardando inicialização do armazenamento...'}
+      </Button>
     </form>
   );
 };

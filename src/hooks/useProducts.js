@@ -20,11 +20,11 @@ export const useProducts = () => useQuery({
       
       if (error) throw new Error(error.message);
       
-      // If no products in the database or all products have null names, return default products
+      // Se não houver produtos no banco de dados ou todos os produtos tiverem nomes nulos, retorne os produtos padrão
       return data.length > 0 ? data : defaultProducts;
     } catch (error) {
-      console.error('Error fetching products:', error);
-      // Return default products if there's an error
+      console.error('Erro ao buscar produtos:', error);
+      // Retorne os produtos padrão se houver um erro
       return defaultProducts;
     }
   },

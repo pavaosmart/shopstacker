@@ -8,28 +8,43 @@ import { useAddProduct } from '../hooks/useProducts';
 import { supabase } from '../integrations/supabase/supabase';
 import ImageUploader from './ImageUploader';
 
-const createBucketIfNotExists = async () => {
+const ensureProductsBucket = async () => {
   try {
-    // Check if the bucket exists
     const { data, error } = await supabase.storage.getBucket('products');
-    
     if (error && error.statusCode === '404') {
-      // Bucket doesn't exist, so create it
       const { data: createdBucket, error: createError } = await supabase.storage.createBucket('products', { public: true });
-      if (createError) {
-        throw createError;
-      }
+      if (createError) throw createError;
       console.log('Bucket created successfully:', createdBucket);
-      return true;
     } else if (error) {
       throw error;
-    } else {
-      console.log('Bucket already exists:', data);
-      return true;
     }
+    return true;
   } catch (error) {
-    console.error('Error checking/creating bucket:', error);
-    toast.error(`Failed to initialize storage: ${error.message}`);
+    console.error('Error ensuring products bucket:', error);
+    return false;
+  }
+};
+
+const updateBucketPolicies = async () => {
+  try {
+    await supabase.storage.from('products').updateBucketPolicy({
+      type: 'READ',
+      definition: {
+        allow: true,
+        roles: ['anon', 'authenticated'],
+      },
+    });
+    await supabase.storage.from('products').updateBucketPolicy({
+      type: 'WRITE',
+      definition: {
+        allow: true,
+        roles: ['authenticated'],
+      },
+    });
+    console.log('Bucket policies updated successfully');
+    return true;
+  } catch (error) {
+    console.error('Error updating bucket policies:', error);
     return false;
   }
 };
@@ -43,8 +58,11 @@ const ProductForm = ({ onSuccess }) => {
 
   useEffect(() => {
     const initializeBucket = async () => {
-      const bucketReady = await createBucketIfNotExists();
-      setIsBucketReady(bucketReady);
+      const bucketCreated = await ensureProductsBucket();
+      if (bucketCreated) {
+        const policiesUpdated = await updateBucketPolicies();
+        setIsBucketReady(policiesUpdated);
+      }
     };
     initializeBucket();
   }, []);

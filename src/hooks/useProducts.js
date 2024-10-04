@@ -7,8 +7,6 @@ const defaultProducts = [
   { id: 3, name: 'Metro Bar Stool', category: 'Furniture', price: 99, sku: '0134729', stock_quantity: 978 },
   { id: 4, name: 'Alchimia Chair', category: 'Furniture', price: 2999, sku: '113213', stock_quantity: 0 },
   { id: 5, name: 'Fendi Gradient Coat', category: 'Clothing', price: 869, sku: '634729', stock_quantity: 725 },
-  { id: 6, name: 'Off White Cotton Bomber', category: 'Clothing', price: 1869, sku: '634729', stock_quantity: 725 },
-  { id: 7, name: 'Y-3 Yohji Yamamoto', category: 'Shoes', price: 869, sku: '634729', stock_quantity: 725 },
 ];
 
 export const useProducts = () => useQuery({

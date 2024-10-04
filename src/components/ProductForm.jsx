@@ -72,21 +72,39 @@ const ProductForm = ({ onSuccess }) => {
       {errors.suggested_price && <p className="text-red-500">{errors.suggested_price.message}</p>}
 
       <div>
+        <p className="text-sm text-gray-600 mb-2">Imagens devem ser 1200x1200 pixels, formato JPG ou PNG</p>
         <input type="file" onChange={handleImageUpload} multiple accept="image/*" className="mb-2" />
         <div className="flex flex-wrap gap-2">
           {images.map((url, index) => (
             <div key={url} className="relative">
-              <img src={url} alt={`Produto ${index + 1}`} className="w-24 h-24 object-cover" />
-              <button type="button" onClick={() => setCoverImage(index)} className="absolute top-0 left-0 bg-blue-500 text-white p-1 text-xs">
+              <img src={url} alt={`Produto ${index + 1}`} className="w-20 h-20 object-cover rounded" />
+              {index === coverIndex && (
+                <span className="absolute top-0 left-0 bg-blue-500 text-white text-xs px-1 rounded-br">
+                  Capa
+                </span>
+              )}
+              <button 
+                type="button" 
+                onClick={() => setCoverImage(index)} 
+                className="absolute bottom-0 left-0 bg-gray-800 text-white text-xs px-1 rounded-tr"
+              >
                 {index === coverIndex ? 'Capa' : 'Definir Capa'}
               </button>
               {index > 0 && (
-                <button type="button" onClick={() => moveImage(index, index - 1)} className="absolute bottom-0 left-0 bg-gray-500 text-white p-1 text-xs">
+                <button 
+                  type="button" 
+                  onClick={() => moveImage(index, index - 1)} 
+                  className="absolute bottom-0 right-0 bg-gray-800 text-white text-xs px-1 rounded-tl"
+                >
                   ←
                 </button>
               )}
               {index < images.length - 1 && (
-                <button type="button" onClick={() => moveImage(index, index + 1)} className="absolute bottom-0 right-0 bg-gray-500 text-white p-1 text-xs">
+                <button 
+                  type="button" 
+                  onClick={() => moveImage(index, index + 1)} 
+                  className="absolute top-0 right-0 bg-gray-800 text-white text-xs px-1 rounded-bl"
+                >
                   →
                 </button>
               )}

@@ -46,7 +46,6 @@ export const useProducts = () => useQuery({
 
     if (error) throw error;
 
-    // Ensure images are properly loaded
     return data.map(product => ({
       ...product,
       images: product.images || [],
@@ -61,34 +60,42 @@ export const useAddProduct = () => {
       const { data: { user } } = await supabase.auth.getUser();
       const { images, ...productData } = newProduct;
 
-      // Upload images first
       const uploadedImages = await Promise.all(images.map(async (image, index) => {
         const fileName = `${user.id}/${newProduct.sku}_${index}.jpg`;
         const { data, error } = await supabase.storage
           .from('products')
           .upload(fileName, image, {
             contentType: 'image/jpeg',
+            upsert: true
           });
 
-        if (error) throw error;
+        if (error) {
+          console.error('Error uploading image:', error);
+          throw error;
+        }
 
-        const { data: { publicUrl } } = supabase.storage
+        const { data: publicUrlData } = supabase.storage
           .from('products')
           .getPublicUrl(fileName);
 
-        return publicUrl;
+        return publicUrlData.publicUrl;
       }));
 
-      // Then insert the product with image URLs
       const { data, error } = await supabase
         .from('user_products')
         .insert([{ ...productData, user_id: user.id, images: uploadedImages }]);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error inserting product:', error);
+        throw error;
+      }
       return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
+    },
+    onError: (error) => {
+      console.error('Mutation error:', error);
     },
   });
 };

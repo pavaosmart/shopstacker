@@ -1,22 +1,37 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { useAddProduct } from '../hooks/useProducts';
+import { supabase } from '../integrations/supabase/supabase';
 
 const ProductForm = ({ onSuccess }) => {
   const { register, handleSubmit, formState: { errors } } = useForm();
   const [images, setImages] = useState([]);
   const [coverIndex, setCoverIndex] = useState(0);
+  const [isBucketReady, setIsBucketReady] = useState(false);
   const addProduct = useAddProduct();
 
+  useEffect(() => {
+    const initializeBucket = async () => {
+      await createBucketIfNotExists('products');
+      setIsBucketReady(true);
+    };
+    initializeBucket();
+  }, []);
+
   const onSubmit = async (data) => {
+    if (!isBucketReady) {
+      toast.error('Storage is not ready. Please try again in a moment.');
+      return;
+    }
+
     try {
       const productData = {
         ...data,
-        cost_price: data.price, // Usando o mesmo valor para preço e preço de custo
+        cost_price: data.price,
         images,
         cover_image_index: coverIndex
       };
@@ -24,6 +39,7 @@ const ProductForm = ({ onSuccess }) => {
       toast.success('Produto adicionado com sucesso!');
       onSuccess();
     } catch (error) {
+      console.error('Error adding product:', error);
       toast.error(`Erro ao adicionar produto: ${error.message}`);
     }
   };
@@ -34,7 +50,11 @@ const ProductForm = ({ onSuccess }) => {
       toast.error('Você pode fazer upload de no máximo 6 imagens.');
       return;
     }
-    setImages(prev => [...prev, ...files.map(file => URL.createObjectURL(file))]);
+    const newImages = files.map(file => ({
+      file,
+      preview: URL.createObjectURL(file)
+    }));
+    setImages(prev => [...prev, ...newImages]);
   };
 
   const moveImage = (fromIndex, toIndex) => {
@@ -71,47 +91,55 @@ const ProductForm = ({ onSuccess }) => {
 
       <div>
         <p className="text-sm text-gray-600 mb-2">Imagens devem ser 1200x1200 pixels, formato JPG ou PNG</p>
-        <input type="file" onChange={handleImageUpload} multiple accept="image/*" className="mb-2" />
-        <div className="flex flex-wrap gap-2">
-          {images.map((url, index) => (
-            <div key={url} className="relative">
-              <img src={url} alt={`Produto ${index + 1}`} className="w-20 h-20 object-cover rounded" />
-              {index === coverIndex && (
-                <span className="absolute top-0 left-0 bg-blue-500 text-white text-xs px-1 rounded-br">
-                  Capa
-                </span>
-              )}
+        <input 
+          type="file" 
+          onChange={handleImageUpload} 
+          multiple 
+          accept="image/*" 
+          className="mb-2"
+          disabled={!isBucketReady}
+        />
+        {!isBucketReady && (
+          <p className="text-sm text-yellow-600">Aguarde, preparando sistema de armazenamento...</p>
+        )}
+        {images.map((image, index) => (
+          <div key={index} className="relative">
+            <img src={image.preview} alt={`Produto ${index + 1}`} className="w-20 h-20 object-cover rounded" />
+            {index === coverIndex && (
+              <span className="absolute top-0 left-0 bg-blue-500 text-white text-xs px-1 rounded-br">
+                Capa
+              </span>
+            )}
+            <button 
+              type="button" 
+              onClick={() => setCoverImage(index)} 
+              className="absolute bottom-0 left-0 bg-gray-800 text-white text-xs px-1 rounded-tr"
+            >
+              {index === coverIndex ? 'Capa' : 'Definir Capa'}
+            </button>
+            {index > 0 && (
               <button 
                 type="button" 
-                onClick={() => setCoverImage(index)} 
-                className="absolute bottom-0 left-0 bg-gray-800 text-white text-xs px-1 rounded-tr"
+                onClick={() => moveImage(index, index - 1)} 
+                className="absolute bottom-0 right-0 bg-gray-800 text-white text-xs px-1 rounded-tl"
               >
-                {index === coverIndex ? 'Capa' : 'Definir Capa'}
+                ←
               </button>
-              {index > 0 && (
-                <button 
-                  type="button" 
-                  onClick={() => moveImage(index, index - 1)} 
-                  className="absolute bottom-0 right-0 bg-gray-800 text-white text-xs px-1 rounded-tl"
-                >
-                  ←
-                </button>
-              )}
-              {index < images.length - 1 && (
-                <button 
-                  type="button" 
-                  onClick={() => moveImage(index, index + 1)} 
-                  className="absolute top-0 right-0 bg-gray-800 text-white text-xs px-1 rounded-bl"
-                >
-                  →
-                </button>
-              )}
-            </div>
-          ))}
-        </div>
+            )}
+            {index < images.length - 1 && (
+              <button 
+                type="button" 
+                onClick={() => moveImage(index, index + 1)} 
+                className="absolute top-0 right-0 bg-gray-800 text-white text-xs px-1 rounded-bl"
+              >
+                →
+              </button>
+            )}
+          </div>
+        ))}
       </div>
 
-      <Button type="submit">Adicionar Produto</Button>
+      <Button type="submit" disabled={!isBucketReady}>Adicionar Produto</Button>
     </form>
   );
 };

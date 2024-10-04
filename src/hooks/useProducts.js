@@ -7,6 +7,16 @@ const fromSupabase = async (query) => {
   return data;
 };
 
+export const useProduct = (sku) => useQuery({
+  queryKey: ['products', sku],
+  queryFn: () => fromSupabase(supabase
+    .from('user_products')
+    .select('*')
+    .eq('sku', sku)
+    .single()
+  ),
+});
+
 export const useProducts = () => useQuery({
   queryKey: ['products'],
   queryFn: () => fromSupabase(supabase

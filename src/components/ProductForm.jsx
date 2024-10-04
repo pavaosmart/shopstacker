@@ -4,17 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { useAddProduct, useUpdateProduct } from '../hooks/useProducts';
-import { supabase } from '../integrations/supabase/supabase';
+import { useAddProduct } from '../hooks/useProducts';
 
-const ProductForm = ({ product, onSuccess }) => {
-  const { register, handleSubmit, formState: { errors } } = useForm({
-    defaultValues: product || {}
-  });
-  const [images, setImages] = useState(product?.images || []);
-  const [coverIndex, setCoverIndex] = useState(product?.cover_image_index || 0);
+const ProductForm = ({ onSuccess }) => {
+  const { register, handleSubmit, formState: { errors } } = useForm();
+  const [images, setImages] = useState([]);
+  const [coverIndex, setCoverIndex] = useState(0);
   const addProduct = useAddProduct();
-  const updateProduct = useUpdateProduct();
 
   const onSubmit = async (data) => {
     try {
@@ -23,42 +19,21 @@ const ProductForm = ({ product, onSuccess }) => {
         images,
         cover_image_index: coverIndex
       };
-
-      if (product) {
-        await updateProduct.mutateAsync({ id: product.id, ...productData });
-      } else {
-        await addProduct.mutateAsync(productData);
-      }
-      toast.success(`Produto ${product ? 'atualizado' : 'adicionado'} com sucesso!`);
+      await addProduct.mutateAsync(productData);
+      toast.success('Produto adicionado com sucesso!');
       onSuccess();
     } catch (error) {
-      toast.error(`Erro ao ${product ? 'atualizar' : 'adicionar'} produto: ${error.message}`);
+      toast.error(`Erro ao adicionar produto: ${error.message}`);
     }
   };
 
-  const handleImageUpload = async (e) => {
+  const handleImageUpload = (e) => {
     const files = Array.from(e.target.files);
     if (images.length + files.length > 6) {
       toast.error('Você pode fazer upload de no máximo 6 imagens.');
       return;
     }
-
-    for (const file of files) {
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Math.random()}.${fileExt}`;
-      const { data, error } = await supabase.storage
-        .from('product-images')
-        .upload(fileName, file);
-
-      if (error) {
-        toast.error(`Erro ao fazer upload da imagem: ${error.message}`);
-      } else {
-        const { data: { publicUrl } } = supabase.storage
-          .from('product-images')
-          .getPublicUrl(fileName);
-        setImages(prev => [...prev, publicUrl]);
-      }
-    }
+    setImages(prev => [...prev, ...files.map(file => URL.createObjectURL(file))]);
   };
 
   const moveImage = (fromIndex, toIndex) => {
@@ -76,7 +51,7 @@ const ProductForm = ({ product, onSuccess }) => {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      <Input {...register("name", { required: "Nome é obrigatório" })} placeholder="Nome do Produto" />
+      <Input {...register("name", { required: "Nome é obrigatório" })} placeholder="Título do Produto" />
       {errors.name && <p className="text-red-500">{errors.name.message}</p>}
 
       <Textarea {...register("description")} placeholder="Descrição do Produto" />
@@ -84,8 +59,14 @@ const ProductForm = ({ product, onSuccess }) => {
       <Input {...register("price", { required: "Preço é obrigatório", min: 0 })} type="number" step="0.01" placeholder="Preço" />
       {errors.price && <p className="text-red-500">{errors.price.message}</p>}
 
+      <Input {...register("sku", { required: "SKU é obrigatório" })} placeholder="SKU" />
+      {errors.sku && <p className="text-red-500">{errors.sku.message}</p>}
+
       <Input {...register("stock_quantity", { required: "Quantidade em estoque é obrigatória", min: 0 })} type="number" placeholder="Quantidade em Estoque" />
       {errors.stock_quantity && <p className="text-red-500">{errors.stock_quantity.message}</p>}
+
+      <Input {...register("suggested_price", { required: "Preço sugerido é obrigatório", min: 0 })} type="number" step="0.01" placeholder="Preço Sugerido para Venda" />
+      {errors.suggested_price && <p className="text-red-500">{errors.suggested_price.message}</p>}
 
       <div>
         <input type="file" onChange={handleImageUpload} multiple accept="image/*" className="mb-2" />
@@ -111,7 +92,7 @@ const ProductForm = ({ product, onSuccess }) => {
         </div>
       </div>
 
-      <Button type="submit">{product ? 'Atualizar' : 'Adicionar'} Produto</Button>
+      <Button type="submit">Adicionar Produto</Button>
     </form>
   );
 };

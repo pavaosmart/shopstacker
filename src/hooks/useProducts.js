@@ -11,7 +11,7 @@ export const useProduct = (sku) => useQuery({
   queryKey: ['products', sku],
   queryFn: async () => {
     if (!sku) {
-      return null; // Return null if sku is undefined
+      return null;
     }
     try {
       const { data, error } = await supabase
@@ -22,7 +22,6 @@ export const useProduct = (sku) => useQuery({
       
       if (error) {
         if (error.code === 'PGRST116') {
-          // No rows returned, which is fine, just return null
           return null;
         }
         throw error;
@@ -33,18 +32,25 @@ export const useProduct = (sku) => useQuery({
       return null;
     }
   },
-  enabled: !!sku, // Only run the query if sku is truthy
+  enabled: !!sku,
 });
 
 export const useProducts = () => useQuery({
   queryKey: ['products'],
   queryFn: async () => {
     const { data: { user } } = await supabase.auth.getUser();
-    return fromSupabase(supabase
+    const { data, error } = await supabase
       .from('user_products')
       .select('sku, name, description, price, cost_price, stock_quantity, suggested_price, images, cover_image_index')
-      .eq('user_id', user.id)
-    );
+      .eq('user_id', user.id);
+
+    if (error) throw error;
+
+    // Ensure images are properly loaded
+    return data.map(product => ({
+      ...product,
+      images: product.images || [],
+    }));
   },
 });
 
@@ -53,7 +59,33 @@ export const useAddProduct = () => {
   return useMutation({
     mutationFn: async (newProduct) => {
       const { data: { user } } = await supabase.auth.getUser();
-      return fromSupabase(supabase.from('user_products').insert([{ ...newProduct, user_id: user.id }]));
+      const { images, ...productData } = newProduct;
+
+      // Upload images first
+      const uploadedImages = await Promise.all(images.map(async (image, index) => {
+        const fileName = `${user.id}/${newProduct.sku}_${index}.jpg`;
+        const { data, error } = await supabase.storage
+          .from('products')
+          .upload(fileName, image, {
+            contentType: 'image/jpeg',
+          });
+
+        if (error) throw error;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('products')
+          .getPublicUrl(fileName);
+
+        return publicUrl;
+      }));
+
+      // Then insert the product with image URLs
+      const { data, error } = await supabase
+        .from('user_products')
+        .insert([{ ...productData, user_id: user.id, images: uploadedImages }]);
+
+      if (error) throw error;
+      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });

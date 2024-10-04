@@ -10,23 +10,24 @@ export const SupabaseAuthProvider = ({ children }) => {
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    const getSession = async () => {
-      setLoading(true);
-      const { data: { session } } = await supabase.auth.getSession();
+    supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setLoading(false);
-    };
-
-    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-      setSession(session);
-      queryClient.invalidateQueries('user');
     });
 
-    getSession();
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
+      setSession(session);
+      setLoading(false);
+      if (event === 'SIGNED_IN') {
+        queryClient.invalidateQueries('user');
+      }
+      if (event === 'SIGNED_OUT') {
+        queryClient.clear();
+      }
+    });
 
     return () => {
       authListener.subscription.unsubscribe();
-      setLoading(false);
     };
   }, [queryClient]);
 

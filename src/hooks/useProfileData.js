@@ -24,6 +24,7 @@ export const useProfileData = () => {
 
       if (error) {
         if (error.code === 'PGRST116') {
+          // Profile doesn't exist, create a new one
           await createNewProfile();
           return;
         }
@@ -69,7 +70,7 @@ export const useProfileData = () => {
       if (error) throw error;
 
       toast.success('New profile created');
-      fetchUserProfile();
+      fetchUserProfile(); // Fetch the newly created profile
     } catch (error) {
       console.error('Error creating new profile:', error);
       toast.error('Failed to create new profile');

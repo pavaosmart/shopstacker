@@ -32,6 +32,7 @@ export const useProfileData = () => {
 
       if (profile) {
         setProfileData({
+          id: session.user.id,
           fullName: profile.full_name || '',
           email: session.user.email || '',
           phone: profile.phone || '',
@@ -80,7 +81,25 @@ export const useProfileData = () => {
     try {
       const { error } = await supabase
         .from('profiles')
-        .upsert({ id: session.user.id, ...updatedData });
+        .upsert({
+          id: session.user.id,
+          full_name: updatedData.fullName,
+          phone: updatedData.phone,
+          avatar_url: updatedData.avatarUrl,
+          company_name: updatedData.companyName,
+          position: updatedData.position,
+          industry: updatedData.industry,
+          bank_name: updatedData.bankName,
+          account_number: updatedData.accountNumber,
+          routing_number: updatedData.routingNumber,
+          cep: updatedData.cep,
+          street: updatedData.street,
+          number: updatedData.number,
+          complement: updatedData.complement,
+          neighborhood: updatedData.neighborhood,
+          city: updatedData.city,
+          state: updatedData.state,
+        });
 
       if (error) throw error;
       setProfileData((prev) => ({ ...prev, ...updatedData }));
